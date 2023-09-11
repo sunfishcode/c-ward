@@ -4,7 +4,7 @@ version = "0.12.0"
 authors = [
     "Dan Gohman <dev@sunfishcode.online>",
 ]
-description = "Rust programs written entirely in Rust"
+description = "An implementation of libc written in Rust"
 license = "Apache-2.0 WITH LLVM-exception OR Apache-2.0 OR MIT"
 repository = "https://github.com/sunfishcode/c-ward"
 edition = "2021"

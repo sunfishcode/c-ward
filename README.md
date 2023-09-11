@@ -35,7 +35,9 @@ c-ward has two main cargo features: "take-charge" and "coexist-with-libc". One
 of these must be enabled.
 
 In "take-charge" mode, c-ward takes charge of the process, handling program
-startup (via origin) providing `malloc` (via c-scape), and other things.
+startup (via origin) providing `malloc` (via c-scape), and other things. This
+requires some additional setup; see the [c-scape-example] and [c-scape-example]
+example crates for more details.
 
 In "coexist-with-libc" mode, c-ward can be used as a drop-in (partial) libc
 replacement, provided you're using nightly Rust.
@@ -47,3 +49,5 @@ Another libc implementation is [relibc].
 [c-scape]: https://crates.io/crates/c-scape
 [c-gull]: https://crates.io/crates/c-gull
 [relibc]: https://gitlab.redox-os.org/redox-os/relibc/
+[c-scape-example]: https://github.com/sunfishcode/c-ward/blob/main/example-crates/c-scape-example
+[c-gull-example]: https://github.com/sunfishcode/c-ward/blob/main/example-crates/c-gull-example

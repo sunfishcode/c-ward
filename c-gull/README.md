@@ -38,7 +38,9 @@ c-gull has two main cargo features: "take-charge" and "coexist-with-libc". One
 of these must be enabled.
 
 In "take-charge" mode, c-gull takes charge of the process, handling program
-startup (via origin) providing `malloc` (via c-scape), and other things.
+startup (via origin) providing `malloc` (via c-scape), and other things. This
+requires some additional setup; see the [c-gull-example] example crate for
+more details.
 
 In "coexist-with-libc" mode, c-gull can be used as a drop-in (partial) libc
 replacement, provided you're using nightly Rust. To use it, just change your
@@ -65,3 +67,4 @@ See the [libc-replacement example] for more details.
 [realpath-ext]: https://crates.io/crates/realpath-ext
 [tz-rs]: https://crates.io/crates/tz-rs
 [printf-compat]: https://crates.io/crates/printf-compat
+[c-gull-example]: https://github.com/sunfishcode/c-ward/blob/main/example-crates/c-gull-example

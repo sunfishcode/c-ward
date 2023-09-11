@@ -8,6 +8,14 @@
 
 extern crate libc;
 
+#[panic_handler]
+fn panic(_panic: &core::panic::PanicInfo<'_>) -> ! {
+    core::intrinsics::abort()
+}
+
+#[lang = "eh_personality"]
+extern "C" fn eh_personality() {}
+
 #[global_allocator]
 static GLOBAL_ALLOCATOR: rustix_dlmalloc::GlobalDlmalloc = rustix_dlmalloc::GlobalDlmalloc;
 

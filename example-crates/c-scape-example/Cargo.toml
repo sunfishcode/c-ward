@@ -7,7 +7,7 @@ publish = false
 [dependencies]
 # Disable the default features, and enable "take-charge" mode.
 libc = { path = "../../c-scape", default-features = false, features = ["take-charge", "thread"], package = "c-scape" }
-errno = "0.3.3"
+errno = { version = "0.3.3", default-features = false }
 
 rustix-dlmalloc = { version = "0.1.0", features = ["global"] }
 

@@ -17,9 +17,10 @@
 
 c-ward is an implementation of the libc ABI written in Rust.
 
-It is split into two crates:
+It consists of two crates:
  - [c-scape], which is `no_std`, and
- - [c-gull], which pulls in c-scape and provides additional features using `std`.
+ - [c-gull], which pulls in c-scape and additionally provides features
+   using `std`.
 
 It is a goal of c-ward to be a C ABI layer on top of Rust-idomatic
 libraries, rather than to have significant implementation code of

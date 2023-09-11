@@ -1,6 +1,8 @@
 //! Run the programs in the `example-crates` directory and compare their
 //! outputs with expected outputs.
 
+#![feature(cfg_target_abi)]
+
 use std::sync::OnceLock;
 
 fn test_crate(
@@ -13,8 +15,26 @@ fn test_crate(
 ) {
     use assert_cmd::Command;
 
+    #[cfg(target_arch = "x86_64")]
+    let arch = "x86_64";
+    #[cfg(target_arch = "aarch64")]
+    let arch = "aarch64";
+    #[cfg(target_arch = "riscv64")]
+    let arch = "riscv64gc";
+    #[cfg(target_arch = "x86")]
+    let arch = "i686";
+    #[cfg(target_arch = "arm")]
+    let arch = "armv5te";
+    #[cfg(target_env = "gnueabi")]
+    let env = "gnueabi";
+    #[cfg(all(target_env = "gnu", target_abi = "eabi"))]
+    let env = "gnueabi";
+    #[cfg(all(target_env = "gnu", not(target_abi = "eabi")))]
+    let env = "gnu";
+
     let mut command = Command::new("cargo");
     command.arg("run").arg("--quiet");
+    command.arg(&format!("--target={}-unknown-linux-{}", arch, env));
     command.args(args);
     command.envs(envs.iter().cloned());
     command.current_dir(format!("example-crates/{}", name));

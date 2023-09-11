@@ -736,7 +736,7 @@ unsafe extern "C" fn __cxa_thread_atexit_impl(
     0
 }
 
-#[cfg(feature = "threads")]
+#[cfg(feature = "thread")]
 #[no_mangle]
 unsafe extern "C" fn __tls_get_addr(p: &[usize; 2]) -> *mut c_void {
     //libc!(libc::__tls_get_addr(p));

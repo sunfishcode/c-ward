@@ -63,7 +63,7 @@ pub(crate) unsafe fn fork() -> rustix::io::Result<Option<rustix::process::Pid>> 
         None => {
             // The child's thread record is copied from the parent;
             // update it with the child's current-thread-id.
-            #[cfg(feature = "threads")]
+            #[cfg(feature = "thread")]
             origin::thread::set_current_thread_id_after_a_fork(rustix::thread::gettid());
 
             // Callbacks after calling `fork`, in the child.

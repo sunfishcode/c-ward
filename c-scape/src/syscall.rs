@@ -1,8 +1,8 @@
-use crate::convert_res;
-use core::mem::zeroed;
-use core::ptr::{self, null};
+use core::ptr;
 use errno::{set_errno, Errno};
 use libc::{c_char, c_int, c_long, c_void};
+#[cfg(feature = "thread")]
+use {crate::convert_res, core::mem::zeroed, core::ptr::null};
 
 // `syscall` usually returns `long`, but we make it a pointer type so that it
 // preserves provenance.
@@ -16,7 +16,7 @@ unsafe extern "C" fn syscall(number: c_long, mut args: ...) -> *mut c_void {
             let flags = args.arg::<u32>();
             ptr::invalid_mut(libc::getrandom(buf, len, flags) as _)
         }
-        #[cfg(feature = "threads")]
+        #[cfg(feature = "thread")]
         libc::SYS_futex => {
             use rustix::thread::{futex, FutexFlags, FutexOperation};
 

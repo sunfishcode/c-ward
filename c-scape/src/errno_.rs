@@ -13,7 +13,7 @@ use libc::{c_char, c_int};
 unsafe extern "C" fn __errno_location() -> *mut c_int {
     libc!(libc::__errno_location());
 
-    #[cfg_attr(feature = "threads", thread_local)]
+    #[cfg_attr(feature = "thread", thread_local)]
     static mut ERRNO: i32 = 0;
     &mut ERRNO
 }

@@ -71,7 +71,7 @@ mod rand48;
 mod signal;
 mod termios_;
 
-#[cfg(feature = "threads")]
+#[cfg(feature = "thread")]
 #[cfg(feature = "take-charge")]
 mod threads;
 

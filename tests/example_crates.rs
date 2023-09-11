@@ -41,3 +41,13 @@ fn example_crate_libc_replacement() {
 
     test_crate("libc-replacement", &[], &[], &expected, "", None);
 }
+
+#[test]
+fn example_crate_c_gull_example() {
+    test_crate("c-gull-example", &[], &[], "Hello, world!\n", "", None);
+}
+
+#[test]
+fn example_crate_c_scape_example() {
+    test_crate("c-scape-example", &[], &[], "Hello, world!\n", "", None);
+}

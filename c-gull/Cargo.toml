@@ -26,8 +26,8 @@ rustix = { version = "0.38.10", default-features = false, optional = true, featu
 libc = "0.2.138"
 
 [features]
-default = ["threads", "std", "coexist-with-libc"]
-threads = ["c-scape/threads"]
+default = ["thread", "std", "coexist-with-libc"]
+thread = ["c-scape/thread"]
 std = ["c-scape/std", "rustix", "log", "printf-compat", "tz-rs", "errno", "sync-resolve"]
 
 # One of the following two features must be enabled:

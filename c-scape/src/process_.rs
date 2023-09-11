@@ -54,7 +54,11 @@ unsafe extern "C" fn sysconf(name: c_int) -> c_long {
 #[no_mangle]
 unsafe extern "C" fn getauxval(type_: c_ulong) -> *mut c_void {
     libc!(ptr::from_exposed_addr_mut(libc::getauxval(type_) as _));
-    unimplemented!("unrecognized getauxval {}", type_)
+    match type_ {
+        libc::AT_HWCAP => ptr::invalid_mut(rustix::param::linux_hwcap().0),
+        libc::AT_HWCAP2 => ptr::invalid_mut(rustix::param::linux_hwcap().1),
+        _ => unimplemented!("unrecognized __getauxval {}", type_),
+    }
 }
 
 // As with `getauxval`, this is not used in coexist-with-libc configurations
@@ -67,6 +71,7 @@ unsafe extern "C" fn __getauxval(type_: c_ulong) -> *mut c_void {
     //libc!(ptr::from_exposed_addr(libc::__getauxval(type_) as _));
     match type_ {
         libc::AT_HWCAP => ptr::invalid_mut(rustix::param::linux_hwcap().0),
+        libc::AT_HWCAP2 => ptr::invalid_mut(rustix::param::linux_hwcap().1),
         _ => unimplemented!("unrecognized __getauxval {}", type_),
     }
 }

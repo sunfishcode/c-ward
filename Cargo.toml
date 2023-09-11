@@ -1,0 +1,22 @@
+[package]
+name = "c-ward"
+version = "0.11.0"
+authors = [
+    "Dan Gohman <dev@sunfishcode.online>",
+]
+description = "Rust programs written entirely in Rust"
+license = "Apache-2.0 WITH LLVM-exception OR Apache-2.0 OR MIT"
+repository = "https://github.com/sunfishcode/c-ward"
+edition = "2021"
+exclude = ["/.github"]
+publish = false
+
+[dev-dependencies]
+assert_cmd = "2.0.12"
+libc = "0.2.147"
+
+[workspace]
+members = [
+  "c-scape",
+  "c-gull",
+]

@@ -1,8 +1,4 @@
 //! Termios APIs
-//!
-//! TODO: Clean this up. I think I made the wrong call in rustix, and `Termios`
-//! should contain the `termios2` fields. When that's cleaned up, this file can
-//! be significantly cleaned up.
 
 use crate::convert_res;
 use core::cell::SyncUnsafeCell;

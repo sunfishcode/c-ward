@@ -195,7 +195,7 @@ unsafe extern "C" fn sigaddset(sigset: *mut sigset_t, signum: c_int) -> c_int {
 
     let sig_index = (signum - 1) as usize;
     let mut x = sigset.cast::<usize>().add(sig_index / 8).read();
-    x |= 1_usize << (sig_index % (8 * size_of::<usize>()));
+    x |= 1_usize << (sig_index % usize::BITS as usize);
     sigset.cast::<usize>().add(sig_index / 8).write(x);
     0
 }
@@ -211,7 +211,7 @@ unsafe extern "C" fn sigdelset(sigset: *mut sigset_t, signum: c_int) -> c_int {
 
     let sig_index = (signum - 1) as usize;
     let mut x = sigset.cast::<usize>().add(sig_index / 8).read();
-    x &= !(1_usize << (sig_index % (8 * size_of::<usize>())));
+    x &= !(1_usize << (sig_index % usize::BITS as usize));
     sigset.cast::<usize>().add(sig_index / 8).write(x);
     0
 }
@@ -243,7 +243,7 @@ unsafe extern "C" fn sigismember(sigset: *const sigset_t, signum: c_int) -> c_in
 
     let sig_index = (signum - 1) as usize;
     let x = sigset.cast::<usize>().add(sig_index / 8).read();
-    ((x & (1_usize << (sig_index % (8 * size_of::<usize>())))) != 0) as c_int
+    ((x & (1_usize << (sig_index % usize::BITS as usize))) != 0) as c_int
 }
 
 #[no_mangle]

@@ -42,6 +42,12 @@ default = ["thread", "std", "coexist-with-libc"]
 thread = ["origin/set_thread_id"]
 std = ["rustix/std"]
 
+# In "take-charge" mode, this enables code in c-scape to define the
+# `origin_start` function documented [here] and call a C ABI-compatible
+# extern `main` function.
+# [here]: https://docs.rs/origin/latest/origin/program/index.html
+call-main = []
+
 # One of the following two features must be enabled:
 
 # Enable this to tell c-scape to take control of the process.

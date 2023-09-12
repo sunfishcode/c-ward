@@ -111,6 +111,8 @@ unsafe impl Send for UnsafeSendSyncVoidStar {}
 unsafe impl Sync for UnsafeSendSyncVoidStar {}
 
 /// Adapt from origin's `origin_main` to a C ABI `main`.
+#[cfg(feature = "take-charge")]
+#[cfg(feature = "call-main")]
 #[no_mangle]
 fn origin_main(argc: usize, argv: *mut *mut u8, envp: *mut *mut u8) -> i32 {
     extern "C" {

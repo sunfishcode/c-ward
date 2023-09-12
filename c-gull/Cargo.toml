@@ -30,6 +30,12 @@ default = ["thread", "std", "coexist-with-libc"]
 thread = ["c-scape/thread"]
 std = ["c-scape/std", "rustix", "log", "printf-compat", "tz-rs", "errno", "sync-resolve"]
 
+# In "take-charge" mode, this enables code in c-scape to define the
+# `origin_start` function documented [here] and call a C ABI-compatible
+# extern `main` function.
+# [here]: https://docs.rs/origin/latest/origin/program/index.html
+call-main = ["c-scape/call-main"]
+
 # One of the following two features must be enabled:
 
 # Enable this to tell c-gull to take control of the process.

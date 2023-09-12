@@ -1,9 +1,34 @@
+//! `malloc`/`free`/etc. functions.
+//!
+//! TODO: Use `alloc_zeroed` and `realloc` instead of doing the work
+//! ourselves, which might let allocators be more efficient.
+
 #[cfg(not(target_arch = "riscv64"))]
 use core::mem::align_of;
 use core::mem::size_of;
 use core::ptr;
 use errno::{set_errno, Errno};
 use libc::{c_int, c_void, memcpy, memset};
+
+// Decide which underlying allocator to use.
+
+#[cfg(not(any(
+    feature = "malloc-via-rust-global-alloc",
+    feature = "malloc-via-crates"
+)))]
+compile_error!("One of the malloc implementation features must be enabled.");
+
+#[cfg(feature = "malloc-via-rust-global-alloc")]
+use alloc::alloc::{alloc as the_alloc, dealloc as the_dealloc};
+
+#[cfg(feature = "malloc-via-crates")]
+unsafe fn the_alloc(layout: alloc::alloc::Layout) -> *mut u8 {
+    core::alloc::GlobalAlloc::alloc(&rustix_dlmalloc::GlobalDlmalloc, layout)
+}
+#[cfg(feature = "malloc-via-crates")]
+unsafe fn the_dealloc(ptr: *mut u8, layout: alloc::alloc::Layout) {
+    core::alloc::GlobalAlloc::dealloc(&rustix_dlmalloc::GlobalDlmalloc, ptr, layout)
+}
 
 #[repr(C)]
 #[derive(Clone, Copy, Debug)]
@@ -26,7 +51,7 @@ fn tagged_alloc(type_layout: alloc::alloc::Layout) -> *mut u8 {
         align: type_layout.align(),
     };
     if let Ok((total_layout, offset)) = tag_layout.extend(type_layout) {
-        let total_ptr = unsafe { alloc::alloc::alloc(total_layout) };
+        let total_ptr = unsafe { the_alloc(total_layout) };
         if total_ptr.is_null() {
             return total_ptr;
         }
@@ -61,7 +86,7 @@ unsafe fn tagged_dealloc(ptr: *mut u8) {
     let type_layout = get_layout(ptr);
     if let Ok((total_layout, offset)) = tag_layout.extend(type_layout) {
         let total_ptr = ptr.wrapping_sub(offset);
-        alloc::alloc::dealloc(total_ptr, total_layout);
+        the_dealloc(total_ptr, total_layout);
     }
 }
 

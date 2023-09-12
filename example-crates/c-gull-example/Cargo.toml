@@ -5,10 +5,7 @@ edition = "2021"
 publish = false
 
 [dependencies]
-# Disable the default features, and enable "take-charge" mode.
-libc = { path = "../../c-gull", default-features = false, features = ["take-charge", "std", "thread", "call-main"], package = "c-gull" }
-
-rustix-dlmalloc = { version = "0.1.0", features = ["global"] }
+libc = { path = "../../c-gull", default-features = false, features = ["take-charge", "std", "thread", "call-main", "malloc-via-crates", "define-mem-functions"], package = "c-gull" }
 
 # This is just an example crate, and not part of the c-ward workspace.
 [workspace]

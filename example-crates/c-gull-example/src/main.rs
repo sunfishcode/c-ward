@@ -1,19 +1,13 @@
-//! A simple example using `no_main` and "take-charge" mode.
+//! A simple example using "take-charge" mode. Origin starts the process,
+//! calls `origin_main`, which transfers control to c-scape which calls the
+//! C-ABI-compatible extern `main` definition, which transfers control to
+//! the Rust std initialization code, which calls the user `main` function
+//! here.
+//!
+//! The end result is that we get all of `std`, using c-gull to implement
+//! all the libc calls underneath, and we can write totally normal Rust code.
 
-#![no_main]
-#![allow(internal_features)]
-#![feature(lang_items)]
-#![feature(core_intrinsics)]
-
-extern crate libc;
-
-#[global_allocator]
-static GLOBAL_ALLOCATOR: rustix_dlmalloc::GlobalDlmalloc = rustix_dlmalloc::GlobalDlmalloc;
-
-#[no_mangle]
-unsafe extern "C" fn main(_argc: i32, _argv: *const *const u8, _envp: *const *const u8) -> i32 {
-    // Call functions declared in the `libc` crate, which will be resolved by
-    // c-gull and c-scape.
-    libc::printf("Hello, world!\n\0".as_ptr().cast());
-    libc::exit(0);
+fn main() {
+    println!("Hello world using Rust `println!`!");
+    unsafe { libc::printf("Hello world using libc `printf`!\n\0".as_ptr().cast()); }
 }

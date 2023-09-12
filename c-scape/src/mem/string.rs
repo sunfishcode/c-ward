@@ -136,7 +136,7 @@ unsafe extern "C" fn strcspn(s: *const c_char, m: *const c_char) -> usize {
 unsafe extern "C" fn strdup(s: *const c_char) -> *mut c_char {
     libc!(libc::strdup(s));
 
-    let len = strlen(s);
+    let len = libc::strlen(s);
     let d = malloc(len + 1);
     if !d.is_null() {
         memcpy(d, s.cast(), len + 1);
@@ -144,6 +144,7 @@ unsafe extern "C" fn strdup(s: *const c_char) -> *mut c_char {
     d.cast()
 }
 
+#[cfg(feature = "define-mem-functions")]
 #[no_mangle]
 unsafe extern "C" fn strlen(s: *const c_char) -> usize {
     libc!(libc::strlen(s));

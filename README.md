@@ -17,10 +17,12 @@
 
 c-ward is an implementation of the libc ABI written in Rust.
 
-It consists of two crates:
+It consists of three crates:
  - [c-scape], which is `no_std`, and
  - [c-gull], which pulls in c-scape and additionally provides features
    using `std`.
+ - [eyra], which provides a friendly wrapper to make it easy to
+   build Rust programs entirely in Rust.
 
 It is a goal of c-ward to be a C ABI layer on top of Rust-idomatic
 libraries, rather than to have significant implementation code of
@@ -30,25 +32,13 @@ In theory c-ward could be extended to be ABI-compatible with different
 platforms, however currently it is only known to be ABI-compatible with
 *-unknown-linux-gnu* platforms.
 
-## c-ward's two modes
-
-c-ward has two main cargo features: "take-charge" and "coexist-with-libc". One
-of these must be enabled.
-
-In "take-charge" mode, c-ward takes charge of the process, handling program
-startup (via origin) providing `malloc` (via c-scape), and other things. This
-requires some additional setup; see the [c-scape-example] and [c-scape-example]
-example crates for more details.
-
-In "coexist-with-libc" mode, c-ward can be used as a drop-in (partial) libc
-replacement, provided you're using nightly Rust.
-
 ## Similar crates
 
 Another libc implementation is [relibc].
 
-[c-scape]: https://crates.io/crates/c-scape
-[c-gull]: https://crates.io/crates/c-gull
+[c-scape]: https://github.com/sunfishcode/c-ward/tree/main/c-scape
+[c-gull]: https://github.com/sunfishcode/c-ward/tree/main/c-gull
+[eyra]: https://github.com/sunfishcode/c-ward/tree/main/eyra
 [relibc]: https://gitlab.redox-os.org/redox-os/relibc/
 [c-scape-example]: https://github.com/sunfishcode/c-ward/blob/main/example-crates/c-scape-example
 [c-gull-example]: https://github.com/sunfishcode/c-ward/blob/main/example-crates/c-gull-example

@@ -9,6 +9,8 @@ documentation = "https://docs.rs/c-scape"
 license = "Apache-2.0 WITH LLVM-exception OR Apache-2.0 OR MIT"
 repository = "https://github.com/sunfishcode/c-ward"
 edition = "2021"
+keywords = ["linux", "libc", "no_std"]
+categories = ["no-std"]
 
 [build-dependencies]
 # Enable the cc dependency to build the empty `libc.a` and similar libraries
@@ -30,6 +32,7 @@ errno = { version = "0.3.3", default-features = false }
 rand_pcg = "0.3.1"
 rand_core = "0.6.4"
 rand = { version = "0.8.5", default-features = false }
+rustix-dlmalloc = { version = "0.1.0", optional = true }
 
 [dev-dependencies]
 libc = "0.2.138"
@@ -46,6 +49,11 @@ std = ["rustix/std"]
 # [here]: https://docs.rs/origin/latest/origin/program/index.html
 call-main = []
 
+# Should c-scape provide C ABI definitions of `memcpy` etc. (using
+# `compiler_builtins::mem`) or should it rely on `compiler_builtins`
+# being linked in and providing those definitions?
+define-mem-functions = []
+
 # One of the following two features must be enabled:
 
 # Enable this to tell c-scape to take control of the process.
@@ -54,3 +62,12 @@ take-charge = ["origin/origin-start", "origin/origin-thread", "origin/origin-sig
 # Enable this to tell c-scape to let a libc be in control of
 # the process.
 coexist-with-libc = ["origin/libc"]
+
+# One of the following two features must be enabled:
+
+# Enable to this to implement `malloc` using Rust's global allocator.
+malloc-via-rust-global-alloc = []
+
+# Enable to this to implement `malloc` using third-party crates, which
+# is useful to do when using the Rust global allocator is using `malloc`.
+malloc-via-crates = ["rustix-dlmalloc/global"]

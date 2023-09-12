@@ -1,10 +1,6 @@
 use crate::{convert_res, set_errno, Errno};
-use libc::{c_int, c_uint, RLIM_INFINITY};
+use libc::{c_int, c_uint, RLIM64_INFINITY, RLIM_INFINITY};
 use rustix::process::{Pid, Resource, Rlimit};
-
-// TODO: Upstream this to libc.
-#[cfg(target_os = "linux")]
-const RLIM64_INFINITY: libc::rlim64_t = !0;
 
 #[no_mangle]
 unsafe extern "C" fn prlimit(

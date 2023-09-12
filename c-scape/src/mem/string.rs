@@ -148,12 +148,7 @@ unsafe extern "C" fn strdup(s: *const c_char) -> *mut c_char {
 unsafe extern "C" fn strlen(s: *const c_char) -> usize {
     libc!(libc::strlen(s));
 
-    let mut w = s;
-    while *w != NUL {
-        w = w.add(1);
-    }
-
-    w.offset_from(s) as usize
+    compiler_builtins::mem::strlen(s)
 }
 
 #[no_mangle]

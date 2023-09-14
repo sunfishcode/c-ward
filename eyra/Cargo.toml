@@ -12,4 +12,4 @@ edition = "2021"
 keywords = ["linux"]
 
 [dependencies]
-libc = { path = "../c-gull", default-features = false, features = ["eyra"], package = "c-gull" }
+libc = { path = "../c-gull", version = "0.14.0", default-features = false, features = ["eyra"], package = "c-gull" }

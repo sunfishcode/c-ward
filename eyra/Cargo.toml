@@ -13,7 +13,3 @@ keywords = ["linux"]
 
 [dependencies]
 libc = { path = "../c-gull", default-features = false, features = ["eyra"], package = "c-gull" }
-
-[features]
-default = ["enabled"]
-enabled = []

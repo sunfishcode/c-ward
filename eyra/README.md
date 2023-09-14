@@ -28,7 +28,7 @@ Eyra needs three things. First, a cargo.toml dependency:
 
 ```toml
 [dependencies]
-libc = { "<current-version>", package = "eyra" }
+libc = { version = "<current-version>", package = "eyra" }
 ```
 
 This uses the trick of calling the library `libc` while actually using

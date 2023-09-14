@@ -64,10 +64,46 @@ fn example_crate_libc_replacement() {
 
 #[test]
 fn example_crate_c_gull_example() {
-    test_crate("c-gull-example", &[], &[], "Hello, world!\n", "", None);
+    test_crate(
+        "c-gull-example",
+        &[],
+        &[],
+        "Hello world using Rust `println!`!\nHello world using libc `printf`!\n",
+        "",
+        None,
+    );
+}
+
+#[test]
+fn example_crate_custom_allocator() {
+    test_crate(
+        "custom-allocator",
+        &[],
+        &[],
+        "Hello world using Rust `println!`!\nHello world using libc `printf`!\n",
+        "",
+        None,
+    );
 }
 
 #[test]
 fn example_crate_c_scape_example() {
     test_crate("c-scape-example", &[], &[], "Hello, world!\n", "", None);
+}
+
+#[test]
+fn example_crate_eyra_example() {
+    test_crate("eyra-example", &[], &[], "Hello, world!\n", "", None);
+}
+
+#[test]
+fn example_crate_eyra_libc_example() {
+    test_crate(
+        "eyra-libc-example",
+        &[],
+        &[],
+        "Hello world using Rust `println!`!\nHello world using libc `printf`!\n",
+        "",
+        None,
+    );
 }

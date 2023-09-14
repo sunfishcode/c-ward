@@ -6,8 +6,6 @@
 #![feature(lang_items)]
 #![feature(core_intrinsics)]
 
-extern crate libc;
-
 #[panic_handler]
 fn panic(_panic: &core::panic::PanicInfo<'_>) -> ! {
     core::intrinsics::abort()

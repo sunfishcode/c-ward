@@ -20,7 +20,7 @@ in Rust.
 
 Check out [this hello world example].
 
-[this hello world example]: https://github.com/sunfishcode/c-ward/tree/main/example-crates/eyra
+[this hello world example]: https://github.com/sunfishcode/c-ward/tree/main/example-crates/eyra-example
 
 ## In detail
 

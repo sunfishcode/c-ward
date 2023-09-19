@@ -66,7 +66,7 @@ implemented in Rust.
 ## Background
 
 Eyra is similar to [Mustang] and uses the same underlying code, but instead
-of using a custom target and -Z build-std, Eyra just by needs users to add
+of using a custom target and -Z build-std, Eyra just needs users to add
 `-nostartfiles` to their link line, such as via build.rs in the example.
 
 Like Mustang, Eyra currently runs on Rust Nightly on Linux on x86-64, x86,

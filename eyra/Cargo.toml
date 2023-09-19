@@ -13,3 +13,16 @@ keywords = ["linux"]
 
 [dependencies]
 libc = { path = "../c-gull", version = "0.14.0", default-features = false, features = ["eyra"], package = "c-gull" }
+
+[features]
+default = []
+
+# Enable logging of program and thread startup and shutdown.
+log = ["libc/log"]
+
+# Install the `env_logger` crate as a logger.
+env_logger = ["libc/env_logger"]
+
+# Enable highly experimental support for performing startup-time relocations,
+# needed to support statically-linked PIE executables.
+experimental-relocate = ["libc/experimental-relocate"]

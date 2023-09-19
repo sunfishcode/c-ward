@@ -22,5 +22,5 @@ Similar to c-gull, c-scape has "take-charge" and "coexist-with-libc" modes.
 "take-charge" mode requires some additional setup; see the [c-scape-example]
 example crate for more details.
 
-[c-gull]: https://crates.io/crates/c-gull
+[c-gull]: https://github.com/sunfishcode/c-ward/tree/main/c-gull
 [c-scape-example]: https://github.com/sunfishcode/c-ward/blob/main/example-crates/c-scape-example

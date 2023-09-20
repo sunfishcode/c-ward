@@ -36,9 +36,9 @@ platforms, however currently it is only known to be ABI-compatible with
 
 Another libc implementation is [relibc].
 
-[c-scape]: https://github.com/sunfishcode/c-ward/tree/main/c-scape
-[c-gull]: https://github.com/sunfishcode/c-ward/tree/main/c-gull
-[eyra]: https://github.com/sunfishcode/c-ward/tree/main/eyra
+[c-scape]: https://github.com/sunfishcode/c-ward/tree/main/c-scape#readme
+[c-gull]: https://github.com/sunfishcode/c-ward/tree/main/c-gull#readme
+[eyra]: https://github.com/sunfishcode/c-ward/tree/main/eyra#readme
 [relibc]: https://gitlab.redox-os.org/redox-os/relibc/
 [c-scape-example]: https://github.com/sunfishcode/c-ward/blob/main/example-crates/c-scape-example
 [c-gull-example]: https://github.com/sunfishcode/c-ward/blob/main/example-crates/c-gull-example

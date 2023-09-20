@@ -5,9 +5,9 @@ use std::env::var;
 fn main() {
     let take_charge = var("CARGO_FEATURE_TAKE_CHARGE").is_ok();
 
-    // In take-charge builds, do nothing. In mustang builds, link in empty
-    // versions of libc.a and other libraries, to prevent the linker from
-    // linking in the system versions.
+    // In coexist-with-libc builds, do nothing. But in take-charge builds, add
+    // empty versions of libc.a and other libraries to the linker commandline,
+    // to prevent the linker from finding and linking in the system versions.
     if take_charge {
         for name in &[
             "gcc", "gcc_s", "util", "rt", "pthread", "m", "dl", "c", "crypt", "xnet", "resolv",

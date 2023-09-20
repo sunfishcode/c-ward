@@ -14,7 +14,8 @@
 </div>
 
 Eyra is a package that supports building Rust programs implemented entirely
-in Rust.
+in Rust. It's complete enough to run programs like ripgrep and
+uutils coreutils.
 
 It uses [Origin] for program and thread startup and shutdown, and [c-gull] for
 ABI-compatible libc functions.

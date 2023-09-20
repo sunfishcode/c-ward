@@ -31,7 +31,7 @@ Check out [this hello world example].
 
 ## In detail
 
-Eyra needs three things. First, a cargo.toml dependency:
+Eyra needs three things. First, a Cargo.toml dependency:
 
 ```toml
 [dependencies]

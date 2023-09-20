@@ -36,6 +36,13 @@ fn test_crate(
     command.arg("run").arg("--quiet");
     command.arg(&format!("--target={}-unknown-linux-{}", arch, env));
     command.args(args);
+
+    // Special-case "eyra-panic-example" to disable "RUST_BACKTRACE", so that
+    // the stderr message is reproducible.
+    if name == "eyra-panic-example" {
+        command.env_remove("RUST_BACKTRACE");
+    }
+
     command.envs(envs.iter().cloned());
     command.current_dir(format!("example-crates/{}", name));
     let assert = command.assert();

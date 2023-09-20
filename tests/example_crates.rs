@@ -36,6 +36,13 @@ fn test_crate(
     command.arg("run").arg("--quiet");
     command.arg(&format!("--target={}-unknown-linux-{}", arch, env));
     command.args(args);
+
+    // Special-case "eyra-panic-example" to disable "RUST_BACKTRACE", so that
+    // the stderr message is reproducible.
+    if name == "eyra-panic-example" {
+        command.env_remove("RUST_BACKTRACE");
+    }
+
     command.envs(envs.iter().cloned());
     command.current_dir(format!("example-crates/{}", name));
     let assert = command.assert();
@@ -105,5 +112,17 @@ fn example_crate_eyra_libc_example() {
         "Hello world using Rust `println!`!\nHello world using libc `printf`!\n",
         "",
         None,
+    );
+}
+
+#[test]
+fn example_crate_eyra_panic_example() {
+    test_crate(
+        "eyra-panic-example",
+        &[],
+        &[],
+        "",
+        "thread 'main' panicked at src/main.rs:4:5:\nUh oh!\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n",
+        Some(101)
     );
 }

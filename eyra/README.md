@@ -77,6 +77,7 @@ libc = { version = "<current-version>", package = "eyra", features = ["log", "en
 With this, and setting the `RUST_LOG` environment variable to "trace", the
 hello world program output like this:
 
+```
 [TRACE origin::program] Program started
 [TRACE origin::thread] Main Thread[Pid(51383)] initialized
 [TRACE origin::program] Calling `.init_array`-registered function `0x55e86306bb80(1, 0x7ffd0f76aad8, 0x7ffd0f76aae8)`
@@ -86,6 +87,7 @@ Hello, world!
 [TRACE origin::thread] Thread[51383] calling `at_thread_exit`-registered function
 [TRACE origin::thread] Thread[51383] calling `at_thread_exit`-registered function
 [TRACE origin::program] Program exiting
+```
 
 ## Background
 

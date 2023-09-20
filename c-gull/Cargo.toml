@@ -25,7 +25,7 @@ rustix = { version = "0.38.10", default-features = false, optional = true, featu
 [features]
 default = ["thread", "std", "coexist-with-libc"]
 thread = ["c-scape/thread"]
-std = ["c-scape/std", "rustix", "log", "printf-compat", "tz-rs", "errno", "sync-resolve"]
+std = ["c-scape/std", "rustix", "printf-compat", "tz-rs", "errno", "sync-resolve"]
 
 # In "take-charge" mode, this enables code in c-scape to define the
 # `origin_start` function documented [here] and call a C ABI-compatible

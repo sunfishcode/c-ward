@@ -17,7 +17,7 @@ keywords = ["linux", "libc"]
 libc = { version = "0.2.138", default-features = false }
 c-scape = { path = "../c-scape", version = "0.14.2", default-features = false }
 errno = { version = "0.3.3", default-features = false, optional = true }
-tz-rs = { version = "0.6.11", optional = true }
+tz-rs = { version = "0.6.11", default-features = false, optional = true }
 printf-compat = { version = "0.1.1", optional = true }
 sync-resolve = { version = "0.3.0", optional = true }
 rustix = { version = "0.38.10", default-features = false, optional = true, features = ["fs", "itoa", "net", "param", "process", "procfs", "rand", "termios", "thread", "time"] }
@@ -25,7 +25,7 @@ rustix = { version = "0.38.10", default-features = false, optional = true, featu
 [features]
 default = ["thread", "std", "coexist-with-libc"]
 thread = ["c-scape/thread"]
-std = ["c-scape/std", "rustix", "printf-compat", "tz-rs", "errno", "sync-resolve"]
+std = ["c-scape/std", "rustix/std", "printf-compat/std", "tz-rs/std", "errno/std", "sync-resolve"]
 
 # In "take-charge" mode, this enables code in c-scape to define the
 # `origin_start` function documented [here] and call a C ABI-compatible

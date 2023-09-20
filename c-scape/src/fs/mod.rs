@@ -115,14 +115,7 @@ unsafe extern "C" fn chown(
     let pathname = CStr::from_ptr(pathname);
     let owner = Some(rustix::process::Uid::from_raw(owner));
     let group = Some(rustix::process::Gid::from_raw(group));
-    let flags = rustix::fs::AtFlags::empty();
-    match convert_res(rustix::fs::chownat(
-        rustix::fs::CWD,
-        pathname,
-        owner,
-        group,
-        flags,
-    )) {
+    match convert_res(rustix::fs::chown(pathname, owner, group)) {
         Some(()) => 0,
         None => -1,
     }

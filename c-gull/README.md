@@ -38,7 +38,7 @@ c-gull has two main cargo features: "take-charge" and "coexist-with-libc". One
 of these must be enabled.
 
 In "take-charge" mode, c-gull takes charge of the process, handling program
-startup (via origin) providing `malloc` (via c-scape), and other things. This
+startup (via Origin) providing `malloc` (via c-scape), and other things. This
 requires some additional setup; see the [c-gull-example] example crate for
 more details.
 

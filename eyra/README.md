@@ -59,7 +59,7 @@ fn main() {
 ```
 
 With these three steps, this crate prints "Hello, world!". And under the
-covers, it uses [origin] to start and stop the program, [c-ward] to handle
+covers, it uses [Origin] to start and stop the program, [c-ward] to handle
 libc calls from `std`, and [rustix] to do the printing, so it's completely
 implemented in Rust.
 
@@ -94,11 +94,12 @@ of using a custom target and -Z build-std, Eyra just needs users to add
 `-nostartfiles` to their link line, such as via build.rs in the example.
 
 Like Mustang, Eyra currently runs on Rust Nightly on Linux on x86-64, x86,
-aarch64, and riscv64. It aims to support all Linux versions [supported by Rust],
-though at this time it's only tested on relatively recent versions.
+aarch64, and riscv64. It aims to support all Linux versions
+[supported by Rust], though at this time it's only tested on relatively recent
+versions.
 
-[Mustang]: https://github.com/sunfishcode/mustang
-[origin]: https://github.com/sunfishcode/origin
-[c-ward]: https://github.com/sunfishcode/c-ward
-[rustix]: https://github.com/sunfishcode/rustix
+[Mustang]: https://github.com/sunfishcode/mustang#readme
+[Origin]: https://github.com/sunfishcode/origin#readme
+[c-ward]: https://github.com/sunfishcode/c-ward#readme
+[rustix]: https://github.com/sunfishcode/rustix#readme
 [supported by Rust]: https://doc.rust-lang.org/nightly/rustc/platform-support.html

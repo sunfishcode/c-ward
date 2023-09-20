@@ -1,5 +1,5 @@
 <div align="center">
-  <h1><code>Eyra</code></h1>
+  <h1>Eyra</h1>
 
   <p>
     <strong>Rust programs written entirely in Rust</strong>
@@ -15,6 +15,12 @@
 
 Eyra is a package that supports building Rust programs implemented entirely
 in Rust.
+
+It uses [Origin] for program and thread startup and shutdown, and [c-gull] for
+ABI-compatible libc functions.
+
+[Origin]: https://github.com/sunfishcode/origin#readme
+[c-gull]: https://github.com/sunfishcode/c-ward/tree/main/c-gull#readme
 
 ## Quick start
 

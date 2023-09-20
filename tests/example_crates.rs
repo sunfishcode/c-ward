@@ -107,3 +107,15 @@ fn example_crate_eyra_libc_example() {
         None,
     );
 }
+
+#[test]
+fn example_crate_eyra_panic_example() {
+    test_crate(
+        "eyra-panic-example",
+        &[],
+        &[],
+        "",
+        "thread 'main' panicked at src/main.rs:4:5:\nUh oh!\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n",
+        Some(101)
+    );
+}

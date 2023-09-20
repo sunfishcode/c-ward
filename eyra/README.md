@@ -63,6 +63,30 @@ covers, it uses [origin] to start and stop the program, [c-ward] to handle
 libc calls from `std`, and [rustix] to do the printing, so it's completely
 implemented in Rust.
 
+## Optional logging
+
+Eyra has a `log` feature to enable Rust `log` tracing of program and thread
+startup and shutdown, and an `env_logger` feature to install `env_logger`
+as the logger, which can be enabled in Cargo.toml:
+
+```toml
+[dependencies]
+libc = { version = "<current-version>", package = "eyra", features = ["log", "env_logger"] }
+```
+
+With this, and setting the `RUST_LOG` environment variable to "trace", the
+hello world program output like this:
+
+[TRACE origin::program] Program started
+[TRACE origin::thread] Main Thread[Pid(51383)] initialized
+[TRACE origin::program] Calling `.init_array`-registered function `0x55e86306bb80(1, 0x7ffd0f76aad8, 0x7ffd0f76aae8)`
+[TRACE origin::program] Calling `origin_main(1, 0x7ffd0f76aad8, 0x7ffd0f76aae8)`
+Hello, world!
+[TRACE origin::program] `origin_main` returned `0`
+[TRACE origin::thread] Thread[51383] calling `at_thread_exit`-registered function
+[TRACE origin::thread] Thread[51383] calling `at_thread_exit`-registered function
+[TRACE origin::program] Program exiting
+
 ## Background
 
 Eyra is similar to [Mustang] and uses the same underlying code, but instead

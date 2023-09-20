@@ -30,7 +30,7 @@ its own.
 
 In theory c-ward could be extended to be ABI-compatible with different
 platforms, however currently it is only known to be ABI-compatible with
-*-unknown-linux-gnu* platforms.
+\*-unknown-linux-gnu\* platforms.
 
 ## Similar crates
 

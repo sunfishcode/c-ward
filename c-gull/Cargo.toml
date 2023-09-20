@@ -44,6 +44,9 @@ log = ["c-scape/log"]
 # Install the `env_logger` crate as a logger.
 env_logger = ["c-scape/env_logger"]
 
+# Disable logging.
+max_level_off = ["c-scape/max_level_off"]
+
 # Enable highly experimental support for performing startup-time relocations,
 # needed to support statically-linked PIE executables.
 experimental-relocate = ["c-scape/experimental-relocate"]

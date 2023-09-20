@@ -23,6 +23,9 @@ log = ["libc/log"]
 # Install the `env_logger` crate as a logger.
 env_logger = ["libc/env_logger"]
 
+# Disable logging.
+max_level_off = ["libc/max_level_off"]
+
 # Enable highly experimental support for performing startup-time relocations,
 # needed to support statically-linked PIE executables.
 experimental-relocate = ["libc/experimental-relocate"]

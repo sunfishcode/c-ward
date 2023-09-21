@@ -3,8 +3,8 @@
 use crate::{convert_res, set_errno, Errno};
 use core::mem::{size_of, transmute, zeroed};
 use core::ops::Index;
-use libc::c_int;
-use rustix::fd::BorrowedFd;
+use libc::{c_char, c_int, termios, winsize};
+use rustix::fd::{BorrowedFd, FromRawFd, IntoRawFd, OwnedFd};
 use rustix::termios::{
     ControlModes, InputModes, LocalModes, OptionalActions, OutputModes, SpecialCodeIndex,
     SpecialCodes, Termios,
@@ -81,6 +81,56 @@ unsafe extern "C" fn tcsetattr(
         optional_actions,
         &termios,
     )) {
+        Some(()) => 0,
+        None => -1,
+    }
+}
+
+#[no_mangle]
+unsafe extern "C" fn openpty(
+    acontroller: *mut c_int,
+    auser: *mut c_int,
+    name: *mut c_char,
+    termp: *const termios,
+    winp: *const winsize,
+) -> c_int {
+    libc!(libc::openpty(acontroller, auser, name, termp, winp));
+
+    // `name` is not implemented yet.
+    assert!(name.is_null());
+
+    let term = if termp.is_null() {
+        None
+    } else {
+        Some(libc_to_rustix(&*termp))
+    };
+    let win = if winp.is_null() {
+        None
+    } else {
+        let win = &*winp;
+        Some(rustix::termios::Winsize {
+            ws_row: win.ws_row,
+            ws_col: win.ws_col,
+            ws_xpixel: win.ws_xpixel,
+            ws_ypixel: win.ws_ypixel,
+        })
+    };
+    match convert_res(rustix_openpty::openpty(term.as_ref(), win.as_ref())) {
+        Some(rustix_openpty::Pty { controller, user }) => {
+            *acontroller = controller.into_raw_fd();
+            *auser = user.into_raw_fd();
+            0
+        }
+        None => -1,
+    }
+}
+
+#[no_mangle]
+unsafe extern "C" fn login_tty(fd: c_int) -> c_int {
+    libc!(libc::login_tty(fd));
+
+    let fd = OwnedFd::from_raw_fd(fd);
+    match convert_res(rustix_openpty::login_tty(fd)) {
         Some(()) => 0,
         None => -1,
     }

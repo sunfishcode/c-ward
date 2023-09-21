@@ -10,26 +10,16 @@
 //!
 //! [has differences with glibc]: https://docs.rs/printf-compat/0.1.1/printf_compat/output/fn.fmt_write.html#differences
 
-use libc::{c_char, c_int, c_void, size_t};
+use libc::{c_char, c_int, c_uchar, c_void, size_t};
 use printf_compat::{format, output};
 use rustix::fd::{FromRawFd, IntoRawFd};
 use std::cmp::min;
 use std::ffi::{CStr, VaList};
-use std::io::{stderr as rust_stderr, stdout as rust_stdout, Write};
+use std::io::{stderr as rust_stderr, stdout as rust_stdout};
 use std::ptr::copy_nonoverlapping;
 
 extern "C" {
     fn __chk_fail();
-}
-
-#[no_mangle]
-unsafe extern "C" fn puts(s: *const c_char) -> c_int {
-    libc!(libc::puts(s));
-
-    match rust_stdout().write_all(CStr::from_ptr(s).to_bytes()) {
-        Ok(()) => 1,
-        Err(_err) => libc::EOF,
-    }
 }
 
 #[no_mangle]
@@ -217,6 +207,41 @@ unsafe extern "C" fn perror(user_message: *const c_char) {
     } else {
         eprintln!("{:?}: {:?}", user_message, errno_message);
     }
+}
+
+#[no_mangle]
+unsafe extern "C" fn fputc(c: c_int, file: *mut c_void) -> c_int {
+    //libc!(libc::fputc(c, file));
+    let r = fprintf(file, rustix::cstr!("%c").as_ptr(), c);
+    if r == 1 {
+        c as c_uchar as c_int
+    } else {
+        libc::EOF
+    }
+}
+
+#[no_mangle]
+unsafe extern "C" fn fputs(s: *const c_char, file: *mut c_void) -> c_int {
+    //libc!(libc::fputs(s, file));
+    fprintf(file, rustix::cstr!("%s").as_ptr(), s)
+}
+
+#[no_mangle]
+unsafe extern "C" fn putc(c: c_int, file: *mut c_void) -> c_int {
+    //libc!(libc::putc(c, file));
+    fputc(c, file)
+}
+
+#[no_mangle]
+unsafe extern "C" fn putchar(c: c_int) -> c_int {
+    libc!(libc::putchar(c));
+    fputc(c, stdout)
+}
+
+#[no_mangle]
+unsafe extern "C" fn puts(s: *const c_char) -> c_int {
+    libc!(libc::puts(s));
+    printf(rustix::cstr!("%s\n").as_ptr(), s)
 }
 
 #[no_mangle]

@@ -52,8 +52,14 @@ unsafe extern "C" fn ioctl(fd: c_int, request: c_long, mut args: ...) -> c_int {
             libc!(libc::ioctl(fd, libc::TIOCGWINSZ));
             let fd = BorrowedFd::borrow_raw(fd);
             match convert_res(rustix::termios::tcgetwinsize(fd)) {
-                Some(x) => {
-                    args.arg::<*mut rustix::termios::Winsize>().write(x);
+                Some(size) => {
+                    let size = libc::winsize {
+                        ws_row: size.ws_row,
+                        ws_col: size.ws_col,
+                        ws_xpixel: size.ws_xpixel,
+                        ws_ypixel: size.ws_ypixel,
+                    };
+                    args.arg::<*mut libc::winsize>().write(size);
                     0
                 }
                 None => -1,

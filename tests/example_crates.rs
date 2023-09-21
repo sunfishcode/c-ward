@@ -126,3 +126,26 @@ fn example_crate_eyra_panic_example() {
         Some(101)
     );
 }
+
+#[test]
+fn example_crate_eyra_optional_example() {
+    // Test the crate in non-Eyra mode.
+    test_crate(
+        "eyra-optional-example",
+        &[],
+        &[],
+        "Hello, world!\n",
+        "",
+        None,
+    );
+
+    // Test the crate in Eyra mode.
+    test_crate(
+        "eyra-optional-example",
+        &["--features=eyra"],
+        &[],
+        "Hello, world!\n",
+        "",
+        None,
+    );
+}

@@ -94,9 +94,9 @@ coexist-with-libc = ["origin/libc"]
 
 # One of the following two features must be enabled:
 
-# Enable to this to implement `malloc` using Rust's global allocator.
+# Enable this to implement `malloc` using Rust's global allocator.
 malloc-via-rust-global-alloc = []
 
-# Enable to this to implement `malloc` using third-party crates, which
+# Enable this to implement `malloc` using third-party crates, which
 # is useful to do when using the Rust global allocator is using `malloc`.
 malloc-via-crates = ["rustix-dlmalloc/global"]

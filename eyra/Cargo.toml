@@ -12,20 +12,20 @@ edition = "2021"
 keywords = ["linux"]
 
 [dependencies]
-libc = { path = "../c-gull", version = "0.14.5", default-features = false, features = ["eyra"], package = "c-gull" }
+c-gull = { path = "../c-gull", version = "0.14.5", default-features = false, features = ["eyra"] }
 
 [features]
 default = []
 
 # Enable logging of program and thread startup and shutdown.
-log = ["libc/log"]
+log = ["c-gull/log"]
 
 # Install the `env_logger` crate as a logger.
-env_logger = ["libc/env_logger"]
+env_logger = ["c-gull/env_logger"]
 
 # Disable logging.
-max_level_off = ["libc/max_level_off"]
+max_level_off = ["c-gull/max_level_off"]
 
 # Enable highly experimental support for performing startup-time relocations,
 # needed to support statically-linked PIE executables.
-experimental-relocate = ["libc/experimental-relocate"]
+experimental-relocate = ["c-gull/experimental-relocate"]

@@ -1,4 +1,4 @@
-extern crate libc;
+extern crate eyra;
 
 fn main() {
     println!("Hello, world!");

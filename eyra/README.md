@@ -35,18 +35,13 @@ Eyra needs three things. First, a Cargo.toml dependency:
 
 ```toml
 [dependencies]
-libc = { version = "<current-version>", package = "eyra" }
+eyra = "<current-version>"
 ```
 
-This uses the trick of calling the library `libc` while actually using
-`eyra`. This trick isn't necessary, but it sometimes means we can skip
-the next step.
-
-The next step is to mention `libc` somewhere. If there are no other
-mentions of `libc`, adding an `extern crate` is sufficient:
+The next step is to add an `extern crate`:
 
 ```rust
-extern crate libc;
+extern crate eyra;
 
 fn main() {
     println!("Hello, world!");
@@ -78,13 +73,13 @@ as the logger, which can be enabled in Cargo.toml:
 
 ```toml
 [dependencies]
-libc = { version = "<current-version>", package = "eyra", features = ["log", "env_logger"] }
+eyra = { version = "<current-version>", features = ["log", "env_logger"] }
 ```
 
 With this, and setting the `RUST_LOG` environment variable to "trace", the
 hello world program output like this:
 
-```
+```console
 [TRACE origin::program] Program started
 [TRACE origin::thread] Main Thread[Pid(51383)] initialized
 [TRACE origin::program] Calling `.init_array`-registered function `0x55e86306bb80(1, 0x7ffd0f76aad8, 0x7ffd0f76aae8)`

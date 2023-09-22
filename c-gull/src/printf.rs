@@ -10,12 +10,13 @@
 //!
 //! [has differences with glibc]: https://docs.rs/printf-compat/0.1.1/printf_compat/output/fn.fmt_write.html#differences
 
+use errno::{set_errno, Errno};
 use libc::{c_char, c_int, c_uchar, c_void, size_t};
 use printf_compat::{format, output};
 use rustix::fd::{FromRawFd, IntoRawFd};
 use std::cmp::min;
 use std::ffi::{CStr, VaList};
-use std::io::{stderr as rust_stderr, stdout as rust_stdout};
+use std::io::{stderr as rust_stderr, stdout as rust_stdout, Write};
 use std::ptr::copy_nonoverlapping;
 
 extern "C" {
@@ -242,6 +243,54 @@ unsafe extern "C" fn putchar(c: c_int) -> c_int {
 unsafe extern "C" fn puts(s: *const c_char) -> c_int {
     libc!(libc::puts(s));
     printf(rustix::cstr!("%s\n").as_ptr(), s)
+}
+
+#[no_mangle]
+unsafe extern "C" fn fwrite(
+    ptr: *const c_void,
+    size: size_t,
+    nmemb: size_t,
+    file: *mut c_void,
+) -> size_t {
+    //libc!(libc::fwrite(ptr, size, nmemb, file));
+
+    // Overflow would be UB here.
+    let len = nmemb * size;
+    let buf = core::slice::from_raw_parts(ptr.cast::<u8>(), len);
+
+    if file == stdout {
+        match rust_stdout().write(&buf) {
+            Ok(n) => n / size,
+            Err(_err) => 0,
+        }
+    } else if file == stderr {
+        match rust_stderr().write(&buf) {
+            Ok(n) => n / size,
+            Err(_err) => 0,
+        }
+    } else {
+        unimplemented!("fwrite to a destination other than stdout or stderr")
+    }
+}
+
+#[no_mangle]
+unsafe extern "C" fn fflush(file: *mut c_void) -> c_int {
+    //libc!(libc::fflush(file);
+
+    if file == stdout {
+        match rust_stdout().flush() {
+            Ok(()) => 0,
+            Err(err) => {
+                set_errno(Errno(err.raw_os_error().unwrap_or(libc::EIO)));
+                libc::EOF
+            }
+        }
+    } else if file == stderr {
+        // Stderr is not buffered; nothing to do.
+        0
+    } else {
+        unimplemented!("fflush to a destination other than stdout or stderr")
+    }
 }
 
 #[no_mangle]

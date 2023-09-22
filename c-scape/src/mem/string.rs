@@ -1,4 +1,5 @@
 use core::cell::SyncUnsafeCell;
+use core::ffi::CStr;
 use core::ptr;
 use libc::{c_char, c_int, c_schar, malloc, memcpy};
 
@@ -358,4 +359,33 @@ unsafe extern "C" fn strncasecmp(
     }
 
     libc::tolower(*s1 as c_schar as c_int) - libc::tolower(*s2 as c_schar as c_int)
+}
+
+#[no_mangle]
+unsafe extern "C" fn strstr(haystack: *const c_char, needle: *const c_char) -> *mut c_char {
+    libc!(libc::strstr(haystack, needle));
+
+    if *needle == 0 {
+        return haystack as *mut c_char;
+    }
+
+    let mut haystack = haystack;
+    loop {
+        if *haystack == 0 {
+            break;
+        }
+        let mut len = 0;
+        for n in CStr::from_ptr(needle).to_bytes() {
+            let h = *haystack.add(len);
+            if h != *n as c_char {
+                break;
+            }
+            len += 1;
+        }
+        if *needle.add(len) == 0 {
+            return haystack as *mut c_char;
+        }
+        haystack = haystack.add(1);
+    }
+    ptr::null_mut()
 }

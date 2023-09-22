@@ -35,3 +35,21 @@ unsafe extern "C" fn unlinkat(fd: c_int, pathname: *const c_char, flags: c_int) 
         None => -1,
     }
 }
+
+#[no_mangle]
+unsafe extern "C" fn remove(pathname: *const c_char) -> c_int {
+    libc!(libc::remove(pathname));
+
+    let pathname = CStr::from_ptr(pathname.cast());
+
+    let result = rustix::fs::unlink(pathname);
+
+    if let Err(rustix::io::Errno::ISDIR) = result {
+        libc::rmdir(pathname.as_ptr())
+    } else {
+        match convert_res(result) {
+            Some(()) => 0,
+            None => -1,
+        }
+    }
+}

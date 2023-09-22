@@ -1,6 +1,6 @@
 [package]
 name = "eyra"
-version = "0.15.1"
+version = "0.15.2"
 authors = [
     "Dan Gohman <dev@sunfishcode.online>",
 ]
@@ -12,7 +12,7 @@ edition = "2021"
 keywords = ["linux"]
 
 [dependencies]
-c-gull = { path = "../c-gull", version = "0.15.1", default-features = false, features = ["eyra"] }
+c-gull = { path = "../c-gull", version = "0.15.2", default-features = false, features = ["eyra"] }
 
 [features]
 default = []

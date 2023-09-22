@@ -17,12 +17,10 @@
 
 c-ward is an implementation of the libc ABI written in Rust.
 
-It consists of three crates:
+It consists of two crates:
  - [c-scape], which is `no_std`, and
  - [c-gull], which pulls in c-scape and additionally provides features
    using `std`.
- - [Eyra], which provides a friendly wrapper to make it easy to
-   build Rust programs entirely in Rust.
 
 It is a goal of c-ward to be a C ABI layer on top of Rust-idomatic
 libraries, rather than to have significant implementation code of
@@ -38,7 +36,6 @@ Another libc implementation is [relibc].
 
 [c-scape]: https://github.com/sunfishcode/c-ward/tree/main/c-scape#readme
 [c-gull]: https://github.com/sunfishcode/c-ward/tree/main/c-gull#readme
-[Eyra]: https://github.com/sunfishcode/c-ward/tree/main/eyra#readme
 [relibc]: https://gitlab.redox-os.org/redox-os/relibc/
 [c-scape-example]: https://github.com/sunfishcode/c-ward/blob/main/example-crates/c-scape-example
 [c-gull-example]: https://github.com/sunfishcode/c-ward/blob/main/example-crates/c-gull-example

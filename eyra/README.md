@@ -14,8 +14,7 @@
 </div>
 
 Eyra is a package that supports building Rust programs implemented entirely
-in Rust. It's complete enough to run programs like ripgrep and
-uutils coreutils.
+in Rust.
 
 It uses [Origin] for program and thread startup and shutdown, and [c-gull] for
 ABI-compatible libc functions.
@@ -100,7 +99,15 @@ of using a custom target and -Z build-std, Eyra just needs users to add
 Like Mustang, Eyra currently runs on Rust Nightly on Linux on x86-64, x86,
 aarch64, and riscv64. It aims to support all Linux versions
 [supported by Rust], though at this time it's only tested on relatively recent
-versions.
+versions. It's complete enough to run:
+ - [ripgrep](https://github.com/sunfishcode/ripgrep/tree/eyra)
+ - [coreutils](https://github.com/sunfishcode/coreutils/tree/eyra),
+   including the "unix" feature set
+ - [async-std](https://github.com/sunfishcode/tide/tree/eyra)
+ - [tokio](https://github.com/sunfishcode/tokio/tree/eyra)
+ - [bat](https://github.com/sunfishcode/bat/tree/eyra), including git
+   support with libgit2
+ - [cargo-watch](https://github.com/sunfishcode/cargo-watch/tree/eyra)
 
 [Mustang]: https://github.com/sunfishcode/mustang#readme
 [Origin]: https://github.com/sunfishcode/origin#readme

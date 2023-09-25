@@ -53,9 +53,7 @@ libc = { version = "<c-gull version>", package = "c-gull", features = ["coexist-
 and c-gull will replace as many of the system libc implementation with its own
 implementations as it can. In particular, it can't replace `malloc` or any of
 the pthread functions in this configuration, but it can replace many other
-things.
-
-See the [libc-replacement example] for more details.
+things. See the [libc-replacement example] for more details.
 
 [libc-replacement example]: https://github.com/sunfishcode/c-ward/blob/main/test-crates/libc-replacement/README.md
 [c-scape]: https://crates.io/crates/c-scape

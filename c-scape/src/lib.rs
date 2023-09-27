@@ -7,8 +7,7 @@
 #![feature(strict_provenance)]
 #![feature(inline_const)]
 #![feature(sync_unsafe_cell)]
-#![deny(fuzzy_provenance_casts)]
-#![deny(lossy_provenance_casts)]
+#![deny(fuzzy_provenance_casts, lossy_provenance_casts)]
 #![feature(try_blocks)]
 
 // Check that our features were used as we intend.

@@ -36,7 +36,7 @@ unsafe extern "C" fn sendfile(
             return -1;
         }
 
-        offset_64 = *offset;
+        offset_64 = (*offset).into();
     }
 
     let res = sendfile64(out_fd, in_fd, &mut offset_64, count);

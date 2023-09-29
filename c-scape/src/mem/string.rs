@@ -389,3 +389,17 @@ unsafe extern "C" fn strstr(haystack: *const c_char, needle: *const c_char) -> *
     }
     ptr::null_mut()
 }
+
+#[no_mangle]
+pub unsafe extern "C" fn index(s: *const c_char, c: c_int) -> *mut c_char {
+    //libc!(libc::index(s, c));
+
+    libc::strchr(s, c)
+}
+
+#[no_mangle]
+pub unsafe extern "C" fn rindex(s: *const c_char, c: c_int) -> *mut c_char {
+    //libc!(libc::rindex(s, c));
+
+    libc::strrchr(s, c)
+}

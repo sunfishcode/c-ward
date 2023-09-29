@@ -16,8 +16,8 @@ use printf_compat::{format, output};
 use rustix::fd::{FromRawFd, IntoRawFd};
 use std::cmp::min;
 use std::ffi::{CStr, VaList};
-use std::io::{stderr as rust_stderr, stdout as rust_stdout, Write};
-use std::ptr::copy_nonoverlapping;
+use std::io::{stderr as rust_stderr, stdin as rust_stdin, stdout as rust_stdout, Read, Write};
+use std::ptr::{copy_nonoverlapping, null_mut};
 
 extern "C" {
     fn __chk_fail();
@@ -290,6 +290,40 @@ unsafe extern "C" fn fflush(file: *mut c_void) -> c_int {
         0
     } else {
         unimplemented!("fflush to a destination other than stdout or stderr")
+    }
+}
+
+#[no_mangle]
+unsafe extern "C" fn fgets(s: *mut c_char, size: c_int, file: *mut c_void) -> *mut c_char {
+    //libc!(libc::fgets(s, size, file);
+
+    if size < 0 {
+        set_errno(Errno(libc::EINVAL));
+        return null_mut();
+    }
+
+    let size = size as usize;
+    let ptr = s.cast::<u8>();
+
+    // Zero out the memory, since forming a slice requires initialized memory.
+    core::ptr::write_bytes(ptr, 0, size);
+
+    // Subtract one for the terminating NUL.
+    let mut buf = core::slice::from_raw_parts_mut(ptr.cast::<u8>(), size - 1);
+
+    if file == stdin {
+        match rust_stdin().read(&mut buf) {
+            Ok(n) => {
+                buf[n] = b'\0';
+                s
+            }
+            Err(err) => {
+                set_errno(Errno(err.raw_os_error().unwrap_or(libc::EIO)));
+                null_mut()
+            }
+        }
+    } else {
+        unimplemented!("fgets from a source other than stdin")
     }
 }
 

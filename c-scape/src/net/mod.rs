@@ -1,6 +1,7 @@
 mod inet;
 
 use alloc::vec;
+use core::cmp::min;
 use core::convert::TryInto;
 use core::ffi::c_void;
 #[cfg(not(target_os = "wasi"))]
@@ -231,6 +232,7 @@ unsafe extern "C" fn getsockopt(
     let fd = BorrowedFd::borrow_raw(fd);
     let result = match level {
         libc::SOL_SOCKET => match optname {
+            libc::SO_REUSEADDR => write_bool(sockopt::get_socket_reuseaddr(fd), optval, optlen),
             libc::SO_BROADCAST => write_bool(sockopt::get_socket_broadcast(fd), optval, optlen),
             libc::SO_LINGER => write_linger(sockopt::get_socket_linger(fd), optval, optlen),
             libc::SO_PASSCRED => write_bool(sockopt::get_socket_passcred(fd), optval, optlen),
@@ -254,6 +256,12 @@ unsafe extern "C" fn getsockopt(
                     optlen,
                 )
             }),
+            libc::SO_KEEPALIVE => write_bool(sockopt::get_socket_keepalive(fd), optval, optlen),
+            libc::SO_TYPE => write_u32(
+                sockopt::get_socket_type(fd).map(|ty| ty.as_raw()),
+                optval,
+                optlen,
+            ),
             _ => unimplemented!("unimplemented getsockopt SOL_SOCKET optname {:?}", optname),
         },
         libc::IPPROTO_IP => match optname {
@@ -276,6 +284,12 @@ unsafe extern "C" fn getsockopt(
         },
         libc::IPPROTO_TCP => match optname {
             libc::TCP_NODELAY => write_bool(sockopt::get_tcp_nodelay(fd), optval, optlen),
+            libc::TCP_KEEPIDLE => write_u32(
+                sockopt::get_tcp_keepidle(fd)
+                    .map(|duration| min(duration.as_secs(), i32::MAX as u64) as u32),
+                optval,
+                optlen,
+            ),
             _ => unimplemented!("unimplemented getsockopt IPPROTO_TCP optname {:?}", optname),
         },
         _ => unimplemented!(
@@ -374,6 +388,7 @@ unsafe extern "C" fn setsockopt(
             libc::SO_RCVTIMEO => {
                 sockopt::set_socket_timeout(fd, Timeout::Recv, read_timeval(optval, optlen))
             }
+            libc::SO_KEEPALIVE => sockopt::set_socket_keepalive(fd, read_bool(optval, optlen)),
             _ => unimplemented!("unimplemented setsockopt SOL_SOCKET optname {:?}", optname),
         },
         libc::IPPROTO_IP => match optname {
@@ -416,6 +431,9 @@ unsafe extern "C" fn setsockopt(
         },
         libc::IPPROTO_TCP => match optname {
             libc::TCP_NODELAY => sockopt::set_tcp_nodelay(fd, read_bool(optval, optlen)),
+            libc::TCP_KEEPIDLE => {
+                sockopt::set_tcp_keepidle(fd, Duration::new(read_u32(optval, optlen).into(), 0))
+            }
             _ => unimplemented!("unimplemented setsockopt IPPROTO_TCP optname {:?}", optname),
         },
         _ => unimplemented!(

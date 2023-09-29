@@ -9,11 +9,13 @@ use core::mem::size_of;
 use core::num::NonZeroU32;
 use core::ptr::copy_nonoverlapping;
 use core::slice;
+use errno::{set_errno, Errno};
 use libc::{c_int, c_uint, ssize_t};
 use rustix::fd::{BorrowedFd, IntoRawFd};
 use rustix::net::{
-    AddressFamily, Ipv4Addr, Ipv6Addr, Protocol, RecvFlags, SendFlags, Shutdown, SocketAddrAny,
-    SocketAddrStorage, SocketFlags, SocketType,
+    AddressFamily, Ipv4Addr, Ipv6Addr, Protocol, RecvAncillaryBuffer, RecvFlags, RecvMsgReturn,
+    SendAncillaryBuffer, SendFlags, Shutdown, SocketAddrAny, SocketAddrStorage, SocketFlags,
+    SocketType,
 };
 
 use crate::convert_res;
@@ -180,12 +182,20 @@ unsafe extern "C" fn getsockopt(
         Ok(write(value? as c_uint, optval.cast::<c_uint>(), optlen))
     }
 
-    unsafe fn write_u32(
-        value: rustix::io::Result<u32>,
+    unsafe fn write_i32(
+        value: rustix::io::Result<i32>,
         optval: *mut c_void,
         optlen: *mut libc::socklen_t,
     ) -> rustix::io::Result<()> {
-        Ok(write(value?, optval.cast::<u32>(), optlen))
+        Ok(write(value?, optval.cast::<i32>(), optlen))
+    }
+
+    unsafe fn write_u64(
+        value: rustix::io::Result<u64>,
+        optval: *mut c_void,
+        optlen: *mut libc::socklen_t,
+    ) -> rustix::io::Result<()> {
+        Ok(write(value?, optval.cast::<u64>(), optlen))
     }
 
     unsafe fn write_linger(
@@ -257,19 +267,71 @@ unsafe extern "C" fn getsockopt(
                 )
             }),
             libc::SO_KEEPALIVE => write_bool(sockopt::get_socket_keepalive(fd), optval, optlen),
-            libc::SO_TYPE => write_u32(
-                sockopt::get_socket_type(fd).map(|ty| ty.as_raw()),
+            libc::SO_TYPE => write_i32(
+                sockopt::get_socket_type(fd).map(|ty| ty.as_raw() as i32),
+                optval,
+                optlen,
+            ),
+            libc::SO_SNDBUF => write_i32(
+                sockopt::get_socket_send_buffer_size(fd).map(|size| size as i32),
+                optval,
+                optlen,
+            ),
+            libc::SO_RCVBUF => write_i32(
+                sockopt::get_socket_recv_buffer_size(fd).map(|size| size as i32),
+                optval,
+                optlen,
+            ),
+            libc::SO_OOBINLINE => write_bool(sockopt::get_socket_oobinline(fd), optval, optlen),
+            libc::SO_DOMAIN => write_i32(
+                sockopt::get_socket_domain(fd).map(|domain| domain.as_raw().into()),
+                optval,
+                optlen,
+            ),
+            libc::SO_ACCEPTCONN => write_bool(sockopt::get_socket_acceptconn(fd), optval, optlen),
+            libc::SO_REUSEPORT => write_bool(sockopt::get_socket_reuseport(fd), optval, optlen),
+            libc::SO_PROTOCOL => write_i32(
+                sockopt::get_socket_protocol(fd).map(|protocol| match protocol {
+                    None => 0,
+                    Some(protocol) => protocol.as_raw().get() as i32,
+                }),
+                optval,
+                optlen,
+            ),
+            libc::SO_COOKIE => write_u64(sockopt::get_socket_cookie(fd), optval, optlen),
+            libc::SO_INCOMING_CPU => write_i32(
+                sockopt::get_socket_incoming_cpu(fd).map(|cpu| cpu as i32),
                 optval,
                 optlen,
             ),
             _ => unimplemented!("unimplemented getsockopt SOL_SOCKET optname {:?}", optname),
         },
         libc::IPPROTO_IP => match optname {
-            libc::IP_TTL => write_u32(sockopt::get_ip_ttl(fd), optval, optlen),
+            libc::IP_TTL => write_i32(
+                sockopt::get_ip_ttl(fd).map(|ttl| ttl as i32),
+                optval,
+                optlen,
+            ),
             libc::IP_MULTICAST_LOOP => {
                 write_bool(sockopt::get_ip_multicast_loop(fd), optval, optlen)
             }
-            libc::IP_MULTICAST_TTL => write_u32(sockopt::get_ip_multicast_ttl(fd), optval, optlen),
+            libc::IP_MULTICAST_TTL => write_i32(
+                sockopt::get_ip_multicast_ttl(fd).map(|ttl| ttl as i32),
+                optval,
+                optlen,
+            ),
+            libc::IP_TOS => write_i32(sockopt::get_ip_tos(fd).map(Into::into), optval, optlen),
+            libc::IP_RECVTOS => write_bool(sockopt::get_ip_recvtos(fd), optval, optlen),
+            libc::IP_FREEBIND => write_bool(sockopt::get_ip_freebind(fd), optval, optlen),
+            libc::SO_ORIGINAL_DST => match sockopt::get_ip_original_dst(fd) {
+                Ok(addr) => {
+                    assert!(*optlen >= size_of::<SocketAddrStorage>().try_into().unwrap());
+                    let len = SocketAddrAny::V4(addr).write(optval.cast());
+                    *optlen = len.try_into().unwrap();
+                    Ok(())
+                }
+                Err(err) => Err(err),
+            },
             _ => unimplemented!("unimplemented getsockopt IPPROTO_IP optname {:?}", optname),
         },
         libc::IPPROTO_IPV6 => match optname {
@@ -277,6 +339,27 @@ unsafe extern "C" fn getsockopt(
                 write_bool(sockopt::get_ipv6_multicast_loop(fd), optval, optlen)
             }
             libc::IPV6_V6ONLY => write_bool(sockopt::get_ipv6_v6only(fd), optval, optlen),
+            libc::IPV6_UNICAST_HOPS => write_i32(
+                sockopt::get_ipv6_unicast_hops(fd).map(Into::into),
+                optval,
+                optlen,
+            ),
+            libc::IPV6_RECVTCLASS => write_bool(sockopt::get_ipv6_recvtclass(fd), optval, optlen),
+            libc::IPV6_FREEBIND => write_bool(sockopt::get_ipv6_freebind(fd), optval, optlen),
+            libc::IP6T_SO_ORIGINAL_DST => match sockopt::get_ipv6_original_dst(fd) {
+                Ok(addr) => {
+                    assert!(*optlen >= size_of::<SocketAddrStorage>().try_into().unwrap());
+                    let len = SocketAddrAny::V6(addr).write(optval.cast());
+                    *optlen = len.try_into().unwrap();
+                    Ok(())
+                }
+                Err(err) => Err(err),
+            },
+            libc::IPV6_TCLASS => write_i32(
+                sockopt::get_ipv6_tclass(fd).map(|value| value as i32),
+                optval,
+                optlen,
+            ),
             _ => unimplemented!(
                 "unimplemented getsockopt IPPROTO_IPV6 optname {:?}",
                 optname
@@ -284,12 +367,38 @@ unsafe extern "C" fn getsockopt(
         },
         libc::IPPROTO_TCP => match optname {
             libc::TCP_NODELAY => write_bool(sockopt::get_tcp_nodelay(fd), optval, optlen),
-            libc::TCP_KEEPIDLE => write_u32(
+            libc::TCP_KEEPIDLE => write_i32(
                 sockopt::get_tcp_keepidle(fd)
-                    .map(|duration| min(duration.as_secs(), i32::MAX as u64) as u32),
+                    .map(|duration| min(duration.as_secs(), i32::MAX as u64) as i32),
                 optval,
                 optlen,
             ),
+            libc::TCP_USER_TIMEOUT => write_i32(
+                sockopt::get_tcp_user_timeout(fd).map(|value| value as i32),
+                optval,
+                optlen,
+            ),
+            libc::TCP_KEEPINTVL => write_i32(
+                sockopt::get_tcp_keepintvl(fd)
+                    .map(|duration| min(duration.as_secs(), i32::MAX as u64) as i32),
+                optval,
+                optlen,
+            ),
+            libc::TCP_KEEPCNT => write_i32(
+                sockopt::get_tcp_keepcnt(fd).map(|value| value as i32),
+                optval,
+                optlen,
+            ),
+            libc::TCP_QUICKACK => write_bool(sockopt::get_tcp_quickack(fd), optval, optlen),
+            libc::TCP_CONGESTION => sockopt::get_tcp_congestion(fd).map(|name| {
+                let len = core::cmp::min(*optlen as usize, name.len());
+                core::ptr::copy_nonoverlapping(name.as_ptr(), optval.cast::<u8>(), len);
+                *optlen = len as libc::socklen_t;
+            }),
+            libc::TCP_THIN_LINEAR_TIMEOUTS => {
+                write_bool(sockopt::get_tcp_thin_linear_timeouts(fd), optval, optlen)
+            }
+            libc::TCP_CORK => write_bool(sockopt::get_tcp_cork(fd), optval, optlen),
             _ => unimplemented!("unimplemented getsockopt IPPROTO_TCP optname {:?}", optname),
         },
         _ => unimplemented!(
@@ -323,6 +432,10 @@ unsafe extern "C" fn setsockopt(
         read(optval.cast::<u32>(), optlen)
     }
 
+    unsafe fn read_i32(optval: *const c_void, optlen: libc::socklen_t) -> i32 {
+        read(optval.cast::<i32>(), optlen)
+    }
+
     unsafe fn read_linger(optval: *const c_void, optlen: libc::socklen_t) -> Option<Duration> {
         let linger = read(optval.cast::<libc::linger>(), optlen);
         (linger.l_onoff != 0).then(|| Duration::from_secs(linger.l_linger as u64))
@@ -340,20 +453,19 @@ unsafe extern "C" fn setsockopt(
         }
     }
 
-    unsafe fn read_ip_multiaddr(optval: *const c_void, optlen: libc::socklen_t) -> Ipv4Addr {
-        Ipv4Addr::from(
-            read(optval.cast::<libc::ip_mreq>(), optlen)
-                .imr_multiaddr
-                .s_addr,
-        )
+    unsafe fn read_ip_mreq(optval: *const c_void, optlen: libc::socklen_t) -> libc::ip_mreq {
+        read(optval.cast::<libc::ip_mreq>(), optlen)
     }
 
-    unsafe fn read_ip_interface(optval: *const c_void, optlen: libc::socklen_t) -> Ipv4Addr {
-        Ipv4Addr::from(
-            read(optval.cast::<libc::ip_mreq>(), optlen)
-                .imr_interface
-                .s_addr,
-        )
+    unsafe fn read_ip_mreqn(optval: *const c_void, optlen: libc::socklen_t) -> libc::ip_mreqn {
+        read(optval.cast::<libc::ip_mreqn>(), optlen)
+    }
+
+    unsafe fn read_ip_mreq_source(
+        optval: *const c_void,
+        optlen: libc::socklen_t,
+    ) -> libc::ip_mreq_source {
+        read(optval.cast::<libc::ip_mreq_source>(), optlen)
     }
 
     unsafe fn read_ipv6_multiaddr(optval: *const c_void, optlen: libc::socklen_t) -> Ipv6Addr {
@@ -389,24 +501,90 @@ unsafe extern "C" fn setsockopt(
                 sockopt::set_socket_timeout(fd, Timeout::Recv, read_timeval(optval, optlen))
             }
             libc::SO_KEEPALIVE => sockopt::set_socket_keepalive(fd, read_bool(optval, optlen)),
+            libc::SO_SNDBUF => {
+                let size = read_i32(optval, optlen);
+                if size < 0 {
+                    set_errno(Errno(libc::EINVAL));
+                    return -1;
+                }
+                sockopt::set_socket_send_buffer_size(fd, size as usize)
+            }
+            libc::SO_RCVBUF => {
+                let size = read_i32(optval, optlen);
+                if size < 0 {
+                    set_errno(Errno(libc::EINVAL));
+                    return -1;
+                }
+                sockopt::set_socket_recv_buffer_size(fd, size as usize)
+            }
+            libc::SO_OOBINLINE => sockopt::set_socket_oobinline(fd, read_bool(optval, optlen)),
+            libc::SO_REUSEPORT => sockopt::set_socket_reuseport(fd, read_bool(optval, optlen)),
+            libc::SO_INCOMING_CPU => sockopt::set_socket_incoming_cpu(fd, read_u32(optval, optlen)),
             _ => unimplemented!("unimplemented setsockopt SOL_SOCKET optname {:?}", optname),
         },
         libc::IPPROTO_IP => match optname {
-            libc::IP_TTL => sockopt::set_ip_ttl(fd, read_u32(optval, optlen)),
+            libc::IP_TTL => sockopt::set_ip_ttl(fd, read_i32(optval, optlen) as u32),
             libc::IP_MULTICAST_LOOP => {
                 sockopt::set_ip_multicast_loop(fd, read_bool(optval, optlen))
             }
-            libc::IP_MULTICAST_TTL => sockopt::set_ip_multicast_ttl(fd, read_u32(optval, optlen)),
-            libc::IP_ADD_MEMBERSHIP => sockopt::set_ip_add_membership(
-                fd,
-                &read_ip_multiaddr(optval, optlen),
-                &read_ip_interface(optval, optlen),
-            ),
-            libc::IP_DROP_MEMBERSHIP => sockopt::set_ip_add_membership(
-                fd,
-                &read_ip_multiaddr(optval, optlen),
-                &read_ip_interface(optval, optlen),
-            ),
+            libc::IP_MULTICAST_TTL => {
+                sockopt::set_ip_multicast_ttl(fd, read_i32(optval, optlen) as u32)
+            }
+            libc::IP_ADD_MEMBERSHIP => {
+                if optlen as usize == size_of::<libc::ip_mreq>() {
+                    let mreq = read_ip_mreq(optval, optlen);
+                    let multiaddr = Ipv4Addr::from(mreq.imr_multiaddr.s_addr.to_ne_bytes());
+                    let interface = Ipv4Addr::from(mreq.imr_interface.s_addr.to_ne_bytes());
+                    sockopt::set_ip_add_membership(fd, &multiaddr, &interface)
+                } else {
+                    let mreqn = read_ip_mreqn(optval, optlen);
+                    let multiaddr = Ipv4Addr::from(mreqn.imr_multiaddr.s_addr.to_ne_bytes());
+                    let address = Ipv4Addr::from(mreqn.imr_address.s_addr.to_ne_bytes());
+                    let ifindex = mreqn.imr_ifindex;
+                    sockopt::set_ip_add_membership_with_ifindex(fd, &multiaddr, &address, ifindex)
+                }
+            }
+            libc::IP_DROP_MEMBERSHIP => {
+                if optlen as usize == size_of::<libc::ip_mreq>() {
+                    let mreq = read_ip_mreq(optval, optlen);
+                    let multiaddr = Ipv4Addr::from(mreq.imr_multiaddr.s_addr.to_ne_bytes());
+                    let interface = Ipv4Addr::from(mreq.imr_interface.s_addr.to_ne_bytes());
+                    sockopt::set_ip_drop_membership(fd, &multiaddr, &interface)
+                } else {
+                    let mreqn = read_ip_mreqn(optval, optlen);
+                    let multiaddr = Ipv4Addr::from(mreqn.imr_multiaddr.s_addr.to_ne_bytes());
+                    let address = Ipv4Addr::from(mreqn.imr_address.s_addr.to_ne_bytes());
+                    let ifindex = mreqn.imr_ifindex;
+                    sockopt::set_ip_drop_membership_with_ifindex(fd, &multiaddr, &address, ifindex)
+                }
+            }
+            libc::IP_ADD_SOURCE_MEMBERSHIP => {
+                let mreq = read_ip_mreq_source(optval, optlen);
+                let multiaddr = Ipv4Addr::from(mreq.imr_multiaddr.s_addr.to_ne_bytes());
+                let interface = Ipv4Addr::from(mreq.imr_interface.s_addr.to_ne_bytes());
+                let sourceaddr = Ipv4Addr::from(mreq.imr_sourceaddr.s_addr.to_ne_bytes());
+                sockopt::set_ip_add_source_membership(fd, &multiaddr, &interface, &sourceaddr)
+            }
+            libc::IP_DROP_SOURCE_MEMBERSHIP => {
+                let mreq = read_ip_mreq_source(optval, optlen);
+                let multiaddr = Ipv4Addr::from(mreq.imr_multiaddr.s_addr.to_ne_bytes());
+                let interface = Ipv4Addr::from(mreq.imr_interface.s_addr.to_ne_bytes());
+                let sourceaddr = Ipv4Addr::from(mreq.imr_sourceaddr.s_addr.to_ne_bytes());
+                sockopt::set_ip_drop_source_membership(fd, &multiaddr, &interface, &sourceaddr)
+            }
+            libc::IP_TOS => {
+                let value = read_i32(optval, optlen);
+                let value = match value.try_into() {
+                    Ok(value) => value,
+                    Err(_) => {
+                        set_errno(Errno(libc::EINVAL));
+                        return -1;
+                    }
+                };
+                sockopt::set_ip_tos(fd, value)
+            }
+            libc::IP_RECVTOS => sockopt::set_ip_recvtos(fd, read_bool(optval, optlen)),
+            libc::IP_FREEBIND => sockopt::set_ip_freebind(fd, read_bool(optval, optlen)),
             _ => unimplemented!("unimplemented setsockopt IPPROTO_IP optname {:?}", optname),
         },
         libc::IPPROTO_IPV6 => match optname {
@@ -424,6 +602,24 @@ unsafe extern "C" fn setsockopt(
                 read_ipv6_interface(optval, optlen),
             ),
             libc::IPV6_V6ONLY => sockopt::set_ipv6_v6only(fd, read_bool(optval, optlen)),
+            libc::IPV6_UNICAST_HOPS => {
+                let hops = read_i32(optval, optlen);
+                let hops = if hops == -1 {
+                    None
+                } else {
+                    match hops.try_into() {
+                        Ok(hops) => Some(hops),
+                        Err(_) => {
+                            set_errno(Errno(libc::EINVAL));
+                            return -1;
+                        }
+                    }
+                };
+                sockopt::set_ipv6_unicast_hops(fd, hops)
+            }
+            libc::IPV6_RECVTCLASS => sockopt::set_ipv6_recvtclass(fd, read_bool(optval, optlen)),
+            libc::IPV6_FREEBIND => sockopt::set_ipv6_freebind(fd, read_bool(optval, optlen)),
+            libc::IPV6_TCLASS => sockopt::set_ipv6_tclass(fd, read_u32(optval, optlen)),
             _ => unimplemented!(
                 "unimplemented setsockopt IPPROTO_IPV6 optname {:?}",
                 optname
@@ -432,8 +628,43 @@ unsafe extern "C" fn setsockopt(
         libc::IPPROTO_TCP => match optname {
             libc::TCP_NODELAY => sockopt::set_tcp_nodelay(fd, read_bool(optval, optlen)),
             libc::TCP_KEEPIDLE => {
-                sockopt::set_tcp_keepidle(fd, Duration::new(read_u32(optval, optlen).into(), 0))
+                let secs = read_i32(optval, optlen);
+                if secs < 0 {
+                    set_errno(Errno(libc::EINVAL));
+                    return -1;
+                }
+                sockopt::set_tcp_keepidle(fd, Duration::new(secs as u64, 0))
             }
+            libc::TCP_USER_TIMEOUT => sockopt::set_tcp_user_timeout(fd, read_u32(optval, optlen)),
+            libc::TCP_KEEPINTVL => {
+                let secs = read_i32(optval, optlen);
+                if secs < 0 {
+                    set_errno(Errno(libc::EINVAL));
+                    return -1;
+                }
+                sockopt::set_tcp_keepintvl(fd, Duration::new(secs as u64, 0))
+            }
+            libc::TCP_KEEPCNT => {
+                let value = read_i32(optval, optlen);
+                if value < 0 {
+                    set_errno(Errno(libc::EINVAL));
+                    return -1;
+                }
+                sockopt::set_tcp_keepcnt(fd, value as u32)
+            }
+            libc::TCP_QUICKACK => sockopt::set_tcp_quickack(fd, read_bool(optval, optlen)),
+            libc::TCP_CONGESTION => {
+                let name = core::str::from_utf8(core::slice::from_raw_parts(
+                    optval.cast::<u8>(),
+                    optlen as usize,
+                ))
+                .unwrap();
+                sockopt::set_tcp_congestion(fd, name)
+            }
+            libc::TCP_THIN_LINEAR_TIMEOUTS => {
+                sockopt::set_tcp_thin_linear_timeouts(fd, read_bool(optval, optlen))
+            }
+            libc::TCP_CORK => sockopt::set_tcp_cork(fd, read_bool(optval, optlen)),
             _ => unimplemented!("unimplemented setsockopt IPPROTO_TCP optname {:?}", optname),
         },
         _ => unimplemented!(
@@ -518,9 +749,41 @@ unsafe extern "C" fn recvfrom(
 }
 
 #[no_mangle]
-unsafe extern "C" fn recvmsg(_sockfd: c_int, _msg: *mut libc::msghdr, _flags: c_int) -> ssize_t {
-    libc!(libc::recvmsg(_sockfd, _msg, _flags));
-    unimplemented!("recvmsg")
+unsafe extern "C" fn recvmsg(sockfd: c_int, msg: *mut libc::msghdr, flags: c_int) -> ssize_t {
+    libc!(libc::recvmsg(sockfd, msg, flags));
+
+    let msg = &mut *msg;
+
+    let fd = BorrowedFd::borrow_raw(sockfd);
+    let flags = RecvFlags::from_bits(flags as _).unwrap();
+    let mut ancillaries = RecvAncillaryBuffer::default();
+
+    match convert_res(rustix::net::recvmsg(
+        fd,
+        slice::from_raw_parts_mut(msg.msg_iov as *mut _, msg.msg_iovlen as usize),
+        &mut ancillaries,
+        flags,
+    )) {
+        Some(RecvMsgReturn {
+            bytes,
+            flags,
+            address,
+        }) => {
+            for _ancillary in ancillaries.drain() {
+                todo!("recvmsg ancillary messages");
+            }
+            msg.msg_flags = flags.bits() as _;
+            if !msg.msg_name.is_null() {
+                if let Some(address) = address {
+                    msg.msg_namelen = address.write(msg.msg_name.cast()) as _;
+                } else {
+                    msg.msg_namelen = 0;
+                }
+            }
+            bytes as ssize_t
+        }
+        None => -1,
+    }
 }
 
 #[no_mangle]
@@ -583,9 +846,38 @@ unsafe extern "C" fn sendto(
 }
 
 #[no_mangle]
-unsafe extern "C" fn sendmsg(_sockfd: c_int, _msg: *const libc::msghdr, _flags: c_int) -> ssize_t {
-    libc!(libc::sendmsg(_sockfd, _msg, _flags));
-    unimplemented!("sendmsg")
+unsafe extern "C" fn sendmsg(sockfd: c_int, msg: *const libc::msghdr, flags: c_int) -> ssize_t {
+    libc!(libc::sendmsg(sockfd, msg, flags));
+
+    let msg = &*msg;
+
+    let fd = BorrowedFd::borrow_raw(sockfd);
+    let flags = SendFlags::from_bits(flags as _).unwrap();
+    let mut addr = None;
+
+    if !msg.msg_name.is_null() {
+        addr = match convert_res(SocketAddrAny::read(
+            msg.msg_name.cast::<SocketAddrStorage>(),
+            msg.msg_namelen as usize,
+        )) {
+            Some(addr) => Some(addr),
+            None => return -1,
+        }
+    }
+    if msg.msg_controllen != 0 {
+        todo!("sendmsg ancillary messages");
+    }
+
+    match convert_res(rustix::net::sendmsg_any(
+        fd,
+        addr.as_ref(),
+        slice::from_raw_parts_mut(msg.msg_iov as *mut _, msg.msg_iovlen as usize),
+        &mut SendAncillaryBuffer::default(),
+        flags,
+    )) {
+        Some(num) => num.try_into().unwrap(),
+        None => -1,
+    }
 }
 
 #[no_mangle]

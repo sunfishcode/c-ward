@@ -3,8 +3,7 @@
 #![feature(strict_provenance)]
 #![feature(c_variadic)]
 #![feature(sync_unsafe_cell)]
-#![deny(fuzzy_provenance_casts)]
-#![deny(lossy_provenance_casts)]
+#![deny(fuzzy_provenance_casts, lossy_provenance_casts)]
 #![cfg_attr(not(feature = "std"), no_std)]
 
 extern crate c_scape;

@@ -15,6 +15,8 @@ unsafe extern "C" fn sendfile(
 ) -> isize {
     libc!(libc::sendfile(out_fd, in_fd, offset, count));
 
+    let mut offset_64: off64_t = 0;
+
     // Check for overflow into off64_t
     if !offset.is_null() {
         if *offset < 0 {
@@ -33,9 +35,10 @@ unsafe extern "C" fn sendfile(
             set_errno(Errno(libc::EINVAL));
             return -1;
         }
+
+        offset_64 = (*offset).into();
     }
 
-    let mut offset_64: off64_t = 0;
     let res = sendfile64(out_fd, in_fd, &mut offset_64, count);
 
     if !offset.is_null() {

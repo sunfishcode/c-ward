@@ -112,27 +112,21 @@ unsafe extern "C" fn readdir(dir: *mut libc::DIR) -> *mut libc::dirent {
                 rustix::fs::FileType::Unknown => libc::DT_UNKNOWN,
             };
 
-            let result: Result<(), core::num::TryFromIntError> = try {
-                (*c_scape_dir).storage.dirent = libc::dirent {
-                    d_ino: e.ino().try_into()?,
-                    d_off: 0, // We don't implement `seekdir` yet anyway.
-                    d_reclen: (offset_of!(libc::dirent64, d_name)
-                        + e.file_name().to_bytes().len()
-                        + 1)
+            (*c_scape_dir).storage.dirent = libc::dirent {
+                d_ino: match e.ino().try_into() {
+                    Ok(ino) => ino,
+                    Err(_) => {
+                        set_errno(Errno(libc::EOVERFLOW));
+                        return null_mut();
+                    }
+                },
+                d_off: 0, // We don't implement `seekdir` yet anyway.
+                d_reclen: (offset_of!(libc::dirent64, d_name) + e.file_name().to_bytes().len() + 1)
                     .try_into()
                     .unwrap(),
-                    d_type: file_type,
-                    d_name: [0; 256],
-                };
+                d_type: file_type,
+                d_name: [0; 256],
             };
-
-            match result {
-                Err(_) => {
-                    set_errno(Errno(libc::EOVERFLOW));
-                    return null_mut();
-                }
-                Ok(()) => {}
-            }
 
             let len = core::cmp::min(256, e.file_name().to_bytes().len());
             (*c_scape_dir).storage.dirent.d_name[..len]

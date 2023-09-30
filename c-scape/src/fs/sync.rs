@@ -1,6 +1,6 @@
 use rustix::fd::BorrowedFd;
 
-use libc::c_int;
+use libc::{c_int, c_uint, off64_t};
 
 use crate::convert_res;
 
@@ -39,4 +39,22 @@ unsafe extern "C" fn sync() {
     libc!(libc::sync());
 
     rustix::fs::sync()
+}
+
+#[no_mangle]
+unsafe extern "C" fn sync_file_range(
+    fd: c_int,
+    offset: off64_t,
+    nbytes: off64_t,
+    flags: c_uint,
+) -> c_int {
+    libc!(libc::sync_file_range(fd, offset, nbytes, flags));
+
+    let fd = BorrowedFd::borrow_raw(fd);
+
+    // FIXME: Add `sync_file_range` to rustix and use it.
+    match convert_res(rustix::fs::fdatasync(fd)) {
+        Some(()) => 0,
+        None => -1,
+    }
 }

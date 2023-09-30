@@ -4,6 +4,7 @@ mod chmod;
 mod dir;
 mod fadvise;
 mod fcntl;
+mod flock;
 mod inotify;
 mod link;
 mod lseek;

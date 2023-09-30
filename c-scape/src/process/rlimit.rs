@@ -3,6 +3,36 @@ use libc::{c_int, c_uint, RLIM64_INFINITY, RLIM_INFINITY};
 use rustix::process::{Pid, Resource, Rlimit};
 
 #[no_mangle]
+unsafe extern "C" fn getrlimit(resource: c_uint, old_limit: *mut libc::rlimit) -> c_int {
+    libc!(libc::getrlimit(resource, old_limit));
+
+    let resource = match resource_to_rustix(resource) {
+        Some(resource) => resource,
+        None => return -1,
+    };
+    let limit = rustix::process::getrlimit(resource);
+    if !old_limit.is_null() {
+        *old_limit = rustix_to_rlimit(limit);
+    }
+    0
+}
+
+#[no_mangle]
+unsafe extern "C" fn getrlimit64(resource: c_uint, old_limit: *mut libc::rlimit64) -> c_int {
+    libc!(libc::getrlimit64(resource, old_limit));
+
+    let resource = match resource_to_rustix(resource) {
+        Some(resource) => resource,
+        None => return -1,
+    };
+    let limit = rustix::process::getrlimit(resource);
+    if !old_limit.is_null() {
+        *old_limit = rustix_to_rlimit64(limit);
+    }
+    0
+}
+
+#[no_mangle]
 unsafe extern "C" fn prlimit(
     pid: libc::pid_t,
     resource: c_uint,

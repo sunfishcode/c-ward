@@ -41,6 +41,9 @@ define-mem-functions = ["c-scape/define-mem-functions"]
 # Enable logging of program and thread startup and shutdown.
 log = ["c-scape/log"]
 
+# Install `atomic_dbg::log` as a logger.
+atomic-dbg-logger = ["c-scape/atomic-dbg-logger"]
+
 # Install the `env_logger` crate as a logger.
 env_logger = ["c-scape/env_logger"]
 

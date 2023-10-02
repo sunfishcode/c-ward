@@ -108,15 +108,18 @@ unsafe impl Send for UnsafeSendSyncVoidStar {}
 #[cfg(feature = "take-charge")]
 unsafe impl Sync for UnsafeSendSyncVoidStar {}
 
-/// Adapt from origin's `origin_main` to a C ABI `main`.
+/// This function is called by Origin.
+///
+/// SAFETY: `argc`, `argv`, and `envp` describe incoming program
+/// command-line arguments and environment variables.
 #[cfg(feature = "take-charge")]
 #[cfg(feature = "call-main")]
 #[no_mangle]
-fn origin_main(argc: usize, argv: *mut *mut u8, envp: *mut *mut u8) -> i32 {
+unsafe fn origin_main(argc: usize, argv: *mut *mut u8, envp: *mut *mut u8) -> i32 {
     extern "C" {
         fn main(argc: i32, argv: *const *const u8, envp: *const *const u8) -> i32;
     }
-    unsafe { main(argc as _, argv as _, envp as _) }
+    main(argc as _, argv as _, envp as _)
 }
 
 // utilities

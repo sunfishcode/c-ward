@@ -35,8 +35,8 @@ macro_rules! checked_cast {
 /// ```no_run
 /// #[no_mangle]
 /// unsafe extern "C" fn strlen(s: *const c_char) -> usize {
-///    libc!(libc::strlen(s));
-///    // ...
+///     libc!(libc::strlen(s));
+///     // ...
 /// }
 /// ```
 ///

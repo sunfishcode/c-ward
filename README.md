@@ -22,9 +22,8 @@ It consists of two crates:
  - [c-gull], which pulls in c-scape and additionally provides features
    using `std`.
 
-It is a goal of c-ward to be a C ABI layer on top of Rust-idomatic
-libraries, rather than to have significant implementation code of
-its own.
+It is a goal of c-ward to be a C ABI layer on top of Rust-idomatic libraries,
+rather than to have significant implementation code of its own.
 
 In theory c-ward could be extended to be ABI-compatible with different
 platforms, however currently it is only known to be ABI-compatible with

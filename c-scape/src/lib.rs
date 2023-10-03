@@ -71,7 +71,7 @@ mod termios_;
 
 #[cfg(feature = "thread")]
 #[cfg(feature = "take-charge")]
-mod threads;
+mod thread;
 
 mod errno_;
 mod exec;

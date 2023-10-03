@@ -6,9 +6,9 @@
 #[cfg(not(target_arch = "riscv64"))]
 use core::mem::align_of;
 use core::mem::size_of;
-use core::ptr;
+use core::ptr::{copy_nonoverlapping, null_mut, write_bytes};
 use errno::{set_errno, Errno};
-use libc::{c_int, c_void, memcpy, memset};
+use libc::{c_int, c_void};
 
 // Decide which underlying allocator to use.
 
@@ -30,6 +30,9 @@ unsafe fn the_dealloc(ptr: *mut u8, layout: alloc::alloc::Layout) {
     core::alloc::GlobalAlloc::dealloc(&rustix_dlmalloc::GlobalDlmalloc, ptr, layout)
 }
 
+/// Rust's `alloc` API requires the user to pass in the old size and alignment
+/// for resizing and deallocation, while C's `malloc` API doesn't, so we store
+/// the size and alignment next to the allocation memory.
 #[repr(C)]
 #[derive(Clone, Copy, Debug)]
 struct Tag {
@@ -37,12 +40,13 @@ struct Tag {
     align: usize,
 }
 
-/// allocates for a given layout, with a tag prepended to the allocation,
-/// to keep track of said layout.
-/// returns null if the allocation failed
+/// Allocate for a given layout, with a tag prepended to the allocation, to
+/// keep track of said layout.
+///
+/// Return null if the allocation failed.
 fn tagged_alloc(type_layout: alloc::alloc::Layout) -> *mut u8 {
     if type_layout.size() == 0 {
-        return ptr::null_mut();
+        return null_mut();
     }
 
     let tag_layout = alloc::alloc::Layout::new::<Tag>();
@@ -62,15 +66,16 @@ fn tagged_alloc(type_layout: alloc::alloc::Layout) -> *mut u8 {
             total_ptr.wrapping_add(offset).cast()
         }
     } else {
-        ptr::null_mut()
+        null_mut()
     }
 }
 
-/// get the layout out of a tagged allocation
+/// Get the layout out of a tagged allocation.
 ///
-/// #Safety
-/// the given pointer must be a non-null pointer,
-/// gotten from calling `tagged_alloc`
+/// # Safety
+///
+/// The given pointer must be a non-null pointer that was returned from
+/// `tagged_alloc`.
 unsafe fn get_layout(ptr: *mut u8) -> alloc::alloc::Layout {
     let tag = ptr.wrapping_sub(size_of::<Tag>()).cast::<Tag>().read();
     alloc::alloc::Layout::from_size_align_unchecked(tag.size, tag.align)
@@ -78,9 +83,10 @@ unsafe fn get_layout(ptr: *mut u8) -> alloc::alloc::Layout {
 
 /// get the layout out of a tagged allocation
 ///
-/// #Safety
-/// the given pointer must be a non-null pointer,
-/// gotten from calling `tagged_alloc`
+/// # Safety
+///
+/// The given pointer must be a non-null pointer that was returned from
+/// `tagged_alloc`.
 unsafe fn tagged_dealloc(ptr: *mut u8) {
     let tag_layout = alloc::alloc::Layout::new::<Tag>();
     let type_layout = get_layout(ptr);
@@ -128,7 +134,11 @@ unsafe extern "C" fn realloc(old: *mut c_void, size: usize) -> *mut c_void {
 
         let new = malloc(size);
 
-        memcpy(new, old, core::cmp::min(size, old_layout.size()));
+        copy_nonoverlapping(
+            old.cast::<u8>(),
+            new.cast::<u8>(),
+            core::cmp::min(size, old_layout.size()),
+        );
         tagged_dealloc(old.cast());
         new
     }
@@ -142,12 +152,12 @@ unsafe extern "C" fn calloc(nmemb: usize, size: usize) -> *mut c_void {
         Some(product) => product,
         None => {
             set_errno(Errno(libc::ENOMEM));
-            return ptr::null_mut();
+            return null_mut();
         }
     };
 
     let ptr = malloc(product);
-    memset(ptr, 0, product)
+    write_bytes(ptr, 0, product)
 }
 
 #[no_mangle]
@@ -157,12 +167,16 @@ unsafe extern "C" fn posix_memalign(
     size: usize,
 ) -> c_int {
     libc!(libc::posix_memalign(memptr, alignment, size));
+
     if !(alignment.is_power_of_two() && alignment % core::mem::size_of::<*const c_void>() == 0) {
-        return rustix::io::Errno::INVAL.raw_os_error();
+        return libc::EINVAL;
     }
 
     let layout = alloc::alloc::Layout::from_size_align(size, alignment).unwrap();
     let ptr = tagged_alloc(layout).cast();
+    if ptr.is_null() {
+        return libc::ENOMEM;
+    }
 
     *memptr = ptr;
     0

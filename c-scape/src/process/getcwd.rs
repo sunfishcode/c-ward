@@ -1,7 +1,7 @@
 use alloc::vec::Vec;
-use core::ptr::null_mut;
+use core::ptr::{copy_nonoverlapping, null_mut};
 use errno::{set_errno, Errno};
-use libc::{c_char, memcpy};
+use libc::c_char;
 
 use crate::convert_res;
 
@@ -13,7 +13,7 @@ unsafe extern "C" fn getcwd(buf: *mut c_char, len: usize) -> *mut c_char {
         Some(path) => {
             let path = path.as_bytes();
             if path.len() + 1 <= len {
-                memcpy(buf.cast(), path.as_ptr().cast(), path.len());
+                copy_nonoverlapping(path.as_ptr().cast::<u8>(), buf.cast::<u8>(), path.len());
                 *buf.add(path.len()) = 0;
                 buf
             } else {

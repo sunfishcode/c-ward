@@ -1,16 +1,6 @@
 use core::ptr::null_mut;
 use libc::{c_int, c_void};
 
-// Obsolescent
-#[cfg(feature = "define-mem-functions")]
-#[no_mangle]
-unsafe extern "C" fn bcmp(a: *const c_void, b: *const c_void, len: usize) -> c_int {
-    // `bcmp` is just an alias for `memcmp`.
-    libc!(libc::memcmp(a, b, len));
-
-    compiler_builtins::mem::bcmp(a.cast(), b.cast(), len)
-}
-
 #[no_mangle]
 unsafe extern "C" fn memchr(s: *const c_void, c: c_int, len: usize) -> *mut c_void {
     libc!(libc::memchr(s, c, len));
@@ -50,6 +40,15 @@ unsafe extern "C" fn memcmp(a: *const c_void, b: *const c_void, len: usize) -> c
     libc!(libc::memcmp(a, b, len));
 
     compiler_builtins::mem::memcmp(a.cast(), b.cast(), len)
+}
+
+// Obsolescent
+#[cfg(feature = "define-mem-functions")]
+#[no_mangle]
+unsafe extern "C" fn bcmp(a: *const c_void, b: *const c_void, len: usize) -> c_int {
+    //libc!(libc::bcmp(a, b, len));
+
+    compiler_builtins::mem::bcmp(a.cast(), b.cast(), len)
 }
 
 #[cfg(feature = "define-mem-functions")]

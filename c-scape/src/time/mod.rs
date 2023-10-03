@@ -126,3 +126,17 @@ unsafe extern "C" fn difftime(time1: libc::time_t, time0: libc::time_t) -> f64 {
 
     (time1 as i128 - time0 as i128) as f64
 }
+
+#[no_mangle]
+unsafe extern "C" fn clock() -> libc::clock_t {
+    //libc!(libc::clock());
+
+    let time = rustix::time::clock_gettime(rustix::time::ClockId::ProcessCPUTime);
+
+    time.tv_sec
+        .checked_mul(1_000_000)
+        .map(|usec| usec + time.tv_nsec / 1000)
+        .unwrap_or(-1)
+        .try_into()
+        .unwrap_or(-1)
+}

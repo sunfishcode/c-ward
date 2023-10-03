@@ -3,6 +3,7 @@ mod access;
 mod chmod;
 mod dir;
 mod fadvise;
+mod fallocate;
 mod fcntl;
 mod flock;
 mod inotify;

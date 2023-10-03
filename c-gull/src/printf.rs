@@ -250,6 +250,56 @@ unsafe extern "C" fn fgets(s: *mut c_char, size: c_int, file: *mut c_void) -> *m
     }
 }
 
+// `__*_chk` functions that have to live in c-gull because they depend on
+// C functions not in the libc crate, due to `VaList` being unstable.
+
+extern "C" {
+    fn __chk_fail();
+}
+
+// <http://refspecs.linux-foundation.org/LSB_4.0.0/LSB-Core-generic/LSB-Core-generic/libc---snprintf-chk-1.html>
+#[no_mangle]
+unsafe extern "C" fn __snprintf_chk(
+    ptr: *mut c_char,
+    len: size_t,
+    flag: c_int,
+    slen: size_t,
+    fmt: *const c_char,
+    mut args: ...
+) -> c_int {
+    if slen < len {
+        __chk_fail();
+    }
+
+    if flag > 0 {
+        unimplemented!("__USE_FORTIFY_LEVEL > 1");
+    }
+
+    let va_list = args.as_va_list();
+    vsnprintf(ptr, len, fmt, va_list)
+}
+
+// <https://refspecs.linuxbase.org/LSB_4.0.0/LSB-Core-generic/LSB-Core-generic/libc---vsnprintf-chk-1.html>
+#[no_mangle]
+unsafe extern "C" fn __vsnprintf_chk(
+    ptr: *mut c_char,
+    len: size_t,
+    flag: c_int,
+    slen: size_t,
+    fmt: *const c_char,
+    va_list: VaList,
+) -> c_int {
+    if slen < len {
+        __chk_fail();
+    }
+
+    if flag > 0 {
+        unimplemented!("__USE_FORTIFY_LEVEL > 1");
+    }
+
+    vsnprintf(ptr, len, fmt, va_list)
+}
+
 #[no_mangle]
 #[allow(non_upper_case_globals)]
 static mut stdin: *mut c_void = unsafe { THE_STDIN.as_mut_ptr().cast() };

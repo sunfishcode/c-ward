@@ -157,7 +157,8 @@ unsafe extern "C" fn calloc(nmemb: usize, size: usize) -> *mut c_void {
     };
 
     let ptr = malloc(product);
-    write_bytes(ptr, 0, product)
+    write_bytes(ptr, 0, product);
+    ptr
 }
 
 #[no_mangle]
@@ -173,12 +174,12 @@ unsafe extern "C" fn posix_memalign(
     }
 
     let layout = alloc::alloc::Layout::from_size_align(size, alignment).unwrap();
-    let ptr = tagged_alloc(layout).cast();
+    let ptr = tagged_alloc(layout);
     if ptr.is_null() {
         return libc::ENOMEM;
     }
 
-    *memptr = ptr;
+    *memptr = ptr.cast();
     0
 }
 

@@ -17,6 +17,20 @@ unsafe extern "C" fn getenv(key: *const c_char) -> *mut c_char {
     _getenv(key_bytes)
 }
 
+#[no_mangle]
+unsafe extern "C" fn secure_getenv(key: *const c_char) -> *mut c_char {
+    //libc!(libc::secure_getenv(key));
+
+    if rustix::runtime::linux_secure() {
+        return null_mut();
+    }
+
+    let key = CStr::from_ptr(key.cast());
+    let key_bytes = key.to_bytes();
+
+    _getenv(key_bytes)
+}
+
 pub(crate) unsafe fn _getenv(key_bytes: &[u8]) -> *mut c_char {
     let mut ptr = environ;
     loop {

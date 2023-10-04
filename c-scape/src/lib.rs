@@ -55,7 +55,7 @@ mod math;
 mod mem;
 
 #[cfg(not(target_os = "wasi"))]
-mod mmap;
+mod mm;
 
 mod net;
 

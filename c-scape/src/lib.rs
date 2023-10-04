@@ -73,6 +73,7 @@ mod termios_;
 #[cfg(feature = "take-charge")]
 mod thread;
 
+mod atoi;
 mod errno_;
 mod exec;
 mod exit;

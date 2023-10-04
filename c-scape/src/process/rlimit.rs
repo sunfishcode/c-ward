@@ -33,6 +33,36 @@ unsafe extern "C" fn getrlimit64(resource: c_uint, old_limit: *mut libc::rlimit6
 }
 
 #[no_mangle]
+unsafe extern "C" fn setrlimit(resource: c_uint, new_limit: *const libc::rlimit) -> c_int {
+    libc!(libc::setrlimit(resource, new_limit));
+
+    let resource = match resource_to_rustix(resource) {
+        Some(resource) => resource,
+        None => return -1,
+    };
+    let new_limit = rlimit_to_rustix(*new_limit);
+    match convert_res(rustix::process::setrlimit(resource, new_limit)) {
+        Some(()) => 0,
+        None => -1,
+    }
+}
+
+#[no_mangle]
+unsafe extern "C" fn setrlimit64(resource: c_uint, new_limit: *const libc::rlimit64) -> c_int {
+    libc!(libc::setrlimit64(resource, new_limit));
+
+    let resource = match resource_to_rustix(resource) {
+        Some(resource) => resource,
+        None => return -1,
+    };
+    let new_limit = rlimit64_to_rustix(*new_limit);
+    match convert_res(rustix::process::setrlimit(resource, new_limit)) {
+        Some(()) => 0,
+        None => -1,
+    }
+}
+
+#[no_mangle]
 unsafe extern "C" fn prlimit(
     pid: libc::pid_t,
     resource: c_uint,

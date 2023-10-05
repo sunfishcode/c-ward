@@ -567,3 +567,26 @@ unsafe extern "C" fn yn(x: i32, y: f64) -> f64 {
 unsafe extern "C" fn ynf(x: i32, y: f32) -> f32 {
     libm::ynf(x, y)
 }
+
+#[no_mangle]
+unsafe extern "C" fn rint(x: f64) -> f64 {
+    libm::rint(x)
+}
+
+#[no_mangle]
+unsafe extern "C" fn rintf(x: f32) -> f32 {
+    libm::rintf(x)
+}
+
+// `nearbyint` differs from `rint` in that it doesn't raise
+// `FE_INEXACT`. But we don't support floating-point exceptions
+// anyway, so don't worry about it.
+#[no_mangle]
+unsafe extern "C" fn nearbyint(x: f64) -> f64 {
+    libm::rint(x)
+}
+
+#[no_mangle]
+unsafe extern "C" fn nearbyintf(x: f32) -> f32 {
+    libm::rintf(x)
+}

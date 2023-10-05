@@ -13,6 +13,22 @@ unsafe extern "C" fn __chk_fail() -> ! {
     libc::abort();
 }
 
+// <http://refspecs.linux-foundation.org/LSB_4.0.0/LSB-Core-generic/LSB-Core-generic/libc---strcpy-chk-1.html>
+#[no_mangle]
+unsafe extern "C" fn __strcpy_chk(
+    dest: *mut c_char,
+    src: *const c_char,
+    destlen: size_t,
+) -> *mut c_char {
+    let src_strlen = libc::strlen(src);
+
+    if src_strlen + 1 > destlen {
+        __chk_fail();
+    }
+
+    libc::strcpy(dest, src)
+}
+
 // <http://refspecs.linux-foundation.org/LSB_4.0.0/LSB-Core-generic/LSB-Core-generic/libc---memcpy-chk-1.html>
 #[no_mangle]
 unsafe extern "C" fn __memcpy_chk(

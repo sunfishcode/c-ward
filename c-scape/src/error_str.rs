@@ -56,7 +56,16 @@ pub(crate) const fn error_str(e: Errno) -> Option<&'static str> {
         Errno::NOEXEC => "Executable file format error",
         Errno::NOLCK => "No locks available",
         Errno::NOLINK => "Reserved",
-        Errno::NOMEM => "Not enough space",
+
+        // Some testsuites depend on the specific string we get, so
+        // match the string from the platform libc.
+        #[cfg(target_env = "musl")]
+        Errno::NOMEM => "Out of memory",
+        #[cfg(target_env = "gnu")]
+        Errno::NOMEM => "Cannot allocate memory",
+        #[cfg(not(any(target_env = "gnu", target_env = "musl")))]
+        Errno::NOMEM => "Not enough space", // default to POSIX's string
+
         Errno::NOMSG => "No message of the desired type",
         Errno::NOPROTOOPT => "Protocol not available",
         Errno::NOSPC => "No space left on device",

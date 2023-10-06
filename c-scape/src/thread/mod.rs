@@ -449,11 +449,16 @@ unsafe extern "C" fn pthread_cond_init(
         checked_cast!(cond),
         checked_cast!(attr)
     ));
+    let attr = if attr.is_null() {
+        PthreadCondattrT::default()
+    } else {
+        ptr::read(attr)
+    };
     ptr::write(
         cond,
         PthreadCondT {
             inner: RawCondvar::new(),
-            attr: ptr::read(attr),
+            attr,
             pad: [0_u8;
                 SIZEOF_PTHREAD_COND_T - size_of::<RawCondvar>() - size_of::<PthreadCondattrT>()],
         },

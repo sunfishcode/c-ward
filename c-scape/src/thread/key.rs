@@ -103,7 +103,7 @@ unsafe extern "C" fn pthread_setspecific(key: libc::pthread_key_t, value: *const
 
                         // Call the destructor with the old
                         // data, before we set it to null.
-                        dtor(value as *mut _);
+                        dtor(data as *mut _);
                     }
                 }
 
@@ -151,6 +151,7 @@ unsafe extern "C" fn pthread_key_create(
                     panic!("detected epoch counter overflow");
                 }
                 next_key = index as libc::pthread_key_t;
+                break;
             }
         }
 
@@ -163,6 +164,7 @@ unsafe extern "C" fn pthread_key_create(
 
     // We have to `unwrap_or` the dtor because `None` is reserved for signifying
     // that the key is not allocated.
+    *key = next_key;
     key_data.destructors[next_key as usize] = Some(dtor.unwrap_or(empty_dtor));
 
     0

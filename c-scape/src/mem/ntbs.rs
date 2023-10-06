@@ -69,9 +69,12 @@ unsafe extern "C" fn strchr(s: *const c_char, c: c_int) -> *mut c_char {
     libc!(libc::strchr(s, c));
 
     let mut s = s as *mut c_char;
-    while *s != NUL {
+    loop {
         if *s == c as _ {
             return s;
+        }
+        if *s == NUL {
+            break;
         }
         s = s.add(1);
     }
@@ -230,10 +233,10 @@ unsafe extern "C" fn strpbrk(s: *const c_char, m: *const c_char) -> *mut c_char 
     let s = s.add(strcspn(s, m)) as *mut _;
 
     if *s != NUL {
-        return ptr::null_mut();
+        return s;
     }
 
-    s
+    ptr::null_mut()
 }
 
 #[no_mangle]
@@ -312,7 +315,7 @@ unsafe extern "C" fn strtok_r(
     let t = s.add(strcspn(s, m));
     if *t != NUL {
         *t = NUL;
-        *p = t;
+        *p = t.add(1);
     } else {
         *p = ptr::null_mut();
     }

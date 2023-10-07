@@ -1,5 +1,4 @@
 #![doc = include_str!("../README.md")]
-#![no_builtins] // don't let LLVM optimize our `memcpy` into a `memcpy` call
 #![feature(strict_provenance)]
 #![feature(c_variadic)]
 #![feature(sync_unsafe_cell)]

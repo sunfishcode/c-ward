@@ -76,6 +76,18 @@ fn example_crate_c_gull_example() {
 }
 
 #[test]
+fn example_crate_c_gull_lto() {
+    test_crate(
+        "c-gull-lto",
+        &["--release"],
+        &[],
+        "Hello world using Rust `println!`!\nHello world using libc `printf`!\n",
+        "",
+        None,
+    );
+}
+
+#[test]
 fn example_crate_custom_allocator() {
     test_crate(
         "custom-allocator",

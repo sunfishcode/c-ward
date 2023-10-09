@@ -1,6 +1,6 @@
 use core::ptr;
 use errno::{set_errno, Errno};
-use libc::{c_char, c_int, c_long, c_void};
+use libc::{c_char, c_int, c_long, c_void, timespec};
 #[cfg(feature = "thread")]
 use {crate::convert_res, core::mem::zeroed, core::ptr::null};
 
@@ -18,57 +18,13 @@ unsafe extern "C" fn syscall(number: c_long, mut args: ...) -> *mut c_void {
         }
         #[cfg(feature = "thread")]
         libc::SYS_futex => {
-            use rustix::thread::{futex, FutexFlags, FutexOperation};
-
             let uaddr = args.arg::<*mut u32>();
             let futex_op = args.arg::<c_int>();
             let val = args.arg::<u32>();
             let timeout = args.arg::<*const libc::timespec>();
             let uaddr2 = args.arg::<*mut u32>();
             let val3 = args.arg::<u32>();
-            libc!(ptr::invalid_mut(libc::syscall(
-                libc::SYS_futex,
-                uaddr,
-                futex_op,
-                val,
-                timeout,
-                uaddr2,
-                val3
-            ) as _));
-            let flags = FutexFlags::from_bits_truncate(futex_op as _);
-            let op = match futex_op & (!flags.bits() as i32) {
-                libc::FUTEX_WAIT => FutexOperation::Wait,
-                libc::FUTEX_WAKE => FutexOperation::Wake,
-                libc::FUTEX_FD => FutexOperation::Fd,
-                libc::FUTEX_REQUEUE => FutexOperation::Requeue,
-                libc::FUTEX_CMP_REQUEUE => FutexOperation::CmpRequeue,
-                libc::FUTEX_WAKE_OP => FutexOperation::WakeOp,
-                libc::FUTEX_LOCK_PI => FutexOperation::LockPi,
-                libc::FUTEX_UNLOCK_PI => FutexOperation::UnlockPi,
-                libc::FUTEX_TRYLOCK_PI => FutexOperation::TrylockPi,
-                libc::FUTEX_WAIT_BITSET => FutexOperation::WaitBitset,
-                _ => unimplemented!("unrecognized futex op {}", futex_op),
-            };
-            let old_timespec = if timeout.is_null()
-                || !matches!(op, FutexOperation::Wait | FutexOperation::WaitBitset)
-            {
-                zeroed()
-            } else {
-                ptr::read(timeout)
-            };
-            let new_timespec = rustix::time::Timespec {
-                tv_sec: old_timespec.tv_sec.into(),
-                tv_nsec: old_timespec.tv_nsec as _,
-            };
-            let new_timespec = if timeout.is_null() {
-                null()
-            } else {
-                &new_timespec
-            };
-            match convert_res(futex(uaddr, op, flags, val, new_timespec, uaddr2, val3)) {
-                Some(result) => ptr::invalid_mut(result as _),
-                None => ptr::invalid_mut(!0),
-            }
+            ptr::invalid_mut(futex(uaddr, futex_op, val, timeout, uaddr2, val3) as isize as usize)
         }
         libc::SYS_clone3 => {
             // ensure std::process uses fork as fallback code on linux
@@ -109,5 +65,51 @@ unsafe extern "C" fn syscall(number: c_long, mut args: ...) -> *mut c_void {
             ptr::invalid_mut(libc::syncfs(fd) as isize as usize)
         }
         _ => unimplemented!("syscall({:?})", number),
+    }
+}
+
+unsafe fn futex(
+    uaddr: *mut u32,
+    futex_op: c_int,
+    val: u32,
+    timeout: *const timespec,
+    uaddr2: *mut u32,
+    val3: u32,
+) -> c_long {
+    use rustix::thread::{futex, FutexFlags, FutexOperation};
+
+    libc!(libc::syscall(libc::SYS_futex, uaddr, futex_op, val, timeout, uaddr2, val3) as _);
+    let flags = FutexFlags::from_bits_truncate(futex_op as _);
+    let op = match futex_op & (!flags.bits() as i32) {
+        libc::FUTEX_WAIT => FutexOperation::Wait,
+        libc::FUTEX_WAKE => FutexOperation::Wake,
+        libc::FUTEX_FD => FutexOperation::Fd,
+        libc::FUTEX_REQUEUE => FutexOperation::Requeue,
+        libc::FUTEX_CMP_REQUEUE => FutexOperation::CmpRequeue,
+        libc::FUTEX_WAKE_OP => FutexOperation::WakeOp,
+        libc::FUTEX_LOCK_PI => FutexOperation::LockPi,
+        libc::FUTEX_UNLOCK_PI => FutexOperation::UnlockPi,
+        libc::FUTEX_TRYLOCK_PI => FutexOperation::TrylockPi,
+        libc::FUTEX_WAIT_BITSET => FutexOperation::WaitBitset,
+        _ => unimplemented!("unrecognized futex op {}", futex_op),
+    };
+    let old_timespec =
+        if timeout.is_null() || !matches!(op, FutexOperation::Wait | FutexOperation::WaitBitset) {
+            zeroed()
+        } else {
+            ptr::read(timeout)
+        };
+    let new_timespec = rustix::time::Timespec {
+        tv_sec: old_timespec.tv_sec.into(),
+        tv_nsec: old_timespec.tv_nsec as _,
+    };
+    let new_timespec = if timeout.is_null() {
+        null()
+    } else {
+        &new_timespec
+    };
+    match convert_res(futex(uaddr, op, flags, val, new_timespec, uaddr2, val3)) {
+        Some(result) => result as _,
+        None => -1,
     }
 }

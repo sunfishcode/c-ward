@@ -3,6 +3,7 @@ use core::mem::{align_of, size_of, size_of_val, transmute, zeroed};
 use core::ptr::copy_nonoverlapping;
 use errno::{set_errno, Errno};
 use libc::*;
+use rustix::cstr;
 use rustix::process::Signal;
 use rustix::runtime::{How, Sigaction, Siginfo, Sigset, Stack};
 
@@ -315,5 +316,49 @@ unsafe extern "C" fn sigtimedwait(
             0
         }
         None => -1,
+    }
+}
+
+#[no_mangle]
+unsafe extern "C" fn strsignal(sig: c_int) -> *mut c_char {
+    libc!(libc::strsignal(sig));
+
+    let sig = match Signal::from_raw(sig) {
+        Some(sig) => sig,
+        None => return cstr!("Unknown signal").as_ptr() as _,
+    };
+
+    match sig {
+        Signal::Abort => cstr!("Process abort signal").as_ptr() as _,
+        Signal::Alarm => cstr!("Alarm clock").as_ptr() as _,
+        Signal::Bus => cstr!("Access to an undefined portion of a memory object").as_ptr() as _,
+        Signal::Child => cstr!("Child process terminated, stopped, or continued").as_ptr() as _,
+        Signal::Cont => cstr!("Continue executing, if stopped").as_ptr() as _,
+        Signal::Fpe => cstr!("Erroneous arithmetic operation").as_ptr() as _,
+        Signal::Hup => cstr!("Hangup").as_ptr() as _,
+        Signal::Ill => cstr!("Illegal instruction").as_ptr() as _,
+        Signal::Int => cstr!("Terminal interrupt signal").as_ptr() as _,
+        Signal::Kill => cstr!("Kill (cannot be caught or ignored)").as_ptr() as _,
+        Signal::Pipe => cstr!("Write on a pipe with no one to read it").as_ptr() as _,
+        Signal::Quit => cstr!("Terminal quit signal").as_ptr() as _,
+        Signal::Segv => cstr!("Invalid memory reference").as_ptr() as _,
+        Signal::Stop => cstr!("Stop executing (cannot be caught or ignored)").as_ptr() as _,
+        Signal::Term => cstr!("Termination signal").as_ptr() as _,
+        Signal::Tstp => cstr!("Terminal stop signal").as_ptr() as _,
+        Signal::Ttin => cstr!("Background process attempting read").as_ptr() as _,
+        Signal::Ttou => cstr!("Background process attempting write").as_ptr() as _,
+        Signal::Usr1 => cstr!("User-defined signal 1").as_ptr() as _,
+        Signal::Usr2 => cstr!("User-defined signal 2").as_ptr() as _,
+        Signal::Prof => cstr!("Profiling timer expired").as_ptr() as _,
+        Signal::Sys => cstr!("Bad system call").as_ptr() as _,
+        Signal::Trap => cstr!("Trace/breakpoint trap").as_ptr() as _,
+        Signal::Urg => cstr!("High bandwidth data is available at a socket").as_ptr() as _,
+        Signal::Vtalarm => cstr!("Virtual timer expired").as_ptr() as _,
+        Signal::Xcpu => cstr!("CPU time limit exceeded").as_ptr() as _,
+        Signal::Xfsz => cstr!("File size limit exceeded").as_ptr() as _,
+        Signal::Io => cstr!("I/O now possible").as_ptr() as _,
+        Signal::Stkflt => cstr!("Stack fault on coprocessor").as_ptr() as _,
+        Signal::Winch => cstr!("Window resize signal").as_ptr() as _,
+        Signal::Power => cstr!("Power failure").as_ptr() as _,
     }
 }

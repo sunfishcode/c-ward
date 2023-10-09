@@ -32,7 +32,14 @@ unsafe extern "C" fn getpgid(pid: pid_t) -> pid_t {
     libc!(libc::getpgid(pid));
 
     match convert_res(rustix::process::getpgid(Pid::from_raw(pid as _))) {
-        Some(pid) => Pid::as_raw(Some(pid)) as _,
+        Some(pid) => pid.as_raw_nonzero().get(),
         None => -1,
     }
+}
+
+#[no_mangle]
+unsafe extern "C" fn getpgrp() -> pid_t {
+    libc!(libc::getpgrp());
+
+    rustix::process::getpgrp().as_raw_nonzero().get()
 }

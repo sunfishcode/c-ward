@@ -3,8 +3,9 @@
 use crate::{convert_res, set_errno, Errno};
 use core::mem::{size_of, transmute, zeroed};
 use core::ops::Index;
-use libc::{c_char, c_int, termios, winsize};
+use libc::{c_char, c_int, pid_t, termios, winsize};
 use rustix::fd::{BorrowedFd, FromRawFd, IntoRawFd, OwnedFd};
+use rustix::process::Pid;
 use rustix::termios::{
     ControlModes, InputModes, LocalModes, OptionalActions, OutputModes, SpecialCodeIndex,
     SpecialCodes, Termios,
@@ -284,5 +285,26 @@ fn to_libc_speed(speed: u32) -> libc::speed_t {
         )))]
         4_000_000 => libc::B4000000,
         _ => libc::BOTHER,
+    }
+}
+
+#[no_mangle]
+unsafe extern "C" fn tcgetpgrp(fd: c_int) -> pid_t {
+    libc!(libc::tcgetpgrp(fd));
+    let fd = BorrowedFd::borrow_raw(fd);
+    match convert_res(rustix::termios::tcgetpgrp(fd)) {
+        Some(pid) => pid.as_raw_nonzero().get(),
+        None => -1,
+    }
+}
+
+#[no_mangle]
+unsafe extern "C" fn tcsetpgrp(fd: c_int, pgrp: pid_t) -> c_int {
+    libc!(libc::tcsetpgrp(fd, pgrp));
+    let fd = BorrowedFd::borrow_raw(fd);
+    let pgrp = Pid::from_raw(pgrp).unwrap();
+    match convert_res(rustix::termios::tcsetpgrp(fd, pgrp)) {
+        Some(()) => 0,
+        None => -1,
     }
 }

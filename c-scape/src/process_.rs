@@ -7,6 +7,7 @@ use core::ptr::null_mut;
 #[cfg(feature = "take-charge")]
 use libc::c_ulong;
 use libc::{c_char, c_int, c_long, c_void};
+use rustix::cstr;
 
 #[no_mangle]
 unsafe extern "C" fn sysconf(name: c_int) -> c_long {
@@ -97,7 +98,7 @@ unsafe extern "C" fn dl_iterate_phdr(
     let (phdr, _phent, phnum) = rustix::runtime::exe_phdrs();
     let mut info = libc::dl_phdr_info {
         dlpi_addr: (&mut __executable_start as *mut c_void).expose_addr() as _,
-        dlpi_name: b"/proc/self/exe\0".as_ptr().cast(),
+        dlpi_name: cstr!("/proc/self/exe").as_ptr(),
         dlpi_phdr: phdr.cast(),
         dlpi_phnum: phnum.try_into().unwrap(),
         ..zeroed()

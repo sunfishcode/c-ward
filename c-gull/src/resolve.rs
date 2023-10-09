@@ -4,9 +4,10 @@ use core::ptr::null_mut;
 
 use errno::{set_errno, Errno};
 use libc::{c_char, c_int};
-use rustix::net::{SocketAddrAny, SocketAddrStorage, SocketType};
-
-use rustix::net::{IpAddr, SocketAddrV4, SocketAddrV6};
+use rustix::cstr;
+use rustix::net::{
+    IpAddr, SocketAddrAny, SocketAddrStorage, SocketAddrV4, SocketAddrV6, SocketType,
+};
 use sync_resolve::resolve_host;
 
 extern crate alloc;
@@ -130,12 +131,11 @@ unsafe extern "C" fn gai_strerror(errcode: c_int) -> *const c_char {
     libc!(libc::gai_strerror(errcode));
 
     match errcode {
-        libc::EAI_NONAME => &b"Name does not resolve\0"[..],
-        libc::EAI_SYSTEM => &b"System error\0"[..],
+        libc::EAI_NONAME => cstr!("Name does not resolve"),
+        libc::EAI_SYSTEM => cstr!("System error"),
         _ => panic!("unrecognized gai_strerror {:?}", errcode),
     }
     .as_ptr()
-    .cast()
 }
 
 #[no_mangle]

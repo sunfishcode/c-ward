@@ -24,6 +24,7 @@ unsafe extern "C" fn sysconf(name: c_int) -> c_long {
 
     match name {
         libc::_SC_PAGESIZE => rustix::param::page_size() as _,
+        libc::_SC_CLK_TCK => rustix::param::clock_ticks_per_second() as _,
         #[cfg(not(target_os = "wasi"))]
         libc::_SC_GETPW_R_SIZE_MAX => -1,
         #[cfg(any(target_os = "android", target_os = "linux", target_os = "wasi"))]

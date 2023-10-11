@@ -68,7 +68,7 @@ unsafe extern "C" fn strcat(d: *mut c_char, s: *const c_char) -> *mut c_char {
 unsafe extern "C" fn strchr(s: *const c_char, c: c_int) -> *mut c_char {
     libc!(libc::strchr(s, c));
 
-    let mut s = s as *mut c_char;
+    let mut s = s.cast_mut();
     loop {
         if *s == c as _ {
             return s;
@@ -230,7 +230,7 @@ unsafe extern "C" fn strnlen(s: *const c_char, mut n: usize) -> usize {
 unsafe extern "C" fn strpbrk(s: *const c_char, m: *const c_char) -> *mut c_char {
     libc!(libc::strpbrk(s, m));
 
-    let s = s.add(strcspn(s, m)) as *mut _;
+    let s = s.add(strcspn(s, m)).cast_mut();
 
     if *s != NUL {
         return s;
@@ -243,7 +243,7 @@ unsafe extern "C" fn strpbrk(s: *const c_char, m: *const c_char) -> *mut c_char 
 unsafe extern "C" fn strrchr(s: *const c_char, c: c_int) -> *mut c_char {
     libc!(libc::strrchr(s, c));
 
-    let mut s = s as *mut c_char;
+    let mut s = s.cast_mut();
     let mut ret = ptr::null_mut::<c_char>();
     loop {
         s = strchr(s, c);
@@ -371,7 +371,7 @@ unsafe extern "C" fn strstr(haystack: *const c_char, needle: *const c_char) -> *
     libc!(libc::strstr(haystack, needle));
 
     if *needle == 0 {
-        return haystack as *mut c_char;
+        return haystack.cast_mut();
     }
 
     let mut haystack = haystack;
@@ -388,7 +388,7 @@ unsafe extern "C" fn strstr(haystack: *const c_char, needle: *const c_char) -> *
             len += 1;
         }
         if *needle.add(len) == 0 {
-            return haystack as *mut c_char;
+            return haystack.cast_mut();
         }
         haystack = haystack.add(1);
     }

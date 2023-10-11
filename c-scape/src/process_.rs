@@ -3,7 +3,7 @@ use core::ffi::CStr;
 use core::mem::{size_of, zeroed};
 #[cfg(feature = "take-charge")]
 use core::ptr;
-use core::ptr::null_mut;
+use core::ptr::{addr_of, null_mut};
 #[cfg(feature = "take-charge")]
 use libc::c_ulong;
 use libc::{c_char, c_int, c_long, c_void};
@@ -98,7 +98,7 @@ unsafe extern "C" fn dl_iterate_phdr(
 
     let (phdr, _phent, phnum) = rustix::runtime::exe_phdrs();
     let mut info = libc::dl_phdr_info {
-        dlpi_addr: (&mut __executable_start as *mut c_void).expose_addr() as _,
+        dlpi_addr: addr_of!(__executable_start).expose_addr() as _,
         dlpi_name: cstr!("/proc/self/exe").as_ptr(),
         dlpi_phdr: phdr.cast(),
         dlpi_phnum: phnum.try_into().unwrap(),
@@ -218,7 +218,7 @@ unsafe extern "C" fn prctl(
     match option {
         libc::PR_SET_NAME => {
             match convert_res(rustix::runtime::set_thread_name(CStr::from_ptr(
-                arg2 as *const _,
+                arg2.cast::<c_char>(),
             ))) {
                 Some(()) => 0,
                 None => -1,
@@ -289,9 +289,7 @@ unsafe extern "C" fn pthread_setname_np(
     name: *const libc::c_char,
 ) -> c_int {
     libc!(libc::pthread_setname_np(thread, name));
-    match convert_res(rustix::runtime::set_thread_name(CStr::from_ptr(
-        name as *const _,
-    ))) {
+    match convert_res(rustix::runtime::set_thread_name(CStr::from_ptr(name))) {
         Some(()) => 0,
         None => -1,
     }

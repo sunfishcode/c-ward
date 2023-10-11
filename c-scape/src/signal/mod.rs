@@ -1,6 +1,6 @@
 use crate::convert_res;
 use core::mem::{align_of, size_of, size_of_val, transmute, zeroed};
-use core::ptr::copy_nonoverlapping;
+use core::ptr::{addr_of, addr_of_mut, copy_nonoverlapping};
 use errno::{set_errno, Errno};
 use libc::*;
 use rustix::cstr;
@@ -45,10 +45,10 @@ unsafe extern "C" fn sigaction(signal: c_int, new: *const sigaction, old: *mut s
         None
     } else {
         let new = new.read();
-        let mut sa_mask = zeroed();
+        let mut sa_mask: Sigset = zeroed();
         copy_nonoverlapping(
-            &new.sa_mask as *const sigset_t as *const u8,
-            &mut sa_mask as *mut _ as *mut u8,
+            addr_of!(new.sa_mask).cast::<u8>(),
+            addr_of_mut!(sa_mask).cast::<u8>(),
             size_of_val(&zeroed::<Sigaction>().sa_mask),
         );
 
@@ -64,10 +64,10 @@ unsafe extern "C" fn sigaction(signal: c_int, new: *const sigaction, old: *mut s
     match convert_res(origin::signal::sigaction(signal, new)) {
         Some(old_action) => {
             if !old.is_null() {
-                let mut sa_mask = zeroed();
+                let mut sa_mask: sigset_t = zeroed();
                 copy_nonoverlapping(
-                    &old_action.sa_mask as *const _ as *const u8,
-                    &mut sa_mask as *mut sigset_t as *mut u8,
+                    addr_of!(old_action.sa_mask).cast::<u8>(),
+                    addr_of_mut!(sa_mask).cast::<u8>(),
                     size_of_val(&zeroed::<Sigaction>().sa_mask),
                 );
 

@@ -393,17 +393,17 @@ unsafe fn set_timezone(
     dst: Option<&LocalTimeType>,
 ) {
     guard.0 = Some(CString::new(std.time_zone_designation()).unwrap());
-    tzname.0[0] = guard.0.as_ref().unwrap().as_ptr() as *mut c_char;
+    tzname.0[0] = guard.0.as_ref().unwrap().as_ptr().cast_mut();
 
     match dst {
         Some(dst) => {
             guard.1 = Some(CString::new(dst.time_zone_designation()).unwrap());
-            tzname.0[1] = guard.1.as_ref().unwrap().as_ptr() as *mut c_char;
+            tzname.0[1] = guard.1.as_ref().unwrap().as_ptr().cast_mut();
             daylight = 1;
         }
         None => {
             guard.1 = None;
-            tzname.0[1] = guard.0.as_ref().unwrap().as_ptr() as *mut c_char;
+            tzname.0[1] = guard.0.as_ref().unwrap().as_ptr().cast_mut();
             daylight = 0;
         }
     }

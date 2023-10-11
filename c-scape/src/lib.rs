@@ -40,6 +40,8 @@ mod sync_ptr;
 // the `rustix` APIs directly, which are safer, more ergonomic, and skip this
 // whole layer.
 
+#[cfg(feature = "take-charge")]
+use core::ptr::addr_of;
 use errno::{set_errno, Errno};
 
 mod ctype;
@@ -90,7 +92,7 @@ mod time;
 #[cfg(feature = "take-charge")]
 #[no_mangle]
 static __dso_handle: UnsafeSendSyncVoidStar =
-    UnsafeSendSyncVoidStar(&__dso_handle as *const _ as *const _);
+    UnsafeSendSyncVoidStar(addr_of!(__dso_handle) as *const _);
 
 /// A type for `__dso_handle`.
 ///

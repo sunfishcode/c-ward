@@ -42,7 +42,7 @@ unsafe extern "C" fn readv(fd: c_int, iov: *const iovec, iovcnt: c_int) -> isize
     // cast away the `const` here.
     match convert_res(rustix::io::readv(
         BorrowedFd::borrow_raw(fd),
-        slice::from_raw_parts_mut(iov as *mut _, iovcnt as usize),
+        slice::from_raw_parts_mut(iov.cast_mut(), iovcnt as usize),
     )) {
         Some(nread) => nread as isize,
         None => -1,
@@ -98,7 +98,7 @@ unsafe extern "C" fn preadv64(
     // cast away the `const` here.
     match convert_res(rustix::io::preadv(
         BorrowedFd::borrow_raw(fd),
-        slice::from_raw_parts_mut(iov as *mut _, iovcnt as usize),
+        slice::from_raw_parts_mut(iov.cast_mut(), iovcnt as usize),
         offset as u64,
     )) {
         Some(nwritten) => nwritten as isize,

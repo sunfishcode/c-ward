@@ -36,11 +36,11 @@ unsafe fn next_lcong(x_subi: *mut [c_ushort; 3], data: *const LCongData) -> u64 
         | ((*data).a_mult[1] as u64) << 16
         | ((*data).a_mult[2] as u64) << 32;
 
-    let res = a * x + (*data).c as u64;
+    let res = a.wrapping_mul(x).wrapping_add((*data).c as u64);
     (*x_subi)[0] = res as c_ushort;
     (*x_subi)[1] = (res >> 16) as c_ushort;
     (*x_subi)[2] = (res >> 32) as c_ushort;
-    res
+    res & 0xffff_ffff_ffff
 }
 
 #[no_mangle]

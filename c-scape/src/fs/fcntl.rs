@@ -1,5 +1,5 @@
 use rustix::fd::{BorrowedFd, IntoRawFd};
-use rustix::fs::{FdFlags, OFlags};
+use rustix::fs::{FdFlags, FlockOperation, OFlags};
 
 use libc::c_int;
 
@@ -45,6 +45,33 @@ unsafe extern "C" fn fcntl(fd: c_int, cmd: c_int, mut args: ...) -> c_int {
                 FdFlags::from_bits(flags as _).unwrap(),
             )) {
                 Some(()) => 0,
+                None => -1,
+            }
+        }
+        libc::F_SETLK | libc::F_SETLKW => {
+            let ptr = args.arg::<*mut libc::flock>();
+            libc!(libc::fcntl(fd, cmd, ptr));
+            let fd = BorrowedFd::borrow_raw(fd);
+            let is_blocking = cmd == libc::F_SETLKW;
+            let flock = &mut *ptr;
+            let op = match (flock.l_type as _, is_blocking) {
+                (libc::F_RDLCK, true) => FlockOperation::LockShared,
+                (libc::F_WRLCK, true) => FlockOperation::LockExclusive,
+                (libc::F_UNLCK, true) => FlockOperation::Unlock,
+                (libc::F_RDLCK, false) => FlockOperation::NonBlockingLockShared,
+                (libc::F_WRLCK, false) => FlockOperation::NonBlockingLockExclusive,
+                (libc::F_UNLCK, false) => FlockOperation::NonBlockingUnlock,
+                _ => unreachable!(),
+            };
+            // We currently only support whole-file locks.
+            assert_eq!(flock.l_whence, libc::SEEK_SET as _);
+            assert_eq!(flock.l_start, 0);
+            assert_eq!(flock.l_len, 0);
+            match convert_res(rustix::fs::fcntl_lock(fd, op)) {
+                Some(()) => {
+                    flock.l_pid = -1;
+                    0
+                }
                 None => -1,
             }
         }

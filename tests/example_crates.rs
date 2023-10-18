@@ -55,7 +55,7 @@ fn example_crate_libc_replacement() {
         let uid = unsafe { libc::getuid() };
         let gid = unsafe { libc::getgid() };
         format!(
-            "Hello, world! uid={}\nHello world with printf! gid={}\n",
+            "Hello, world! uid={}\nHello world with printf! gid={}\nHello world from `atexit_func`\n",
             uid, gid
         )
     });

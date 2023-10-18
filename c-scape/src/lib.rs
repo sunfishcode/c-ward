@@ -75,6 +75,7 @@ mod thread;
 mod atoi;
 mod errno_;
 mod exec;
+#[cfg(feature = "take-charge")]
 mod exit;
 mod glibc_versioning;
 mod nss;

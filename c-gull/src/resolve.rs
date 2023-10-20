@@ -1,6 +1,12 @@
+extern crate alloc;
+
+use alloc::vec::IntoIter;
 use core::ffi::CStr;
 use core::mem::zeroed;
 use core::ptr::null_mut;
+use core::str;
+use core::str::FromStr;
+use std::process::Command;
 
 use errno::{set_errno, Errno};
 use libc::{c_char, c_int};
@@ -8,9 +14,6 @@ use rustix::cstr;
 use rustix::net::{
     IpAddr, SocketAddrAny, SocketAddrStorage, SocketAddrV4, SocketAddrV6, SocketType,
 };
-use sync_resolve::resolve_host;
-
-extern crate alloc;
 
 #[no_mangle]
 unsafe extern "C" fn getaddrinfo(
@@ -24,6 +27,7 @@ unsafe extern "C" fn getaddrinfo(
     assert!(service.is_null(), "service lookups not supported yet");
     assert!(!node.is_null(), "only name lookups are supported corrently");
 
+    let mut socktype = None;
     if !hints.is_null() {
         let hints = &*hints;
         assert_eq!(hints.ai_flags, 0, "GAI flags hint not supported yet");
@@ -33,7 +37,7 @@ unsafe extern "C" fn getaddrinfo(
             SocketType::STREAM.as_raw() as _,
             "only SOCK_STREAM supported currently"
         );
-        assert_eq!(hints.ai_protocol, 0, "GAI protocl hint not supported yet");
+        assert_eq!(hints.ai_protocol, 0, "GAI protocol hint not supported yet");
         assert_eq!(hints.ai_addrlen, 0, "GAI addrlen hint not supported yet");
         assert!(hints.ai_addr.is_null(), "GAI addr hint not supported yet");
         assert!(
@@ -41,6 +45,7 @@ unsafe extern "C" fn getaddrinfo(
             "GAI canonname hint not supported yet"
         );
         assert!(hints.ai_next.is_null(), "GAI next hint not supported yet");
+        socktype = Some(hints.ai_socktype);
     }
 
     let host = match CStr::from_ptr(node.cast()).to_str() {
@@ -55,7 +60,7 @@ unsafe extern "C" fn getaddrinfo(
     let addr_layout = alloc::alloc::Layout::new::<SocketAddrStorage>();
     let mut first: *mut libc::addrinfo = null_mut();
     let mut prev: *mut libc::addrinfo = null_mut();
-    match resolve_host(host) {
+    match resolve(host, socktype) {
         Ok(addrs) => {
             for addr in addrs {
                 let ptr = alloc::alloc::alloc(layout).cast::<libc::addrinfo>();
@@ -88,24 +93,92 @@ unsafe extern "C" fn getaddrinfo(
             *res = first;
             0
         }
-        Err(err) => {
-            if let Some(err) = rustix::io::Errno::from_io_error(&err) {
-                set_errno(Errno(err.raw_os_error()));
-                libc::EAI_SYSTEM
-            } else {
-                // TODO: sync-resolve should return a custom error type
-                if err.to_string()
-                    == "failed to resolve host: server responded with error: server failure"
-                    || err.to_string()
-                        == "failed to resolve host: server responded with error: no such name"
-                {
-                    libc::EAI_NONAME
-                } else {
-                    panic!("unknown error: {}", err);
-                }
-            }
+        Err(err) => return err,
+    }
+}
+
+fn resolve(host: &str, socktype: Option<c_int>) -> Result<IntoIter<IpAddr>, c_int> {
+    let mut command = Command::new("getent");
+    command.arg("ahosts").arg(host);
+
+    let output = match command.output() {
+        Ok(output) => output,
+        Err(_err) => {
+            set_errno(Errno(libc::EIO));
+            return Err(libc::EAI_SYSTEM);
+        }
+    };
+
+    let mut hosts = Vec::new();
+
+    match output.status.code() {
+        Some(0) => {}
+        Some(2) => {
+            // The hostname was not found.
+            return Err(libc::EAI_NONAME);
+        }
+        Some(r) => panic!("unexpected exit status from `getent ahosts`: {}", r),
+        None => {
+            set_errno(Errno(libc::EIO));
+            return Err(libc::EAI_SYSTEM);
         }
     }
+
+    let stdout = match str::from_utf8(&output.stdout) {
+        Ok(stdout) => stdout,
+        Err(_err) => {
+            set_errno(Errno(libc::EIO));
+            return Err(libc::EAI_SYSTEM);
+        }
+    };
+
+    // Iterate over the lines printed by `getent`.
+    for line in stdout.lines() {
+        // Parse the line.
+        let mut parts = line.split_ascii_whitespace();
+        let addr = match parts.next() {
+            Some(addr) => addr,
+            None => {
+                set_errno(Errno(libc::EIO));
+                return Err(libc::EAI_SYSTEM);
+            }
+        };
+        let type_ = match parts.next() {
+            Some(type_) => type_,
+            None => {
+                set_errno(Errno(libc::EIO));
+                return Err(libc::EAI_SYSTEM);
+            }
+        };
+        // Ignore any futher parts, which would contain aliases for `host`
+        // that we're uninterested in here.
+
+        // Filter out results that don't match what's requested.
+        if let Some(socktype) = socktype {
+            let socktype_name = match socktype {
+                libc::SOCK_STREAM => "STREAM",
+                libc::SOCK_DGRAM => "DGRAM",
+                libc::SOCK_RAW => "RAW",
+                _ => panic!("unsupported socktype {:?}", socktype),
+            };
+            if type_ != socktype_name {
+                continue;
+            }
+        }
+
+        // Parse the address.
+        let addr = match IpAddr::from_str(addr) {
+            Ok(addr) => addr,
+            Err(_err) => {
+                set_errno(Errno(libc::EIO));
+                return Err(libc::EAI_SYSTEM);
+            }
+        };
+
+        hosts.push(addr);
+    }
+
+    Ok(hosts.into_iter())
 }
 
 #[no_mangle]

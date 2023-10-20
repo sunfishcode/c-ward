@@ -103,3 +103,15 @@ fn example_crate_custom_allocator() {
 fn example_crate_c_scape_example() {
     test_crate("c-scape-example", &[], &[], "Hello, world!\n", "", None);
 }
+
+#[test]
+fn example_crate_dns() {
+    test_crate(
+        "dns",
+        &["localhost:80"],
+        &[],
+        "resolving 'localhost:80:\n - [::1]:80\n - 127.0.0.1:80\n",
+        "",
+        None,
+    );
+}

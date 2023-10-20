@@ -166,7 +166,7 @@ unsafe extern "C" fn madvise(addr: *mut c_void, length: size_t, advice: c_int) -
 unsafe extern "C" fn mlock(addr: *mut c_void, len: size_t) -> c_int {
     libc!(libc::mlock(addr, len));
 
-    match convert_res(rustix::mm::mlock(addr as *mut c_void, len)) {
+    match convert_res(rustix::mm::mlock(addr.cast(), len)) {
         Some(()) => 0,
         None => -1,
     }
@@ -177,7 +177,7 @@ unsafe extern "C" fn mlock2(addr: *const c_void, len: size_t, flags: c_uint) -> 
     libc!(libc::mlock2(addr, len, flags));
 
     let flags = rustix::mm::MlockFlags::from_bits_retain(flags);
-    match convert_res(rustix::mm::mlock_with(addr as *mut c_void, len, flags)) {
+    match convert_res(rustix::mm::mlock_with(addr.cast_mut(), len, flags)) {
         Some(()) => 0,
         None => -1,
     }
@@ -187,7 +187,7 @@ unsafe extern "C" fn mlock2(addr: *const c_void, len: size_t, flags: c_uint) -> 
 unsafe extern "C" fn munlock(addr: *const c_void, len: size_t) -> c_int {
     libc!(libc::munlock(addr, len));
 
-    match convert_res(rustix::mm::munlock(addr as *mut c_void, len)) {
+    match convert_res(rustix::mm::munlock(addr.cast_mut(), len)) {
         Some(()) => 0,
         None => -1,
     }

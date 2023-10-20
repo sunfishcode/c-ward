@@ -65,7 +65,7 @@ unsafe fn sync_environ(environ_vecs: &mut EnvironVecs) {
                 break;
             }
             let owned = CStr::from_ptr(env).to_owned();
-            vecs.ptrs.push(owned.as_ptr() as *mut c_char);
+            vecs.ptrs.push(owned.as_ptr().cast_mut());
             vecs.allocs.push(owned);
             ptr = ptr.add(1);
         }
@@ -124,7 +124,7 @@ unsafe extern "C" fn setenv(key: *const c_char, value: *const c_char, overwrite:
             // We found it.
             if overwrite != 0 {
                 let index = ptr.offset_from(environ) as usize;
-                environ_vecs.ptrs[index] = owned.as_ptr() as *mut c_char;
+                environ_vecs.ptrs[index] = owned.as_ptr().cast_mut();
                 environ_vecs.allocs[index] = owned;
             }
             return 0;
@@ -134,7 +134,7 @@ unsafe extern "C" fn setenv(key: *const c_char, value: *const c_char, overwrite:
 
     // We didn't find the key; append it.
     environ_vecs.ptrs.pop();
-    environ_vecs.ptrs.push(owned.as_ptr() as *mut c_char);
+    environ_vecs.ptrs.push(owned.as_ptr().cast_mut());
     environ_vecs.ptrs.push(null_mut());
     environ_vecs.allocs.push(owned);
     environ = environ_vecs.ptrs.as_mut_ptr();

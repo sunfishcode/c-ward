@@ -1,7 +1,7 @@
 use core::convert::TryInto;
 use core::ffi::CStr;
 use core::mem::size_of_val;
-use core::ptr::copy_nonoverlapping;
+use core::ptr::{addr_of, addr_of_mut, copy_nonoverlapping};
 use errno::{set_errno, Errno};
 use libc::{c_char, c_int, time_t};
 use rustix::fd::BorrowedFd;
@@ -190,8 +190,8 @@ unsafe extern "C" fn statfs(path: *const c_char, stat_: *mut libc::statfs) -> c_
                 // but understanding is not required for the job here.
                 assert_eq!(size_of_val(&r.f_fsid), size_of_val(&converted.f_fsid));
                 copy_nonoverlapping(
-                    &r.f_fsid as *const _ as *const u8,
-                    &mut converted.f_fsid as *mut _ as *mut u8,
+                    addr_of!(r.f_fsid).cast::<u8>(),
+                    addr_of_mut!(converted.f_fsid).cast::<u8>(),
                     size_of_val(&r.f_fsid),
                 );
 

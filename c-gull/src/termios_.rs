@@ -24,7 +24,7 @@ unsafe extern "C" fn ttyname(fd: c_int) -> *mut c_char {
     };
     (*storage) = Some(name);
 
-    (*storage).as_ref().unwrap().as_ptr() as *mut c_char
+    (*storage).as_ref().unwrap().as_ptr().cast_mut()
 }
 
 #[no_mangle]

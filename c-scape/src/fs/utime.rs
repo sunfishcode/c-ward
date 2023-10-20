@@ -35,7 +35,7 @@ unsafe fn timestamp_from_timespecs(times: *const [libc::timespec; 2]) -> Timesta
 unsafe extern "C" fn futimens(fd: c_int, times: *const libc::timespec) -> c_int {
     libc!(libc::futimens(fd, times));
 
-    let times = times as *const [libc::timespec; 2];
+    let times = times.cast::<[libc::timespec; 2]>();
 
     match convert_res(rustix::fs::futimens(
         BorrowedFd::borrow_raw(fd),
@@ -55,7 +55,7 @@ unsafe extern "C" fn utimensat(
 ) -> c_int {
     libc!(libc::utimensat(fd, path, times, flag));
 
-    let times = times as *const [libc::timespec; 2];
+    let times = times.cast::<[libc::timespec; 2]>();
     let flags = AtFlags::from_bits(flag as _).unwrap();
 
     match convert_res(rustix::fs::utimensat(
@@ -75,7 +75,7 @@ unsafe extern "C" fn utimes(path: *const c_char, times: *const libc::timeval) ->
 
     let mut arr: [libc::timespec; 2] = core::mem::zeroed();
 
-    let times = times as *const [libc::timeval; 2];
+    let times = times.cast::<[libc::timeval; 2]>();
     if !times.is_null() {
         for i in 0..2 {
             arr[i].tv_sec = (*times)[i].tv_sec;
@@ -108,7 +108,7 @@ unsafe extern "C" fn lutimes(path: *const c_char, times: *const libc::timeval) -
 
     let mut arr: [libc::timespec; 2] = core::mem::zeroed();
 
-    let times = times as *const [libc::timeval; 2];
+    let times = times.cast::<[libc::timeval; 2]>();
     if !times.is_null() {
         for i in 0..2 {
             arr[i].tv_sec = (*times)[i].tv_sec;
@@ -141,7 +141,7 @@ unsafe extern "C" fn futimes(fd: c_int, times: *const libc::timeval) -> c_int {
 
     let mut arr: [libc::timespec; 2] = core::mem::zeroed();
 
-    let times = times as *const [libc::timeval; 2];
+    let times = times.cast::<[libc::timeval; 2]>();
     if !times.is_null() {
         for i in 0..2 {
             arr[i].tv_sec = (*times)[i].tv_sec;

@@ -103,7 +103,7 @@ unsafe extern "C" fn pthread_setspecific(key: libc::pthread_key_t, value: *const
 
                         // Call the destructor with the old
                         // data, before we set it to null.
-                        dtor(data as *mut _);
+                        dtor(data);
                     }
                 }
 
@@ -118,7 +118,7 @@ unsafe extern "C" fn pthread_setspecific(key: libc::pthread_key_t, value: *const
 
     VALUES[key as usize].set(ValueWithEpoch {
         epoch: EPOCHS[key as usize].load(Ordering::SeqCst),
-        data: value as *mut _,
+        data: value.cast_mut(),
     });
     0
 }

@@ -30,12 +30,9 @@ unsafe extern "C" fn clock_gettime(id: c_int, tp: *mut libc::timespec) -> c_int 
         _ => panic!("unimplemented clock({})", id),
     };
 
-    let rustix_time = match rustix::time::clock_gettime_dynamic(id) {
-        Ok(rustix_time) => rustix_time,
-        Err(err) => {
-            set_errno(Errno(err.raw_os_error()));
-            return -1;
-        }
+    let rustix_time = match convert_res(rustix::time::clock_gettime_dynamic(id)) {
+        Some(rustix_time) => rustix_time,
+        None => return -1,
     };
 
     match rustix_timespec_to_libc_timespec(rustix_time) {

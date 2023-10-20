@@ -247,7 +247,7 @@ unsafe fn getgr_r(
     match output.status.code() {
         Some(0) => {}
         Some(2) => {
-            // The username was not found.
+            // The groupname was not found.
             *result = null_mut();
             return 0;
         }
@@ -591,7 +591,7 @@ unsafe extern "C" fn getgrouplist(
         None => return -1,
     };
 
-    let mut parts = stdout.split_whitespace();
+    let mut parts = stdout.split_ascii_whitespace();
     match parts.next() {
         Some(part) => {
             if part != user {

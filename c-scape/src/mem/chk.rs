@@ -2,7 +2,7 @@
 
 use libc::{c_char, c_int, c_void, size_t};
 
-// <https://refspecs.linuxbase.org/LSB_4.0.0/LSB-Core-generic/LSB-Core-generic/libc---chk-fail-1.html>
+// <https://refspecs.linuxbase.org/LSB_5.0.0/LSB-Core-generic/LSB-Core-generic/baselib---chk-fail-1.html>
 #[no_mangle]
 unsafe extern "C" fn __chk_fail() -> ! {
     rustix::io::write(
@@ -13,7 +13,7 @@ unsafe extern "C" fn __chk_fail() -> ! {
     libc::abort();
 }
 
-// <http://refspecs.linux-foundation.org/LSB_4.0.0/LSB-Core-generic/LSB-Core-generic/libc---strcpy-chk-1.html>
+// <https://refspecs.linuxbase.org/LSB_5.0.0/LSB-Core-generic/LSB-Core-generic/baselib---strcpy-chk-1.html>
 #[no_mangle]
 unsafe extern "C" fn __strcpy_chk(
     dest: *mut c_char,
@@ -29,7 +29,7 @@ unsafe extern "C" fn __strcpy_chk(
     libc::strcpy(dest, src)
 }
 
-// <http://refspecs.linux-foundation.org/LSB_4.0.0/LSB-Core-generic/LSB-Core-generic/libc---memcpy-chk-1.html>
+// <https://refspecs.linuxbase.org/LSB_5.0.0/LSB-Core-generic/LSB-Core-generic/baselib---memcpy-chk-1.html>
 #[no_mangle]
 unsafe extern "C" fn __memcpy_chk(
     dest: *mut c_void,
@@ -44,7 +44,7 @@ unsafe extern "C" fn __memcpy_chk(
     libc::memcpy(dest, src, len)
 }
 
-// <http://refspecs.linux-foundation.org/LSB_4.0.0/LSB-Core-generic/LSB-Core-generic/libc---memset-chk-1.html>
+// <https://refspecs.linuxbase.org/LSB_5.0.0/LSB-Core-generic/LSB-Core-generic/baselib---memset-chk-1.html>
 #[no_mangle]
 unsafe extern "C" fn __memset_chk(
     dest: *mut c_void,
@@ -59,7 +59,7 @@ unsafe extern "C" fn __memset_chk(
     libc::memset(dest, c, len)
 }
 
-// <https://refspecs.linuxbase.org/LSB_4.0.0/LSB-Core-generic/LSB-Core-generic/libc---strcat-chk-1.html>
+// <https://refspecs.linuxbase.org/LSB_5.0.0/LSB-Core-generic/LSB-Core-generic/baselib---strcat-chk-1.html>
 #[no_mangle]
 unsafe extern "C" fn __strcat_chk(
     dest: *mut c_char,
@@ -80,7 +80,7 @@ unsafe extern "C" fn __strcat_chk(
     __chk_fail()
 }
 
-// <https://refspecs.linuxbase.org/LSB_4.0.0/LSB-Core-generic/LSB-Core-generic/libc---strncpy-chk-1.html>
+// <https://refspecs.linuxbase.org/LSB_5.0.0/LSB-Core-generic/LSB-Core-generic/baselib---strncpy-chk-1.html>
 #[no_mangle]
 unsafe extern "C" fn __strncpy_chk(
     dest: *mut c_char,
@@ -95,7 +95,7 @@ unsafe extern "C" fn __strncpy_chk(
     libc::strncpy(dest, src, len)
 }
 
-// <https://refspecs.linuxbase.org/LSB_4.0.0/LSB-Core-generic/LSB-Core-generic/libc---fgets-chk-1.html>
+// <https://refspecs.linuxbase.org/LSB_5.0.0/LSB-Core-generic/LSB-Core-generic/baselib---fgets-chk-1.html>
 #[no_mangle]
 unsafe extern "C" fn __fgets_chk(
     s: *mut c_char,

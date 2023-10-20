@@ -48,6 +48,7 @@ mod ctype;
 mod env;
 mod fs;
 mod io;
+mod shm;
 
 #[cfg(feature = "take-charge")]
 mod malloc;

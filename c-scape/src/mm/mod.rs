@@ -1,5 +1,5 @@
 use rustix::fd::BorrowedFd;
-use rustix::mm::{MapFlags, MprotectFlags, MremapFlags, ProtFlags};
+use rustix::mm::{MapFlags, MlockAllFlags, MprotectFlags, MremapFlags, ProtFlags};
 
 use core::ffi::c_void;
 use errno::{set_errno, Errno};
@@ -35,9 +35,15 @@ unsafe extern "C" fn mmap64(
     let anon = flags & libc::MAP_ANONYMOUS == libc::MAP_ANONYMOUS;
     let prot = ProtFlags::from_bits(prot as _).unwrap();
     let flags = MapFlags::from_bits((flags & !libc::MAP_ANONYMOUS) as _).unwrap();
+
     match convert_res(if anon {
         rustix::mm::mmap_anonymous(addr, length, prot, flags)
     } else {
+        if fd == -1 {
+            set_errno(Errno(libc::EBADF));
+            return libc::MAP_FAILED;
+        }
+
         rustix::mm::mmap(
             addr,
             length,
@@ -188,6 +194,27 @@ unsafe extern "C" fn munlock(addr: *const c_void, len: size_t) -> c_int {
     libc!(libc::munlock(addr, len));
 
     match convert_res(rustix::mm::munlock(addr.cast_mut(), len)) {
+        Some(()) => 0,
+        None => -1,
+    }
+}
+
+#[no_mangle]
+unsafe extern "C" fn mlockall(flags: c_int) -> c_int {
+    libc!(libc::mlockall(flags));
+
+    let flags = MlockAllFlags::from_bits(flags as _).unwrap();
+    match convert_res(rustix::mm::mlockall(flags)) {
+        Some(()) => 0,
+        None => -1,
+    }
+}
+
+#[no_mangle]
+unsafe extern "C" fn munlockall() -> c_int {
+    libc!(libc::munlockall());
+
+    match convert_res(rustix::mm::munlockall()) {
         Some(()) => 0,
         None => -1,
     }

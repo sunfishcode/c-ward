@@ -1,5 +1,5 @@
 //use errno::{set_errno, Errno};
-use libc::c_int;
+use libc::{c_int, pid_t};
 use rustix::process::{Pid, WaitOptions};
 
 use crate::convert_res;
@@ -65,4 +65,10 @@ unsafe extern "C" fn waitpid(pid: c_int, status: *mut c_int, options: c_int) -> 
         status.write(ret_status);
     }
     ret_pid
+}
+
+#[no_mangle]
+unsafe extern "C" fn wait(status: *mut c_int) -> pid_t {
+    libc!(libc::wait(status));
+    waitpid(-1, status, 0)
 }

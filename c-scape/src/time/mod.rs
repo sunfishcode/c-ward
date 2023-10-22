@@ -1,7 +1,7 @@
 use core::convert::TryInto;
 
 use errno::{set_errno, Errno};
-use libc::c_int;
+use libc::{c_int, c_uint};
 
 use crate::convert_res;
 
@@ -99,6 +99,43 @@ unsafe extern "C" fn nanosleep(req: *const libc::timespec, rem: *mut libc::times
                 tv_sec: remaining.tv_sec.try_into().unwrap(),
                 tv_nsec: remaining.tv_nsec as _,
             };
+            set_errno(Errno(libc::EINTR));
+            -1
+        }
+        rustix::thread::NanosleepRelativeResult::Err(err) => {
+            set_errno(Errno(err.raw_os_error()));
+            -1
+        }
+    }
+}
+
+#[no_mangle]
+unsafe extern "C" fn sleep(seconds: c_uint) -> c_uint {
+    libc!(libc::sleep(seconds));
+
+    let req = rustix::time::Timespec {
+        tv_sec: seconds.into(),
+        tv_nsec: 0,
+    };
+    match rustix::thread::nanosleep(&req) {
+        rustix::thread::NanosleepRelativeResult::Ok => 0,
+        rustix::thread::NanosleepRelativeResult::Interrupted(remaining) => remaining.tv_sec as _,
+        rustix::thread::NanosleepRelativeResult::Err(_err) => unreachable!(),
+    }
+}
+
+#[no_mangle]
+unsafe extern "C" fn usleep(usec: libc::useconds_t) -> c_int {
+    libc!(libc::usleep(usec));
+
+    let usec: i64 = usec.into();
+    let req = rustix::time::Timespec {
+        tv_sec: usec / 1000000,
+        tv_nsec: (usec % 1000000) * 1000,
+    };
+    match rustix::thread::nanosleep(&req) {
+        rustix::thread::NanosleepRelativeResult::Ok => 0,
+        rustix::thread::NanosleepRelativeResult::Interrupted(_remaining) => {
             set_errno(Errno(libc::EINTR));
             -1
         }

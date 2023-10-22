@@ -300,7 +300,7 @@ extern "C" {
     fn __chk_fail();
 }
 
-// <http://refspecs.linux-foundation.org/LSB_4.0.0/LSB-Core-generic/LSB-Core-generic/libc---snprintf-chk-1.html>
+// <https://refspecs.linuxbase.org/LSB_5.0.0/LSB-Core-generic/LSB-Core-generic/baselib---snprintf-chk-1.html>
 #[no_mangle]
 unsafe extern "C" fn __snprintf_chk(
     ptr: *mut c_char,
@@ -322,7 +322,7 @@ unsafe extern "C" fn __snprintf_chk(
     vsnprintf(ptr, len, fmt, va_list)
 }
 
-// <https://refspecs.linuxbase.org/LSB_4.0.0/LSB-Core-generic/LSB-Core-generic/libc---vsnprintf-chk-1.html>
+// <https://refspecs.linuxbase.org/LSB_5.0.0/LSB-Core-generic/LSB-Core-generic/baselib---vsnprintf-chk-1.html>
 #[no_mangle]
 unsafe extern "C" fn __vsnprintf_chk(
     ptr: *mut c_char,
@@ -343,7 +343,7 @@ unsafe extern "C" fn __vsnprintf_chk(
     vsnprintf(ptr, len, fmt, va_list)
 }
 
-// <https://refspecs.linuxbase.org/LSB_4.0.0/LSB-Core-generic/LSB-Core-generic/libc---sprintf-chk-1.html>
+// <https://refspecs.linuxbase.org/LSB_5.0.0/LSB-Core-generic/LSB-Core-generic/baselib---sprintf-chk-1.html>
 #[no_mangle]
 unsafe extern "C" fn __sprintf_chk(
     ptr: *mut c_char,
@@ -370,7 +370,7 @@ unsafe extern "C" fn __sprintf_chk(
     n
 }
 
-// <https://refspecs.linuxbase.org/LSB_4.0.0/LSB-Core-generic/LSB-Core-generic/libc---fprintf-chk-1.html>
+// <https://refspecs.linuxbase.org/LSB_5.0.0/LSB-Core-generic/LSB-Core-generic/baselib---fprintf-chk-1.html>
 #[no_mangle]
 unsafe extern "C" fn __fprintf_chk(
     file: *mut c_void,
@@ -388,7 +388,7 @@ unsafe extern "C" fn __fprintf_chk(
     vfprintf(file, fmt, va_list)
 }
 
-// <https://refspecs.linuxbase.org/LSB_4.0.0/LSB-Core-generic/LSB-Core-generic/libc---vfprintf-chk-1.html>
+// <https://refspecs.linuxbase.org/LSB_5.0.0/LSB-Core-generic/LSB-Core-generic/baselib---vfprintf-chk-1.html>
 #[no_mangle]
 unsafe extern "C" fn __vfprintf_chk(
     file: *mut c_void,
@@ -403,6 +403,19 @@ unsafe extern "C" fn __vfprintf_chk(
     // Our `printf` uses `printf_compat` which doesn't support `%n`.
 
     vfprintf(file, fmt, va_list)
+}
+
+// <https://refspecs.linuxbase.org/LSB_5.0.0/LSB-Core-generic/LSB-Core-generic/baselib---printf-chk-1.html>
+#[no_mangle]
+unsafe extern "C" fn __printf_chk(flag: c_int, fmt: *const c_char, mut args: ...) -> c_int {
+    if flag > 0 {
+        unimplemented!("__USE_FORTIFY_LEVEL > 0");
+    }
+
+    // Our `printf` uses `printf_compat` which doesn't support `%n`.
+
+    let va_list = args.as_va_list();
+    vprintf(fmt, va_list)
 }
 
 #[no_mangle]

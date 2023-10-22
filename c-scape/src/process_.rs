@@ -12,7 +12,16 @@ use rustix::cstr;
 #[no_mangle]
 unsafe extern "C" fn sysconf(name: c_int) -> c_long {
     libc!(libc::sysconf(name));
+    _sysconf(name)
+}
 
+#[no_mangle]
+unsafe extern "C" fn __sysconf(name: c_int) -> c_long {
+    //libc!(libc::__sysconf(name));
+    _sysconf(name)
+}
+
+unsafe fn _sysconf(name: c_int) -> c_long {
     #[cfg(feature = "std")] // These are defined in c-gull.
     #[cfg(not(target_os = "wasi"))]
     extern "C" {
@@ -31,6 +40,8 @@ unsafe extern "C" fn sysconf(name: c_int) -> c_long {
         libc::_SC_SYMLOOP_MAX => 40,
         libc::_SC_HOST_NAME_MAX => 255,
         libc::_SC_NGROUPS_MAX => 32,
+        #[cfg(any(target_os = "android", target_os = "linux"))]
+        libc::_SC_DELAYTIMER_MAX => i32::MAX as _,
         #[cfg(feature = "std")]
         #[cfg(not(target_os = "wasi"))]
         libc::_SC_NPROCESSORS_CONF => get_nprocs_conf().into(),
@@ -44,6 +55,27 @@ unsafe extern "C" fn sysconf(name: c_int) -> c_long {
         #[cfg(not(target_os = "wasi"))]
         libc::_SC_AVPHYS_PAGES => get_avphys_pages(),
         _ => panic!("unrecognized sysconf({})", name),
+    }
+}
+
+#[no_mangle]
+unsafe extern "C" fn pathconf(_path: *const c_char, name: c_int) -> c_long {
+    libc!(libc::pathconf(_path, name));
+    _pathconf(name)
+}
+
+#[no_mangle]
+unsafe extern "C" fn fpathconf(_fd: c_int, name: c_int) -> c_long {
+    libc!(libc::fpathconf(_fd, name));
+    _pathconf(name)
+}
+
+fn _pathconf(name: c_int) -> c_long {
+    match name {
+        libc::_PC_PATH_MAX => libc::PATH_MAX as _,
+        #[cfg(any(target_os = "android", target_os = "linux"))]
+        libc::_PC_NAME_MAX => 255,
+        _ => panic!("unrecognized pathconf({})", name),
     }
 }
 

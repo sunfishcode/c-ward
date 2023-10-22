@@ -8,7 +8,6 @@ use core::ptr::{self, null_mut};
 use core::sync::atomic::Ordering::SeqCst;
 use core::sync::atomic::{AtomicBool, AtomicU32};
 use core::time::Duration;
-use errno::{set_errno, Errno};
 use origin::thread::Thread;
 use rustix_futex_sync::lock_api::{self, RawMutex as _, RawReentrantMutex, RawRwLock as _};
 use rustix_futex_sync::{RawCondvar, RawMutex, RawRwLock};
@@ -206,6 +205,14 @@ unsafe extern "C" fn pthread_mutexattr_init(attr: *mut PthreadMutexattrT) -> c_i
 #[no_mangle]
 unsafe extern "C" fn pthread_mutexattr_settype(attr: *mut PthreadMutexattrT, kind: c_int) -> c_int {
     libc!(libc::pthread_mutexattr_settype(checked_cast!(attr), kind));
+
+    match kind {
+        libc::PTHREAD_MUTEX_NORMAL
+        | libc::PTHREAD_MUTEX_ERRORCHECK
+        | libc::PTHREAD_MUTEX_RECURSIVE => {}
+        _ => return libc::EINVAL,
+    }
+
     (*attr).kind = AtomicU32::new(kind as u32);
     0
 }
@@ -629,10 +636,7 @@ unsafe extern "C" fn pthread_sigmask(
         libc::SIG_BLOCK => rustix::runtime::How::BLOCK,
         libc::SIG_UNBLOCK => rustix::runtime::How::UNBLOCK,
         libc::SIG_SETMASK => rustix::runtime::How::SETMASK,
-        _ => {
-            set_errno(Errno(libc::EINVAL));
-            return -1;
-        }
+        _ => return libc::EINVAL,
     };
 
     if !oldset.is_null() {
@@ -663,6 +667,11 @@ unsafe extern "C" fn pthread_attr_setstacksize(attr: *mut PthreadAttrT, stacksiz
         checked_cast!(attr),
         stacksize
     ));
+
+    if stacksize < libc::PTHREAD_STACK_MIN {
+        return libc::EINVAL;
+    }
+
     (*attr).stack_size = stacksize;
     0
 }

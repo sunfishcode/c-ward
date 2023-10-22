@@ -59,7 +59,7 @@ unsafe extern "C" fn killpg(pgid: pid_t, sig: c_int) -> c_int {
 
 /// This function conforms to the [LSB `__libc_current_sigrtmax`] ABI.
 ///
-/// [LSB `__libc_current_sigrtmax`]: https://refspecs.linuxbase.org/LSB_3.1.0/LSB-generic/LSB-generic/baselib---libc-current-sigrtmax-1.html
+/// [LSB `__libc_current_sigrtmax`]: https://refspecs.linuxbase.org/LSB_5.0.0/LSB-Core-generic/LSB-Core-generic/baselib---libc-current-sigrtmax-1.html
 #[no_mangle]
 unsafe extern "C" fn __libc_current_sigrtmax() -> c_int {
     libc!(libc::__libc_current_sigrtmax());

@@ -1,14 +1,14 @@
 use alloc::borrow::ToOwned;
 use alloc::format;
 use core::cell::SyncUnsafeCell;
-use core::ptr::copy_nonoverlapping;
+use core::ptr::{copy_nonoverlapping, null_mut};
 use libc::{c_char, c_int};
 
 /// Return the address of the thread-local `errno` state.
 ///
 /// This function conforms to the [LSB `__errno_location`] ABI.
 ///
-/// [LSB `__errno_location`]: https://refspecs.linuxbase.org/LSB_3.1.0/LSB-generic/LSB-generic/baselib-errno-location-1.html
+/// [LSB `__errno_location`]: https://refspecs.linuxfoundation.org/LSB_5.0.0/LSB-Core-generic/LSB-Core-generic/baselib---errno-location.html
 #[no_mangle]
 unsafe extern "C" fn __errno_location() -> *mut c_int {
     libc!(libc::__errno_location());
@@ -29,9 +29,10 @@ unsafe extern "C" fn strerror(errnum: c_int) -> *mut c_char {
     (*storage).as_mut_ptr()
 }
 
-// <https://refspecs.linuxfoundation.org/LSB_3.2.0/LSB-Core-generic/LSB-Core-generic/baselib-xpg-strerror_r-3.html>
+// <https://refspecs.linuxfoundation.org/LSB_5.0.0/LSB-Core-generic/LSB-Core-generic/baselib---xpg-strerror-r.html>
 #[no_mangle]
 unsafe extern "C" fn __xpg_strerror_r(errnum: c_int, buf: *mut c_char, buflen: usize) -> c_int {
+    //libc!(libc::__xpg_strerror_r(errnum, buf, buflen));
     libc!(libc::strerror_r(errnum, buf, buflen));
 
     if buflen == 0 {
@@ -47,4 +48,24 @@ unsafe extern "C" fn __xpg_strerror_r(errnum: c_int, buf: *mut c_char, buflen: u
     copy_nonoverlapping(message.as_ptr().cast(), buf, min);
     buf.add(min).write(b'\0' as libc::c_char);
     0
+}
+
+/// glibc has a non-standard return type for its `strerror_r`.
+// <https://refspecs.linuxfoundation.org/LSB_5.0.0/LSB-Core-generic/LSB-Core-generic/baselib-strerror-r.html>
+#[cfg(target_env = "gnu")]
+#[no_mangle]
+unsafe extern "C" fn strerror_r(errnum: c_int, buf: *mut c_char, buflen: usize) -> *mut c_char {
+    //libc!(libc::strerror_r(errnum, buf, buflen));
+    if __xpg_strerror_r(errnum, buf, buflen) == 0 {
+        buf
+    } else {
+        null_mut()
+    }
+}
+
+#[cfg(not(target_env = "gnu"))]
+#[no_mangle]
+unsafe extern "C" fn strerror_r(errnum: c_int, buf: *mut c_char, buflen: usize) -> c_int {
+    libc!(libc::strerror_r(errnum, buf, buflen));
+    __xpg_strerror_r(errnum, buf, buflen)
 }

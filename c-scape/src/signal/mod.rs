@@ -30,6 +30,24 @@ unsafe extern "C" fn signal(signal: c_int, handler: sighandler_t) -> sighandler_
 }
 
 #[no_mangle]
+unsafe extern "C" fn sysv_signal(signal: c_int, handler: sighandler_t) -> sighandler_t {
+    //libc!(libc::sysv_signal(signal, handler));
+    libc::signal(signal, handler)
+}
+
+#[no_mangle]
+unsafe extern "C" fn __sysv_signal(signal: c_int, handler: sighandler_t) -> sighandler_t {
+    //libc!(libc::__sysv_signal(signal, handler));
+    sysv_signal(signal, handler)
+}
+
+#[no_mangle]
+unsafe extern "C" fn bsd_signal(signal: c_int, handler: sighandler_t) -> sighandler_t {
+    //libc!(libc::bsd_signal(signal, handler));
+    libc::signal(signal, handler)
+}
+
+#[no_mangle]
 unsafe extern "C" fn sigaction(signal: c_int, new: *const sigaction, old: *mut sigaction) -> c_int {
     libc!(libc::sigaction(signal, new, old));
 

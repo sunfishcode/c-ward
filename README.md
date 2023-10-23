@@ -29,6 +29,10 @@ In theory c-ward could be extended to be ABI-compatible with different
 platforms, however currently it is only known to be ABI-compatible with
 \*-unknown-linux-gnu\* platforms.
 
+The primary way this is used is through [Mustang] and [Eyra], as their libc
+implementations. It can also be used as a regular library in
+["coexist-with-libc" mode].
+
 ## Similar crates
 
 Another libc implementation is [relibc].
@@ -55,3 +59,6 @@ using `#![no_builtins]`.
 [c-scape-example]: https://github.com/sunfishcode/c-ward/blob/main/example-crates/c-scape-example
 [c-gull-example]: https://github.com/sunfishcode/c-ward/blob/main/example-crates/c-gull-example
 [interferes with LTO optimization]: https://github.com/rust-lang/rust/blob/72e29da3eccd3e4c1fb2c581fa33216db50fcc93/compiler/rustc_codegen_ssa/src/back/link.rs#L1264
+[Mustang]: https://github.com/sunfishcode/mustang#readme
+[Eyra]: https://github.com/sunfishcode/eyra#readme
+["coexist-with-libc" mode]: https://github.com/sunfishcode/c-ward/blob/main/example-crates/libc-replacement#readme

@@ -570,6 +570,17 @@ unsafe extern "C" fn pthread_create(
         fn_,
         arg
     ));
+
+    // Wrap `arg` in a newtype to make it `Send`.
+    //
+    // SAFETY: It is up to the caller of `pthread_create` to ensure that the
+    // pointer is pointing to data which is safe to be accessed from the new
+    // thread.
+    #[repr(transparent)]
+    struct UnsafeSendVoidStar(*mut c_void);
+    unsafe impl Send for UnsafeSendVoidStar {}
+    let arg = UnsafeSendVoidStar(arg);
+
     let PthreadAttrT {
         stack_addr,
         stack_size,
@@ -591,7 +602,7 @@ unsafe extern "C" fn pthread_create(
 
     let thread = match origin::thread::create_thread(
         Box::new(move || {
-            fn_(arg);
+            fn_(arg.0);
             Some(Box::new(arg))
         }),
         stack_size,

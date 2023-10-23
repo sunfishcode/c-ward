@@ -83,6 +83,23 @@ unsafe extern "C" fn strchr(s: *const c_char, c: c_int) -> *mut c_char {
 }
 
 #[no_mangle]
+unsafe extern "C" fn strchrnul(s: *const c_char, c: c_int) -> *mut c_char {
+    libc!(libc::strchrnul(s, c));
+
+    let mut s = s.cast_mut();
+    loop {
+        if *s == c as _ {
+            break;
+        }
+        if *s == NUL {
+            break;
+        }
+        s = s.add(1);
+    }
+    s
+}
+
+#[no_mangle]
 unsafe extern "C" fn strcmp(mut s1: *const c_char, mut s2: *const c_char) -> c_int {
     libc!(libc::strcmp(s1, s2));
 

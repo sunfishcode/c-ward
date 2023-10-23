@@ -6,6 +6,7 @@ This line:
 libc = { path = "../../c-gull", features = ["coexist-with-libc"], package = "c-gull" }
 ```
 
-tells cargo to use c-gull in place of libc. In this configuration, it doesn't
-replace the malloc, pthread, or getauxval functions, but it replaces everything
-it can, such as the `getuid` and `getgid` functions in the example.
+tells cargo to use c-gull in place of libc. In this configuration, it coexists
+with the system libc and doesn't replace the malloc, pthread, or getauxval
+functions, but it replaces everything else that it can, such as the `getuid`
+and `getgid` functions in the example.

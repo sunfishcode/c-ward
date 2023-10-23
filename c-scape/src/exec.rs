@@ -12,6 +12,16 @@ unsafe extern "C" fn fork() -> c_int {
     }
 }
 
+#[allow(deprecated)]
+#[cfg(not(target_os = "wasi"))]
+#[no_mangle]
+unsafe extern "C" fn vfork() -> c_int {
+    libc!(libc::vfork());
+    // It's not sound to do an actual `vfork` in Rust, so we just do a full
+    // `fork`.
+    fork()
+}
+
 // <https://refspecs.linuxbase.org/LSB_5.0.0/LSB-Core-generic/LSB-Core-generic/baselib---register-atfork.html>
 #[cfg(not(target_os = "wasi"))]
 #[no_mangle]

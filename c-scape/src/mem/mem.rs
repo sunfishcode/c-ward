@@ -74,3 +74,15 @@ unsafe extern "C" fn memset(dst: *mut c_void, fill: c_int, len: usize) -> *mut c
 
     compiler_builtins::mem::memset(dst.cast(), fill, len).cast()
 }
+
+#[no_mangle]
+unsafe extern "C" fn mempcpy(dst: *mut c_void, src: *const c_void, len: usize) -> *mut c_void {
+    //libc!(libc::mempcpy(dst, src, len));
+
+    // `mempcpy` is the same as `memcpy` except it returns the pointer at the
+    // end instead of the beginning.
+    compiler_builtins::mem::memcpy(dst.cast(), src.cast(), len)
+        .cast::<u8>()
+        .add(len)
+        .cast()
+}

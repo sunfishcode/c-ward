@@ -36,7 +36,7 @@ Another libc implementation is [relibc].
 ## Where's the `#![no_builtins]`?
 
 Normally, a libc implementation would use `#[no_builtins]` to prevent compilers
-from noticing the the bodies of libc functions implement the semantics of libc
+from noticing the bodies of libc functions implement the semantics of libc
 functions and replacing them with calls, which effectively makes them uselessly
 recursive calls to themselves.
 

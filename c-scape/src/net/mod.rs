@@ -12,6 +12,7 @@ use core::slice;
 use errno::{set_errno, Errno};
 use libc::{c_int, c_uint, ssize_t};
 use rustix::fd::{BorrowedFd, IntoRawFd};
+use rustix::io;
 use rustix::net::{
     AddressFamily, Ipv4Addr, Ipv6Addr, Protocol, RecvAncillaryBuffer, RecvFlags, RecvMsgReturn,
     SendAncillaryBuffer, SendFlags, Shutdown, SocketAddrAny, SocketAddrStorage, SocketFlags,
@@ -32,9 +33,8 @@ unsafe extern "C" fn accept(
 
     match convert_res(rustix::net::acceptfrom(BorrowedFd::borrow_raw(fd))) {
         Some((accepted_fd, from)) => {
-            if let Some(from) = from {
-                let encoded_len = from.write(addr);
-                *len = encoded_len.try_into().unwrap();
+            if !addr.is_null() {
+                encode_addr(from, addr, len);
             }
             accepted_fd.into_raw_fd()
         }
@@ -59,9 +59,8 @@ unsafe extern "C" fn accept4(
         flags,
     )) {
         Some((accepted_fd, from)) => {
-            if let Some(from) = from {
-                let encoded_len = from.write(addr);
-                *len = encoded_len.try_into().unwrap();
+            if !addr.is_null() {
+                encode_addr(from, addr, len);
             }
             accepted_fd.into_raw_fd()
         }
@@ -79,7 +78,7 @@ unsafe extern "C" fn bind(
     // just represents the header of the struct, not the full storage.
     libc!(libc::bind(sockfd, addr.cast(), len));
 
-    let addr = match convert_res(SocketAddrAny::read(addr, len.try_into().unwrap())) {
+    let addr = match convert_res(decode_addr(addr, len)) {
         Some(addr) => addr,
         None => return -1,
     };
@@ -104,7 +103,7 @@ unsafe extern "C" fn connect(
     // just represents the header of the struct, not the full storage.
     libc!(libc::connect(sockfd, addr.cast(), len));
 
-    let addr = match convert_res(SocketAddrAny::read(addr, len.try_into().unwrap())) {
+    let addr = match convert_res(decode_addr(addr, len)) {
         Some(addr) => addr,
         None => return -1,
     };
@@ -133,10 +132,7 @@ unsafe extern "C" fn getpeername(
 
     match convert_res(rustix::net::getpeername(BorrowedFd::borrow_raw(fd))) {
         Some(from) => {
-            if let Some(from) = from {
-                let encoded_len = from.write(addr);
-                *len = encoded_len.try_into().unwrap();
-            }
+            encode_addr(from, addr, len);
             0
         }
         None => -1,
@@ -209,6 +205,20 @@ unsafe extern "C" fn getsockopt(
             l_linger: linger.unwrap_or_default().as_secs() as c_int,
         };
         Ok(write(linger, optval.cast::<libc::linger>(), optlen))
+    }
+
+    unsafe fn write_ucred(
+        cred: rustix::io::Result<rustix::net::UCred>,
+        optval: *mut c_void,
+        optlen: *mut libc::socklen_t,
+    ) -> rustix::io::Result<()> {
+        let cred = cred?;
+        let cred = libc::ucred {
+            pid: cred.pid.as_raw_nonzero().get(),
+            gid: cred.gid.as_raw(),
+            uid: cred.uid.as_raw(),
+        };
+        Ok(write(cred, optval.cast::<libc::ucred>(), optlen))
     }
 
     unsafe fn write_timeval(
@@ -304,6 +314,7 @@ unsafe extern "C" fn getsockopt(
                 optval,
                 optlen,
             ),
+            libc::SO_PEERCRED => write_ucred(sockopt::get_socket_peercred(fd), optval, optlen),
             _ => unimplemented!("unimplemented getsockopt SOL_SOCKET optname {:?}", optname),
         },
         libc::IPPROTO_IP => match optname {
@@ -815,7 +826,7 @@ unsafe extern "C" fn sendto(
     libc!(libc::sendto(fd, buf, len, flags, to.cast(), to_len));
 
     let flags = SendFlags::from_bits(flags as _).unwrap();
-    let addr = match convert_res(SocketAddrAny::read(to, to_len.try_into().unwrap())) {
+    let addr = match convert_res(decode_addr(to, to_len)) {
         Some(addr) => addr,
         None => return -1,
     };
@@ -856,9 +867,9 @@ unsafe extern "C" fn sendmsg(sockfd: c_int, msg: *const libc::msghdr, flags: c_i
     let mut addr = None;
 
     if !msg.msg_name.is_null() {
-        addr = match convert_res(SocketAddrAny::read(
+        addr = match convert_res(decode_addr(
             msg.msg_name.cast::<SocketAddrStorage>(),
-            msg.msg_namelen as usize,
+            msg.msg_namelen,
         )) {
             Some(addr) => Some(addr),
             None => return -1,
@@ -943,4 +954,47 @@ unsafe extern "C" fn socketpair(
         }
         None => -1,
     }
+}
+
+unsafe fn encode_addr(
+    from: Option<SocketAddrAny>,
+    addr: *mut SocketAddrStorage,
+    len: *mut libc::socklen_t,
+) {
+    if let Some(from) = from {
+        let encoded_len = from.write(addr);
+        *len = encoded_len.try_into().unwrap();
+    } else {
+        (*addr)
+            .__storage
+            .__bindgen_anon_1
+            .__bindgen_anon_1
+            .ss_family = libc::AF_UNSPEC as _;
+        *len = size_of::<libc::sa_family_t>() as _;
+    }
+}
+
+unsafe fn decode_addr(
+    addr: *const SocketAddrStorage,
+    mut len: libc::socklen_t,
+) -> io::Result<SocketAddrAny> {
+    // There's unfortunately code out there which forgets to add 1 to the
+    // `len` for the NUL terminator. Detect this and fix it.
+    if addr.cast::<libc::sockaddr>().read_unaligned().sa_family == libc::AF_UNIX as _ {
+        let sun_path = &(*addr.cast::<libc::sockaddr_un>()).sun_path;
+        if sun_path[len as usize - offsetof_sun_path()] == 0 {
+            len += 1;
+        }
+    }
+
+    SocketAddrAny::read(addr, len.try_into().unwrap())
+}
+
+#[inline]
+fn offsetof_sun_path() -> usize {
+    let z = libc::sockaddr_un {
+        sun_family: 0_u16,
+        sun_path: [0; 108],
+    };
+    (core::ptr::addr_of!(z.sun_path).addr()) - (core::ptr::addr_of!(z).addr())
 }

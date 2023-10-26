@@ -35,7 +35,7 @@ unsafe fn _sysconf(name: c_int) -> c_long {
         libc::_SC_PAGESIZE => rustix::param::page_size() as _,
         libc::_SC_CLK_TCK => rustix::param::clock_ticks_per_second() as _,
         #[cfg(not(target_os = "wasi"))]
-        libc::_SC_GETPW_R_SIZE_MAX => -1,
+        libc::_SC_GETPW_R_SIZE_MAX | libc::_SC_GETGR_R_SIZE_MAX => -1,
         #[cfg(any(target_os = "android", target_os = "linux", target_os = "wasi"))]
         libc::_SC_SYMLOOP_MAX => 40,
         libc::_SC_HOST_NAME_MAX => 255,

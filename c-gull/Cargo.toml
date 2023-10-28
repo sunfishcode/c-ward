@@ -81,3 +81,6 @@ malloc-via-rust-global-alloc = ["c-scape/malloc-via-rust-global-alloc"]
 # Enable this to implement `malloc` using third-party crates, which
 # is useful to do when using the Rust global allocator is using `malloc`.
 malloc-via-crates = ["c-scape/malloc-via-crates"]
+
+# Enable `todo!()` stubs for unimplemented functions.
+todo = ["c-scape/todo"]

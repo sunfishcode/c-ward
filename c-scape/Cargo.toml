@@ -114,3 +114,6 @@ rustc-dep-of-std = [
     "dep:alloc",
     "rustix/rustc-dep-of-std",
 ]
+
+# Enable `todo!()` stubs for unimplemented functions.
+todo = []

@@ -89,6 +89,9 @@ mod setjmp;
 mod syscall;
 mod time;
 
+#[cfg(feature = "todo")]
+mod todo;
+
 /// An ABI-conforming `__dso_handle`.
 #[cfg(feature = "take-charge")]
 #[no_mangle]

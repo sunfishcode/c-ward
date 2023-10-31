@@ -63,6 +63,7 @@ unsafe extern "C" fn execlp(file: *const c_char, arg: *const c_char, mut argv: .
 
 #[no_mangle]
 unsafe extern "C" fn execv(prog: *const c_char, argv: *const *const c_char) -> c_int {
+    libc!(libc::execv(prog, argv));
     execve(prog, argv, environ as *const _)
 }
 
@@ -72,6 +73,8 @@ unsafe extern "C" fn execve(
     argv: *const *const c_char,
     envp: *const *const c_char,
 ) -> c_int {
+    libc!(libc::execve(prog, argv, envp));
+
     let err = rustix::runtime::execve(
         CStr::from_ptr(prog),
         argv as *const *const _,
@@ -84,10 +87,22 @@ unsafe extern "C" fn execve(
 
 #[no_mangle]
 unsafe extern "C" fn execvp(file: *const c_char, argv: *const *const c_char) -> c_int {
+    libc!(libc::execvp(file, argv));
+    execvpe(file, argv, environ as *const _)
+}
+
+#[no_mangle]
+unsafe extern "C" fn execvpe(
+    file: *const c_char,
+    argv: *const *const c_char,
+    envp: *const *const c_char,
+) -> c_int {
+    libc!(libc::execvpe(file, argv, envp));
+
     let file = CStr::from_ptr(file);
     let file_bytes = file.to_bytes();
     if file_bytes.contains(&b'/') {
-        let err = rustix::runtime::execve(file, argv.cast(), environ.cast());
+        let err = rustix::runtime::execve(file, argv.cast(), envp.cast());
         set_errno(Errno(err.raw_os_error()));
         return -1;
     }
@@ -148,7 +163,7 @@ unsafe extern "C" fn execvp(file: *const c_char, argv: *const *const c_char) -> 
         let error = rustix::runtime::execve(
             CStr::from_bytes_with_nul(slice).unwrap(),
             argv.cast(),
-            environ.cast(),
+            envp.cast(),
         );
 
         match error {
@@ -175,6 +190,8 @@ unsafe extern "C" fn fexecve(
     argv: *const *const c_char,
     envp: *const *const c_char,
 ) -> c_int {
+    libc!(libc::fexecve(fd, argv, envp));
+
     let mut error = rustix::runtime::execveat(
         BorrowedFd::borrow_raw(fd),
         rustix::cstr!(""),

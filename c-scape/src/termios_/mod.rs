@@ -44,6 +44,87 @@ unsafe extern "C" fn cfgetispeed(termios_p: *const libc::termios) -> libc::speed
 }
 
 #[no_mangle]
+unsafe extern "C" fn cfsetispeed(
+    termios_p: *mut libc::termios,
+    speed: libc::speed_t,
+) -> libc::c_int {
+    libc!(libc::cfsetispeed(termios_p, speed));
+
+    let termios = &mut *termios_p;
+    let mut rustix_termios = libc_to_rustix(termios);
+
+    let speed = match from_libc_speed(speed) {
+        Some(speed) => speed,
+        None => {
+            set_errno(Errno(libc::EINVAL));
+            return -1;
+        }
+    };
+
+    match convert_res(rustix_termios.set_input_speed(speed)) {
+        Some(()) => {
+            *termios = rustix_to_libc(&rustix_termios);
+            0
+        }
+        None => -1,
+    }
+}
+
+#[no_mangle]
+unsafe extern "C" fn cfsetospeed(
+    termios_p: *mut libc::termios,
+    speed: libc::speed_t,
+) -> libc::c_int {
+    libc!(libc::cfsetospeed(termios_p, speed));
+
+    let termios = &mut *termios_p;
+    let mut rustix_termios = libc_to_rustix(termios);
+
+    let speed = match from_libc_speed(speed) {
+        Some(speed) => speed,
+        None => {
+            set_errno(Errno(libc::EINVAL));
+            return -1;
+        }
+    };
+
+    match convert_res(rustix_termios.set_output_speed(speed)) {
+        Some(()) => {
+            *termios = rustix_to_libc(&rustix_termios);
+            0
+        }
+        None => -1,
+    }
+}
+
+#[no_mangle]
+unsafe extern "C" fn cfsetspeed(
+    termios_p: *mut libc::termios,
+    speed: libc::speed_t,
+) -> libc::c_int {
+    libc!(libc::cfsetspeed(termios_p, speed));
+
+    let termios = &mut *termios_p;
+    let mut rustix_termios = libc_to_rustix(termios);
+
+    let speed = match from_libc_speed(speed) {
+        Some(speed) => speed,
+        None => {
+            set_errno(Errno(libc::EINVAL));
+            return -1;
+        }
+    };
+
+    match convert_res(rustix_termios.set_speed(speed)) {
+        Some(()) => {
+            *termios = rustix_to_libc(&rustix_termios);
+            0
+        }
+        None => -1,
+    }
+}
+
+#[no_mangle]
 unsafe extern "C" fn tcgetattr(fd: c_int, termios_p: *mut libc::termios) -> c_int {
     libc!(libc::tcgetattr(fd, termios_p));
 
@@ -286,6 +367,98 @@ fn to_libc_speed(speed: u32) -> libc::speed_t {
         4_000_000 => libc::B4000000,
         _ => libc::BOTHER,
     }
+}
+
+fn from_libc_speed(speed: u32) -> Option<libc::speed_t> {
+    Some(match speed {
+        libc::B0 => 0,
+        libc::B50 => 50,
+        libc::B75 => 75,
+        libc::B110 => 110,
+        libc::B134 => 134,
+        libc::B150 => 150,
+        libc::B200 => 200,
+        libc::B300 => 300,
+        libc::B600 => 600,
+        libc::B1200 => 1200,
+        libc::B1800 => 1800,
+        libc::B2400 => 2400,
+        libc::B4800 => 4800,
+        libc::B9600 => 9600,
+        libc::B19200 => 19200,
+        libc::B38400 => 38400,
+        #[cfg(not(target_os = "aix"))]
+        libc::B57600 => 57600,
+        #[cfg(not(target_os = "aix"))]
+        libc::B115200 => 115200,
+        #[cfg(not(target_os = "aix"))]
+        libc::B230400 => 230400,
+        #[cfg(not(any(
+            apple,
+            target_os = "aix",
+            target_os = "dragonfly",
+            target_os = "haiku",
+            target_os = "openbsd"
+        )))]
+        libc::B460800 => 460800,
+        #[cfg(not(any(bsd, solarish, target_os = "aix", target_os = "haiku")))]
+        libc::B500000 => 500000,
+        #[cfg(not(any(bsd, solarish, target_os = "aix", target_os = "haiku")))]
+        libc::B576000 => 576000,
+        #[cfg(not(any(
+            apple,
+            target_os = "aix",
+            target_os = "dragonfly",
+            target_os = "haiku",
+            target_os = "openbsd"
+        )))]
+        libc::B921600 => 921600,
+        #[cfg(not(any(bsd, target_os = "aix", target_os = "haiku", target_os = "solaris")))]
+        libc::B1000000 => 1000000,
+        #[cfg(not(any(bsd, target_os = "aix", target_os = "haiku", target_os = "solaris")))]
+        libc::B1152000 => 1152000,
+        #[cfg(not(any(bsd, target_os = "aix", target_os = "haiku", target_os = "solaris")))]
+        libc::B1500000 => 1500000,
+        #[cfg(not(any(bsd, target_os = "aix", target_os = "haiku", target_os = "solaris")))]
+        libc::B2000000 => 2000000,
+        #[cfg(not(any(
+            target_arch = "sparc",
+            target_arch = "sparc64",
+            bsd,
+            target_os = "aix",
+            target_os = "haiku",
+            target_os = "solaris",
+        )))]
+        libc::B2500000 => 2500000,
+        #[cfg(not(any(
+            target_arch = "sparc",
+            target_arch = "sparc64",
+            bsd,
+            target_os = "aix",
+            target_os = "haiku",
+            target_os = "solaris",
+        )))]
+        libc::B3000000 => 3000000,
+        #[cfg(not(any(
+            target_arch = "sparc",
+            target_arch = "sparc64",
+            bsd,
+            target_os = "aix",
+            target_os = "haiku",
+            target_os = "solaris",
+        )))]
+        libc::B3500000 => 3500000,
+        #[cfg(not(any(
+            target_arch = "sparc",
+            target_arch = "sparc64",
+            bsd,
+            target_os = "aix",
+            target_os = "haiku",
+            target_os = "solaris",
+        )))]
+        libc::B4000000 => 4000000,
+        _ => return None,
+    })
 }
 
 #[no_mangle]

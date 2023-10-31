@@ -46,10 +46,6 @@ unsafe extern "C" fn process_vm_readv() {
     todo!("process_vm_readv")
 }
 #[no_mangle]
-unsafe extern "C" fn tee() {
-    todo!("tee")
-}
-#[no_mangle]
 unsafe extern "C" fn waitid() {
     todo!("waitid")
 }
@@ -60,18 +56,6 @@ unsafe extern "C" fn signalfd() {
 #[no_mangle]
 unsafe extern "C" fn posix_fallocate() {
     todo!("posix_fallocate")
-}
-#[no_mangle]
-unsafe extern "C" fn cfsetspeed() {
-    todo!("cfsetspeed")
-}
-#[no_mangle]
-unsafe extern "C" fn cfsetispeed() {
-    todo!("cfsetispeed")
-}
-#[no_mangle]
-unsafe extern "C" fn cfsetospeed() {
-    todo!("cfsetospeed")
 }
 #[no_mangle]
 unsafe extern "C" fn daemon() {
@@ -194,10 +178,6 @@ unsafe extern "C" fn eaccess() {
     todo!("eaccess")
 }
 #[no_mangle]
-unsafe extern "C" fn execvpe() {
-    todo!("execvpe")
-}
-#[no_mangle]
 unsafe extern "C" fn fchownat() {
     todo!("fchownat")
 }
@@ -218,20 +198,12 @@ unsafe extern "C" fn getresuid() {
     todo!("getresuid")
 }
 #[no_mangle]
-unsafe extern "C" fn grantpt() {
-    todo!("grantpt")
-}
-#[no_mangle]
 unsafe extern "C" fn if_nametoindex() {
     todo!("if_nametoindex")
 }
 #[no_mangle]
 unsafe extern "C" fn pause() {
     todo!("pause")
-}
-#[no_mangle]
-unsafe extern "C" fn posix_openpt() {
-    todo!("posix_openpt")
 }
 #[no_mangle]
 unsafe extern "C" fn ppoll() {
@@ -296,10 +268,6 @@ unsafe extern "C" fn timer_settime() {
 #[no_mangle]
 unsafe extern "C" fn truncate() {
     todo!("truncate")
-}
-#[no_mangle]
-unsafe extern "C" fn unlockpt() {
-    todo!("unlockpt")
 }
 #[no_mangle]
 unsafe extern "C" fn personality() {

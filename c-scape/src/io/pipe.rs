@@ -1,7 +1,8 @@
+use rustix::fd::BorrowedFd;
 use rustix::fd::IntoRawFd;
 use rustix::pipe::PipeFlags;
 
-use libc::c_int;
+use libc::{c_int, c_uint, size_t, ssize_t};
 
 use crate::convert_res;
 
@@ -31,6 +32,19 @@ unsafe extern "C" fn pipe2(pipefd: *mut c_int, flags: c_int) -> c_int {
             *pipefd.add(1) = b.into_raw_fd();
             0
         }
+        None => -1,
+    }
+}
+
+#[no_mangle]
+unsafe extern "C" fn tee(fd_in: c_int, fd_out: c_int, len: size_t, flags: c_uint) -> ssize_t {
+    libc!(libc::tee(fd_in, fd_out, len, flags));
+
+    let fd_in = BorrowedFd::borrow_raw(fd_in);
+    let fd_out = BorrowedFd::borrow_raw(fd_out);
+    let flags = rustix::pipe::SpliceFlags::from_bits_retain(flags);
+    match convert_res(rustix::pipe::tee(fd_in, fd_out, len, flags)) {
+        Some(num) => num as _,
         None => -1,
     }
 }

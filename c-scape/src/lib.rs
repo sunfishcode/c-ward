@@ -84,6 +84,7 @@ mod glibc_versioning;
 mod nss;
 mod posix_spawn;
 mod process_;
+mod pty;
 mod rand_;
 mod setjmp;
 mod syscall;

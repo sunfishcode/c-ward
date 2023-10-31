@@ -411,7 +411,7 @@ unsafe extern "C" fn getrusage() {
 }
 #[no_mangle]
 unsafe extern "C" fn gets() {
-    unimplemnted!("gets")
+    unimplemented!("gets")
 }
 #[no_mangle]
 unsafe extern "C" fn getw() {

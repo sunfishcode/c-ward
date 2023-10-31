@@ -122,6 +122,10 @@ unsafe extern "C" fn makecontext() {
     todo!("makecontext")
 }
 #[no_mangle]
+unsafe extern "C" fn swapcontext() {
+    todo!("swapcontext")
+}
+#[no_mangle]
 unsafe extern "C" fn select() {
     todo!("select")
 }

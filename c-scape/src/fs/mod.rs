@@ -19,6 +19,7 @@ mod remove;
 mod rename;
 mod sendfile;
 mod stat;
+mod statvfs;
 mod symlink;
 mod sync;
 mod truncate;

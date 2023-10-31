@@ -10,10 +10,6 @@ unsafe extern "C" fn bsearch() {
     todo!("bsearch")
 }
 #[no_mangle]
-unsafe extern "C" fn statvfs() {
-    todo!("statvfs")
-}
-#[no_mangle]
 unsafe extern "C" fn freeifaddrs() {
     todo!("freeifaddrs")
 }
@@ -212,10 +208,6 @@ unsafe extern "C" fn forkpty() {
 #[no_mangle]
 unsafe extern "C" fn fstatfs64() {
     todo!("fstatfs64")
-}
-#[no_mangle]
-unsafe extern "C" fn fstatvfs() {
-    todo!("fstatvfs")
 }
 #[no_mangle]
 unsafe extern "C" fn getresgid() {

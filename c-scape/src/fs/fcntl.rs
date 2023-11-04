@@ -117,15 +117,19 @@ impl Flock for libc::flock {
     fn l_type(&self) -> i16 {
         self.l_type
     }
+
     fn l_whence(&self) -> i16 {
         self.l_whence
     }
+
     fn l_start(&self) -> libc::off64_t {
         self.l_start.into()
     }
+
     fn l_len(&self) -> libc::off64_t {
         self.l_len.into()
     }
+
     fn l_pid(&mut self, pid: libc::pid_t) {
         self.l_pid = pid;
     }
@@ -135,15 +139,19 @@ impl Flock for libc::flock64 {
     fn l_type(&self) -> i16 {
         self.l_type
     }
+
     fn l_whence(&self) -> i16 {
         self.l_whence
     }
+
     fn l_start(&self) -> libc::off64_t {
         self.l_start
     }
+
     fn l_len(&self) -> libc::off64_t {
         self.l_len
     }
+
     fn l_pid(&mut self, pid: libc::pid_t) {
         self.l_pid = pid;
     }

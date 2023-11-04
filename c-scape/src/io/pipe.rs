@@ -1,5 +1,4 @@
-use rustix::fd::BorrowedFd;
-use rustix::fd::IntoRawFd;
+use rustix::fd::{BorrowedFd, IntoRawFd};
 use rustix::pipe::PipeFlags;
 
 use libc::{c_int, c_uint, size_t, ssize_t};

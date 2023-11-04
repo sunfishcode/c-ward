@@ -1,4 +1,5 @@
 use crate::convert_res;
+use errno::{set_errno, Errno};
 use libc::c_int;
 use rustix::fd::BorrowedFd;
 use rustix::fs::FlockOperation;
@@ -21,7 +22,8 @@ unsafe extern "C" fn flock(fd: c_int, operation: c_int) -> c_int {
     } else if operation == libc::LOCK_UN | libc::LOCK_NB {
         FlockOperation::NonBlockingUnlock
     } else {
-        unreachable!()
+        set_errno(Errno(libc::EINVAL));
+        return -1;
     };
 
     match convert_res(rustix::fs::flock(fd, operation)) {

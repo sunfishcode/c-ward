@@ -8,7 +8,7 @@ use core::mem::align_of;
 use core::mem::size_of;
 use core::ptr::{copy_nonoverlapping, null_mut, write_bytes};
 use errno::{set_errno, Errno};
-use libc::{c_int, c_void};
+use libc::{c_int, c_void, size_t};
 
 // Decide which underlying allocator to use.
 
@@ -169,7 +169,7 @@ unsafe extern "C" fn posix_memalign(
 ) -> c_int {
     libc!(libc::posix_memalign(memptr, alignment, size));
 
-    if !(alignment.is_power_of_two() && alignment % core::mem::size_of::<*const c_void>() == 0) {
+    if !alignment.is_power_of_two() || alignment < core::mem::size_of::<*const c_void>() {
         return libc::EINVAL;
     }
 
@@ -184,6 +184,25 @@ unsafe extern "C" fn posix_memalign(
 }
 
 #[no_mangle]
+unsafe extern "C" fn aligned_alloc(alignment: size_t, size: size_t) -> *mut c_void {
+    //libc!(libc::aligned_alloc(alignment, size));
+
+    if !alignment.is_power_of_two() || size % alignment != 0 {
+        set_errno(Errno(libc::EINVAL));
+        return null_mut();
+    }
+
+    let layout = alloc::alloc::Layout::from_size_align(size, alignment).unwrap();
+    let ptr = tagged_alloc(layout);
+    if ptr.is_null() {
+        set_errno(Errno(libc::ENOMEM));
+        return null_mut();
+    }
+
+    ptr.cast()
+}
+
+#[no_mangle]
 unsafe extern "C" fn free(ptr: *mut c_void) {
     libc!(libc::free(ptr));
 
@@ -192,4 +211,15 @@ unsafe extern "C" fn free(ptr: *mut c_void) {
     }
 
     tagged_dealloc(ptr.cast());
+}
+
+#[no_mangle]
+unsafe extern "C" fn malloc_usable_size(ptr: *mut c_void) -> size_t {
+    libc!(libc::malloc_usable_size(ptr));
+
+    if ptr.is_null() {
+        return 0;
+    }
+
+    get_layout(ptr.cast()).size()
 }

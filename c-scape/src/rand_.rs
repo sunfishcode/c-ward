@@ -11,7 +11,7 @@ unsafe extern "C" fn getrandom(buf: *mut c_void, buflen: usize, flags: u32) -> i
         return 0;
     }
 
-    let flags = rustix::rand::GetRandomFlags::from_bits(flags & !0x4).unwrap();
+    let flags = rustix::rand::GetRandomFlags::from_bits_retain(flags);
 
     // `slice::from_raw_parts_mut` assumes that the memory is initialized,
     // which our C API here doesn't guarantee. Since rustix currently requires

@@ -20,7 +20,7 @@ unsafe extern "C" fn getutxent() -> *mut libc::utmpx {
 
     let mut lock = LOCK.lock().unwrap();
 
-    ensure_open_file(&mut *lock);
+    ensure_open_file(&mut lock);
 
     let (_path, file, entry) = lock.get_mut().unwrap();
 
@@ -41,7 +41,7 @@ unsafe extern "C" fn getutxid(ut: *const libc::utmpx) -> *mut libc::utmpx {
 
     let mut lock = LOCK.lock().unwrap();
 
-    ensure_open_file(&mut *lock);
+    ensure_open_file(&mut lock);
 
     let (_path, file, entry) = lock.get_mut().unwrap();
 
@@ -78,7 +78,7 @@ unsafe extern "C" fn getutxline(ut: *const libc::utmpx) -> *mut libc::utmpx {
 
     let mut lock = LOCK.lock().unwrap();
 
-    ensure_open_file(&mut *lock);
+    ensure_open_file(&mut lock);
 
     let (_path, file, entry) = lock.get_mut().unwrap();
 

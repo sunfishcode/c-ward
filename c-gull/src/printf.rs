@@ -182,12 +182,12 @@ unsafe extern "C" fn fwrite(
     let buf = core::slice::from_raw_parts(ptr.cast::<u8>(), len);
 
     if file == stdout {
-        match rust_stdout().write(&buf) {
+        match rust_stdout().write(buf) {
             Ok(n) => n / size,
             Err(_err) => 0,
         }
     } else if file == stderr {
-        match rust_stderr().write(&buf) {
+        match rust_stderr().write(buf) {
             Ok(n) => n / size,
             Err(_err) => 0,
         }
@@ -232,10 +232,10 @@ unsafe extern "C" fn fgets(s: *mut c_char, size: c_int, file: *mut c_void) -> *m
     core::ptr::write_bytes(ptr, 0, size);
 
     // Subtract one for the terminating NUL.
-    let mut buf = core::slice::from_raw_parts_mut(ptr.cast::<u8>(), size - 1);
+    let buf = core::slice::from_raw_parts_mut(ptr.cast::<u8>(), size - 1);
 
     if file == stdin {
-        match rust_stdin().read(&mut buf) {
+        match rust_stdin().read(buf) {
             Ok(n) => {
                 buf[n] = b'\0';
                 s

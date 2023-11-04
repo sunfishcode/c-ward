@@ -19,9 +19,9 @@ unsafe extern "C" fn rand() -> c_int {
     libc!(libc::rand());
 
     // POSIX requires that if the user hasn't initialized the RNG, it behaves
-    // as-if srand(1) was called.
+    // as-if `srand(1)` was called.
     let mut guard = STATE.lock();
-    if *guard == None {
+    if guard.is_none() {
         internal_seed(&mut guard, 1);
     }
 

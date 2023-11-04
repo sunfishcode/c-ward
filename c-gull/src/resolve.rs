@@ -93,7 +93,7 @@ unsafe extern "C" fn getaddrinfo(
             *res = first;
             0
         }
-        Err(err) => return err,
+        Err(err) => err,
     }
 }
 

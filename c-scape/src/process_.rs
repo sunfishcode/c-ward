@@ -88,11 +88,7 @@ fn _pathconf(name: c_int) -> c_long {
 #[no_mangle]
 unsafe extern "C" fn getauxval(type_: c_ulong) -> *mut c_void {
     libc!(ptr::from_exposed_addr_mut(libc::getauxval(type_) as _));
-    match type_ {
-        libc::AT_HWCAP => ptr::invalid_mut(rustix::param::linux_hwcap().0),
-        libc::AT_HWCAP2 => ptr::invalid_mut(rustix::param::linux_hwcap().1),
-        _ => unimplemented!("unrecognized __getauxval {}", type_),
-    }
+    _getauxval(type_)
 }
 
 // As with `getauxval`, this is not used in coexist-with-libc configurations
@@ -103,6 +99,11 @@ unsafe extern "C" fn getauxval(type_: c_ulong) -> *mut c_void {
 #[no_mangle]
 unsafe extern "C" fn __getauxval(type_: c_ulong) -> *mut c_void {
     //libc!(ptr::from_exposed_addr(libc::__getauxval(type_) as _));
+    _getauxval(type_)
+}
+
+#[cfg(feature = "take-charge")]
+fn _getauxval(type_: c_ulong) -> *mut c_void {
     match type_ {
         libc::AT_HWCAP => ptr::invalid_mut(rustix::param::linux_hwcap().0),
         libc::AT_HWCAP2 => ptr::invalid_mut(rustix::param::linux_hwcap().1),
@@ -144,43 +145,35 @@ unsafe extern "C" fn dl_iterate_phdr(
 unsafe extern "C" fn dlsym(handle: *mut c_void, symbol: *const c_char) -> *mut c_void {
     libc!(libc::dlsym(handle, symbol));
 
+    let symbol = CStr::from_ptr(symbol.cast());
+
     if handle.is_null() {
         // `std` uses `dlsym` to dynamically detect feature availability; recognize
         // functions it asks for.
-        #[cfg(any(target_os = "android", target_os = "linux"))]
-        if CStr::from_ptr(symbol.cast()).to_bytes() == b"statx" {
-            return libc::statx as *mut c_void;
-        }
-        #[cfg(any(target_os = "android", target_os = "linux"))]
-        if CStr::from_ptr(symbol.cast()).to_bytes() == b"getrandom" {
-            return libc::getrandom as *mut c_void;
-        }
-        #[cfg(any(target_os = "android", target_os = "linux"))]
-        if CStr::from_ptr(symbol.cast()).to_bytes() == b"copy_file_range" {
-            return libc::copy_file_range as *mut c_void;
-        }
-        #[cfg(any(target_os = "android", target_os = "linux"))]
-        if CStr::from_ptr(symbol.cast()).to_bytes() == b"clone3" {
+        match symbol.to_bytes() {
+            #[cfg(any(target_os = "android", target_os = "linux"))]
+            b"statx" => libc::statx as _,
+            #[cfg(any(target_os = "android", target_os = "linux"))]
+            b"getrandom" => libc::getrandom as _,
+            #[cfg(any(target_os = "android", target_os = "linux"))]
+            b"copy_file_range" => libc::copy_file_range as _,
+            #[cfg(target_env = "gnu")]
+            b"gnu_get_libc_version" => libc::gnu_get_libc_version as _,
+            #[cfg(any(target_os = "android", target_os = "linux"))]
+            b"epoll_create1" => libc::epoll_create1 as _,
+            b"pipe2" => libc::pipe2 as _,
+
             // Let's just say we don't support this for now.
-            return null_mut();
-        }
-        if CStr::from_ptr(symbol.cast()).to_bytes() == b"__pthread_get_minstack" {
+            #[cfg(any(target_os = "android", target_os = "linux"))]
+            b"clone3" => null_mut(),
             // Let's just say we don't support this for now.
-            return null_mut();
+            b"__pthread_get_minstack" => null_mut(),
+
+            _ => unimplemented!("dlsym(_, {:?})", symbol),
         }
-        #[cfg(target_env = "gnu")]
-        if CStr::from_ptr(symbol.cast()).to_bytes() == b"gnu_get_libc_version" {
-            return libc::gnu_get_libc_version as *mut c_void;
-        }
-        #[cfg(any(target_os = "android", target_os = "linux"))]
-        if CStr::from_ptr(symbol.cast()).to_bytes() == b"epoll_create1" {
-            return libc::epoll_create1 as *mut c_void;
-        }
-        if CStr::from_ptr(symbol.cast()).to_bytes() == b"pipe2" {
-            return libc::pipe2 as *mut c_void;
-        }
+    } else {
+        unimplemented!("dlsym with a handle")
     }
-    unimplemented!("dlsym({:?})", CStr::from_ptr(symbol.cast()))
 }
 
 #[no_mangle]

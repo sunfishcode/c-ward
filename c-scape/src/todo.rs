@@ -509,3 +509,391 @@ unsafe extern "C" fn vscanf() {
 unsafe extern "C" fn vsscanf() {
     todo!("vsscanf")
 }
+#[no_mangle]
+unsafe extern "C" fn basename() {
+    todo!("basename")
+}
+#[no_mangle]
+unsafe extern "C" fn endgrent() {
+    todo!("endgrent")
+}
+#[no_mangle]
+unsafe extern "C" fn error() {
+    todo!("error")
+}
+#[no_mangle]
+unsafe extern "C" fn error_at_line() {
+    todo!("error_at_line")
+}
+#[no_mangle]
+unsafe extern "C" fn feclearexcept() {
+    todo!("feclearexcept")
+}
+#[no_mangle]
+unsafe extern "C" fn fegetenv() {
+    todo!("fegetenv")
+}
+#[no_mangle]
+unsafe extern "C" fn fegetround() {
+    todo!("fegetround")
+}
+#[no_mangle]
+unsafe extern "C" fn feraiseexcept() {
+    todo!("feraiseexcept")
+}
+#[no_mangle]
+unsafe extern "C" fn fesetenv() {
+    todo!("fesetenv")
+}
+#[no_mangle]
+unsafe extern "C" fn fesetround() {
+    todo!("fesetround")
+}
+#[no_mangle]
+unsafe extern "C" fn fetestexcept() {
+    todo!("fetestexcept")
+}
+#[no_mangle]
+unsafe extern "C" fn ffs() {
+    todo!("ffs")
+}
+#[no_mangle]
+unsafe extern "C" fn ffsl() {
+    todo!("ffsl")
+}
+#[no_mangle]
+unsafe extern "C" fn ffsll() {
+    todo!("ffsll")
+}
+#[no_mangle]
+unsafe extern "C" fn fopencookie() {
+    todo!("fopencookie")
+}
+#[no_mangle]
+unsafe extern "C" fn getdelim() {
+    todo!("getdelim")
+}
+#[no_mangle]
+unsafe extern "C" fn getgrent() {
+    todo!("getgrent")
+}
+#[no_mangle]
+unsafe extern "C" fn getline() {
+    todo!("getline")
+}
+#[no_mangle]
+unsafe extern "C" fn getopt_long() {
+    todo!("getopt_long")
+}
+#[no_mangle]
+unsafe extern "C" fn getopt_long_only() {
+    todo!("getopt_long_only")
+}
+#[no_mangle]
+unsafe extern "C" fn getservbyname() {
+    todo!("getservbyname")
+}
+#[no_mangle]
+unsafe extern "C" fn getservbyport() {
+    todo!("getservbyport")
+}
+#[no_mangle]
+unsafe extern "C" fn if_indextoname() {
+    todo!("if_indextoname")
+}
+#[no_mangle]
+unsafe extern "C" fn longjmp() {
+    todo!("longjmp")
+}
+#[no_mangle]
+unsafe extern "C" fn mbrtoc32() {
+    todo!("mbrtoc32")
+}
+#[no_mangle]
+unsafe extern "C" fn mbrtowc() {
+    todo!("mbrtowc")
+}
+#[no_mangle]
+unsafe extern "C" fn mbstowcs() {
+    todo!("mbstowcs")
+}
+#[no_mangle]
+unsafe extern "C" fn mbtowc() {
+    todo!("mbtowc")
+}
+#[no_mangle]
+unsafe extern "C" fn ns_get16() {
+    todo!("ns_get16")
+}
+#[no_mangle]
+unsafe extern "C" fn ns_get32() {
+    todo!("ns_get32")
+}
+#[no_mangle]
+unsafe extern "C" fn ns_put16() {
+    todo!("ns_put16")
+}
+#[no_mangle]
+unsafe extern "C" fn ns_put32() {
+    todo!("ns_put32")
+}
+#[no_mangle]
+unsafe extern "C" fn open_memstream() {
+    todo!("open_memstream")
+}
+#[no_mangle]
+unsafe extern "C" fn optarg() {
+    todo!("optarg")
+}
+#[no_mangle]
+unsafe extern "C" fn optind() {
+    todo!("optind")
+}
+#[no_mangle]
+unsafe extern "C" fn optopt() {
+    todo!("optopt")
+}
+#[no_mangle]
+unsafe extern "C" fn posix_spawn() {
+    todo!("posix_spawn")
+}
+#[no_mangle]
+unsafe extern "C" fn pthread_attr_getdetachstate() {
+    todo!("pthread_attr_getdetachstate")
+}
+#[no_mangle]
+unsafe extern "C" fn pthread_attr_getinheritsched() {
+    todo!("pthread_attr_getinheritsched")
+}
+#[no_mangle]
+unsafe extern "C" fn pthread_attr_getschedparam() {
+    todo!("pthread_attr_getschedparam")
+}
+#[no_mangle]
+unsafe extern "C" fn pthread_attr_getschedpolicy() {
+    todo!("pthread_attr_getschedpolicy")
+}
+#[no_mangle]
+unsafe extern "C" fn pthread_attr_getscope() {
+    todo!("pthread_attr_getscope")
+}
+#[no_mangle]
+unsafe extern "C" fn pthread_attr_getstacksize() {
+    todo!("pthread_attr_getstacksize")
+}
+#[no_mangle]
+unsafe extern "C" fn pthread_attr_setdetachstate() {
+    todo!("pthread_attr_setdetachstate")
+}
+#[no_mangle]
+unsafe extern "C" fn pthread_attr_setinheritsched() {
+    todo!("pthread_attr_setinheritsched")
+}
+#[no_mangle]
+unsafe extern "C" fn pthread_attr_setschedparam() {
+    todo!("pthread_attr_setschedparam")
+}
+#[no_mangle]
+unsafe extern "C" fn pthread_attr_setschedpolicy() {
+    todo!("pthread_attr_setschedpolicy")
+}
+#[no_mangle]
+unsafe extern "C" fn pthread_attr_setscope() {
+    todo!("pthread_attr_setscope")
+}
+#[no_mangle]
+unsafe extern "C" fn pthread_attr_setstack() {
+    todo!("pthread_attr_setstack")
+}
+#[no_mangle]
+unsafe extern "C" fn pthread_barrierattr_destroy() {
+    todo!("pthread_barrierattr_destroy")
+}
+#[no_mangle]
+unsafe extern "C" fn pthread_barrierattr_getpshared() {
+    todo!("pthread_barrierattr_getpshared")
+}
+#[no_mangle]
+unsafe extern "C" fn pthread_barrierattr_init() {
+    todo!("pthread_barrierattr_init")
+}
+#[no_mangle]
+unsafe extern "C" fn pthread_barrierattr_setpshared() {
+    todo!("pthread_barrierattr_setpshared")
+}
+#[no_mangle]
+unsafe extern "C" fn pthread_barrier_destroy() {
+    todo!("pthread_barrier_destroy")
+}
+#[no_mangle]
+unsafe extern "C" fn pthread_barrier_init() {
+    todo!("pthread_barrier_init")
+}
+#[no_mangle]
+unsafe extern "C" fn pthread_barrier_wait() {
+    todo!("pthread_barrier_wait")
+}
+#[no_mangle]
+unsafe extern "C" fn pthread_condattr_getclock() {
+    todo!("pthread_condattr_getclock")
+}
+#[no_mangle]
+unsafe extern "C" fn pthread_condattr_getpshared() {
+    todo!("pthread_condattr_getpshared")
+}
+#[no_mangle]
+unsafe extern "C" fn pthread_condattr_setpshared() {
+    todo!("pthread_condattr_setpshared")
+}
+#[no_mangle]
+unsafe extern "C" fn pthread_getname_np() {
+    todo!("pthread_getname_np")
+}
+#[no_mangle]
+unsafe extern "C" fn pthread_getschedparam() {
+    todo!("pthread_getschedparam")
+}
+#[no_mangle]
+unsafe extern "C" fn pthread_mutexattr_getprotocol() {
+    todo!("pthread_mutexattr_getprotocol")
+}
+#[no_mangle]
+unsafe extern "C" fn pthread_mutexattr_getpshared() {
+    todo!("pthread_mutexattr_getpshared")
+}
+#[no_mangle]
+unsafe extern "C" fn pthread_mutexattr_getrobust() {
+    todo!("pthread_mutexattr_getrobust")
+}
+#[no_mangle]
+unsafe extern "C" fn pthread_mutexattr_gettype() {
+    todo!("pthread_mutexattr_gettype")
+}
+#[no_mangle]
+unsafe extern "C" fn pthread_mutexattr_setprotocol() {
+    todo!("pthread_mutexattr_setprotocol")
+}
+#[no_mangle]
+unsafe extern "C" fn pthread_mutexattr_setpshared() {
+    todo!("pthread_mutexattr_setpshared")
+}
+#[no_mangle]
+unsafe extern "C" fn pthread_mutexattr_setrobust() {
+    todo!("pthread_mutexattr_setrobust")
+}
+#[no_mangle]
+unsafe extern "C" fn __pthread_register_cancel() {
+    todo!("__pthread_register_cancel")
+}
+#[no_mangle]
+unsafe extern "C" fn pthread_rwlockattr_destroy() {
+    todo!("pthread_rwlockattr_destroy")
+}
+#[no_mangle]
+unsafe extern "C" fn pthread_rwlockattr_getpshared() {
+    todo!("pthread_rwlockattr_getpshared")
+}
+#[no_mangle]
+unsafe extern "C" fn pthread_rwlockattr_init() {
+    todo!("pthread_rwlockattr_init")
+}
+#[no_mangle]
+unsafe extern "C" fn pthread_rwlockattr_setpshared() {
+    todo!("pthread_rwlockattr_setpshared")
+}
+#[no_mangle]
+unsafe extern "C" fn pthread_setschedparam() {
+    todo!("pthread_setschedparam")
+}
+#[no_mangle]
+unsafe extern "C" fn __pthread_unregister_cancel() {
+    todo!("__pthread_unregister_cancel")
+}
+#[no_mangle]
+unsafe extern "C" fn reallocarray() {
+    todo!("reallocarray")
+}
+#[no_mangle]
+unsafe extern "C" fn regcomp() {
+    todo!("regcomp")
+}
+#[no_mangle]
+unsafe extern "C" fn regexec() {
+    todo!("regexec")
+}
+#[no_mangle]
+unsafe extern "C" fn regfree() {
+    todo!("regfree")
+}
+#[no_mangle]
+unsafe extern "C" fn sbrk() {
+    todo!("sbrk")
+}
+#[no_mangle]
+unsafe extern "C" fn setgrent() {
+    todo!("setgrent")
+}
+#[no_mangle]
+unsafe extern "C" fn setlocale() {
+    todo!("setlocale")
+}
+#[no_mangle]
+unsafe extern "C" fn sigsuspend() {
+    todo!("sigsuspend")
+}
+#[no_mangle]
+unsafe extern "C" fn strxfrm() {
+    todo!("strxfrm")
+}
+#[no_mangle]
+unsafe extern "C" fn system() {
+    todo!("system")
+}
+#[no_mangle]
+unsafe extern "C" fn tfind() {
+    todo!("tfind")
+}
+#[no_mangle]
+unsafe extern "C" fn tsearch() {
+    todo!("tsearch")
+}
+#[no_mangle]
+unsafe extern "C" fn wcsdup() {
+    todo!("wcsdup")
+}
+#[no_mangle]
+unsafe extern "C" fn wcslen() {
+    todo!("wcslen")
+}
+#[no_mangle]
+unsafe extern "C" fn wcsncasecmp() {
+    todo!("wcsncasecmp")
+}
+#[no_mangle]
+unsafe extern "C" fn wcsrtombs() {
+    todo!("wcsrtombs")
+}
+#[no_mangle]
+unsafe extern "C" fn wcstol() {
+    todo!("wcstol")
+}
+#[no_mangle]
+unsafe extern "C" fn wcstoll() {
+    todo!("wcstoll")
+}
+#[no_mangle]
+unsafe extern "C" fn wcstoul() {
+    todo!("wcstoul")
+}
+#[no_mangle]
+unsafe extern "C" fn wcstoull() {
+    todo!("wcstoull")
+}
+#[no_mangle]
+unsafe extern "C" fn wmemcmp() {
+    todo!("wmemcmp")
+}
+#[no_mangle]
+unsafe extern "C" fn __xpg_basename() {
+    todo!("__xpg_basename")
+}

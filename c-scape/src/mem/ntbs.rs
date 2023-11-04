@@ -48,10 +48,7 @@ unsafe extern "C" fn stpncpy(
         s = s.add(1);
     }
 
-    for _ in 0..n {
-        *d = 0;
-        d = d.add(1);
-    }
+    libc::memset(d.cast(), 0, n);
 
     d
 }

@@ -77,6 +77,7 @@ mod thread;
 
 mod atoi;
 mod errno_;
+mod error;
 mod exec;
 #[cfg(feature = "take-charge")]
 mod exit;

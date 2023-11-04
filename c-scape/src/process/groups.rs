@@ -41,5 +41,5 @@ unsafe extern "C" fn getgroups(num: c_int, groups: *mut libc::gid_t) -> c_int {
 #[no_mangle]
 unsafe extern "C" fn setgroups() {
     //libc!(libc::setgroups());
-    unimplemented!("setgroups")
+    todo!("setgroups")
 }

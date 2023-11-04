@@ -140,26 +140,30 @@ unsafe extern "C" fn readdir(dir: *mut libc::DIR) -> *mut libc::dirent {
     }
 }
 
+#[cfg(feature = "todo")]
 #[no_mangle]
 unsafe extern "C" fn rewinddir() {
     //libc!(libc::rewinddir());
-    unimplemented!("rewinddir")
+    todo!("rewinddir")
 }
 
+#[cfg(feature = "todo")]
 #[no_mangle]
 unsafe extern "C" fn scandir() {
     //libc!(libc::scandir());
-    unimplemented!("scandir")
+    todo!("scandir")
 }
 
+#[cfg(feature = "todo")]
 #[no_mangle]
 unsafe extern "C" fn seekdir() {
     //libc!(libc::seekdir());
-    unimplemented!("seekdir")
+    todo!("seekdir")
 }
 
+#[cfg(feature = "todo")]
 #[no_mangle]
 unsafe extern "C" fn telldir() {
     //libc!(libc::telldir());
-    unimplemented!("telldir")
+    todo!("telldir")
 }

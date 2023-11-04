@@ -897,3 +897,355 @@ unsafe extern "C" fn wmemcmp() {
 unsafe extern "C" fn __xpg_basename() {
     todo!("__xpg_basename")
 }
+#[no_mangle]
+unsafe extern "C" fn btowc() {
+    todo!("btowc")
+}
+#[no_mangle]
+unsafe extern "C" fn clearenv() {
+    todo!("clearenv")
+}
+#[no_mangle]
+unsafe extern "C" fn copysignl() {
+    todo!("copysignl")
+}
+#[no_mangle]
+unsafe extern "C" fn crypt() {
+    todo!("crypt")
+}
+#[no_mangle]
+unsafe extern "C" fn dirname() {
+    todo!("dirname")
+}
+#[no_mangle]
+unsafe extern "C" fn dn_expand() {
+    todo!("dn_expand")
+}
+#[no_mangle]
+unsafe extern "C" fn _Exit() {
+    todo!("_Exit")
+}
+#[no_mangle]
+unsafe extern "C" fn fgetwc() {
+    todo!("fgetwc")
+}
+#[no_mangle]
+unsafe extern "C" fn fmemopen() {
+    todo!("fmemopen")
+}
+#[no_mangle]
+unsafe extern "C" fn fnmatch() {
+    todo!("fnmatch")
+}
+#[no_mangle]
+unsafe extern "C" fn ftok() {
+    todo!("ftok")
+}
+#[no_mangle]
+unsafe extern "C" fn getopt() {
+    todo!("getopt")
+}
+#[no_mangle]
+unsafe extern "C" fn hcreate() {
+    todo!("hcreate")
+}
+#[no_mangle]
+unsafe extern "C" fn hdestroy() {
+    todo!("hdestroy")
+}
+#[no_mangle]
+unsafe extern "C" fn hsearch() {
+    todo!("hsearch")
+}
+#[no_mangle]
+unsafe extern "C" fn iconv() {
+    todo!("iconv")
+}
+#[no_mangle]
+unsafe extern "C" fn iconv_close() {
+    todo!("iconv_close")
+}
+#[no_mangle]
+unsafe extern "C" fn iconv_open() {
+    todo!("iconv_open")
+}
+#[no_mangle]
+unsafe extern "C" fn initstate() {
+    todo!("initstate")
+}
+#[no_mangle]
+unsafe extern "C" fn insque() {
+    todo!("insque")
+}
+#[no_mangle]
+unsafe extern "C" fn __isoc99_fscanf() {
+    todo!("__isoc99_fscanf")
+}
+#[no_mangle]
+unsafe extern "C" fn __isoc99_fwscanf() {
+    todo!("__isoc99_fwscanf")
+}
+#[no_mangle]
+unsafe extern "C" fn iswalnum() {
+    todo!("iswalnum")
+}
+#[no_mangle]
+unsafe extern "C" fn iswalpha() {
+    todo!("iswalpha")
+}
+#[no_mangle]
+unsafe extern "C" fn iswblank() {
+    todo!("iswblank")
+}
+#[no_mangle]
+unsafe extern "C" fn iswcntrl() {
+    todo!("iswcntrl")
+}
+#[no_mangle]
+unsafe extern "C" fn iswdigit() {
+    todo!("iswdigit")
+}
+#[no_mangle]
+unsafe extern "C" fn iswgraph() {
+    todo!("iswgraph")
+}
+#[no_mangle]
+unsafe extern "C" fn iswlower() {
+    todo!("iswlower")
+}
+#[no_mangle]
+unsafe extern "C" fn iswprint() {
+    todo!("iswprint")
+}
+#[no_mangle]
+unsafe extern "C" fn iswpunct() {
+    todo!("iswpunct")
+}
+#[no_mangle]
+unsafe extern "C" fn iswspace() {
+    todo!("iswspace")
+}
+#[no_mangle]
+unsafe extern "C" fn iswupper() {
+    todo!("iswupper")
+}
+#[no_mangle]
+unsafe extern "C" fn iswxdigit() {
+    todo!("iswxdigit")
+}
+#[no_mangle]
+unsafe extern "C" fn lfind() {
+    todo!("lfind")
+}
+#[no_mangle]
+unsafe extern "C" fn __libc_current_sigrtmin() {
+    todo!("__libc_current_sigrtmin")
+}
+#[no_mangle]
+unsafe extern "C" fn lrint() {
+    todo!("lrint")
+}
+#[no_mangle]
+unsafe extern "C" fn lrintf() {
+    todo!("lrintf")
+}
+#[no_mangle]
+unsafe extern "C" fn lsearch() {
+    todo!("lsearch")
+}
+#[no_mangle]
+unsafe extern "C" fn mbsrtowcs() {
+    todo!("mbsrtowcs")
+}
+#[no_mangle]
+unsafe extern "C" fn memmem() {
+    todo!("memmem")
+}
+#[no_mangle]
+unsafe extern "C" fn mkdtemp() {
+    todo!("mkdtemp")
+}
+#[no_mangle]
+unsafe extern "C" fn msgctl() {
+    todo!("msgctl")
+}
+#[no_mangle]
+unsafe extern "C" fn msgget() {
+    todo!("msgget")
+}
+#[no_mangle]
+unsafe extern "C" fn msgrcv() {
+    todo!("msgrcv")
+}
+#[no_mangle]
+unsafe extern "C" fn msgsnd() {
+    todo!("msgsnd")
+}
+#[no_mangle]
+unsafe extern "C" fn newlocale() {
+    todo!("newlocale")
+}
+#[no_mangle]
+unsafe extern "C" fn nl_langinfo() {
+    todo!("nl_langinfo")
+}
+#[no_mangle]
+unsafe extern "C" fn posix_spawn_file_actions_addclose() {
+    todo!("posix_spawn_file_actions_addclose")
+}
+#[no_mangle]
+unsafe extern "C" fn pthread_mutex_consistent() {
+    todo!("pthread_mutex_consistent")
+}
+#[no_mangle]
+unsafe extern "C" fn pthread_mutex_timedlock() {
+    todo!("pthread_mutex_timedlock")
+}
+#[no_mangle]
+unsafe extern "C" fn putenv() {
+    todo!("putenv")
+}
+#[no_mangle]
+unsafe extern "C" fn random() {
+    todo!("random")
+}
+#[no_mangle]
+unsafe extern "C" fn regerror() {
+    todo!("regerror")
+}
+#[no_mangle]
+unsafe extern "C" fn remque() {
+    todo!("remque")
+}
+#[no_mangle]
+unsafe extern "C" fn scalbnl() {
+    todo!("scalbnl")
+}
+#[no_mangle]
+unsafe extern "C" fn sem_close() {
+    todo!("sem_close")
+}
+#[no_mangle]
+unsafe extern "C" fn semctl() {
+    todo!("semctl")
+}
+#[no_mangle]
+unsafe extern "C" fn sem_destroy() {
+    todo!("sem_destroy")
+}
+#[no_mangle]
+unsafe extern "C" fn semget() {
+    todo!("semget")
+}
+#[no_mangle]
+unsafe extern "C" fn sem_getvalue() {
+    todo!("sem_getvalue")
+}
+#[no_mangle]
+unsafe extern "C" fn sem_init() {
+    todo!("sem_init")
+}
+#[no_mangle]
+unsafe extern "C" fn semop() {
+    todo!("semop")
+}
+#[no_mangle]
+unsafe extern "C" fn sem_open() {
+    todo!("sem_open")
+}
+#[no_mangle]
+unsafe extern "C" fn sem_post() {
+    todo!("sem_post")
+}
+#[no_mangle]
+unsafe extern "C" fn sem_timedwait() {
+    todo!("sem_timedwait")
+}
+#[no_mangle]
+unsafe extern "C" fn sem_trywait() {
+    todo!("sem_trywait")
+}
+#[no_mangle]
+unsafe extern "C" fn sem_unlink() {
+    todo!("sem_unlink")
+}
+#[no_mangle]
+unsafe extern "C" fn sem_wait() {
+    todo!("sem_wait")
+}
+#[no_mangle]
+unsafe extern "C" fn setstate() {
+    todo!("setstate")
+}
+#[no_mangle]
+unsafe extern "C" fn shmctl() {
+    todo!("shmctl")
+}
+#[no_mangle]
+unsafe extern "C" fn srandom() {
+    todo!("srandom")
+}
+#[no_mangle]
+unsafe extern "C" fn strlcat() {
+    todo!("strlcat")
+}
+#[no_mangle]
+unsafe extern "C" fn strlcpy() {
+    todo!("strlcpy")
+}
+#[no_mangle]
+unsafe extern "C" fn strptime() {
+    todo!("strptime")
+}
+#[no_mangle]
+unsafe extern "C" fn strtold() {
+    todo!("strtold")
+}
+#[no_mangle]
+unsafe extern "C" fn strverscmp() {
+    todo!("strverscmp")
+}
+#[no_mangle]
+unsafe extern "C" fn swprintf() {
+    todo!("swprintf")
+}
+#[no_mangle]
+unsafe extern "C" fn tdelete() {
+    todo!("tdelete")
+}
+#[no_mangle]
+unsafe extern "C" fn twalk() {
+    todo!("twalk")
+}
+#[no_mangle]
+unsafe extern "C" fn uselocale() {
+    todo!("uselocale")
+}
+#[no_mangle]
+unsafe extern "C" fn wcrtomb() {
+    todo!("wcrtomb")
+}
+#[no_mangle]
+unsafe extern "C" fn wcschr() {
+    todo!("wcschr")
+}
+#[no_mangle]
+unsafe extern "C" fn wcscmp() {
+    todo!("wcscmp")
+}
+#[no_mangle]
+unsafe extern "C" fn wcscpy() {
+    todo!("wcscpy")
+}
+#[no_mangle]
+unsafe extern "C" fn wcsncpy() {
+    todo!("wcsncpy")
+}
+#[no_mangle]
+unsafe extern "C" fn wcsstr() {
+    todo!("wcsstr")
+}
+#[no_mangle]
+unsafe extern "C" fn wctob() {
+    todo!("wctob")
+}

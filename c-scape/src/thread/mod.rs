@@ -223,7 +223,7 @@ unsafe extern "C" fn pthread_mutex_destroy(mutex: *mut PthreadMutexT) -> c_int {
     match (*mutex).kind.load(SeqCst) as i32 {
         libc::PTHREAD_MUTEX_NORMAL => ManuallyDrop::drop(&mut (*mutex).u.normal),
         libc::PTHREAD_MUTEX_RECURSIVE => ManuallyDrop::drop(&mut (*mutex).u.reentrant),
-        libc::PTHREAD_MUTEX_ERRORCHECK => unimplemented!("PTHREAD_MUTEX_ERRORCHECK"),
+        libc::PTHREAD_MUTEX_ERRORCHECK => todo!("PTHREAD_MUTEX_ERRORCHECK"),
         other => unimplemented!("unsupported pthread mutex kind {}", other),
     }
     (*mutex).kind.store(!0, SeqCst);
@@ -253,7 +253,7 @@ unsafe extern "C" fn pthread_mutex_init(
             &mut (*mutex).u.reentrant,
             ManuallyDrop::new(RawReentrantMutex::INIT),
         ),
-        libc::PTHREAD_MUTEX_ERRORCHECK => unimplemented!("PTHREAD_MUTEX_ERRORCHECK"),
+        libc::PTHREAD_MUTEX_ERRORCHECK => todo!("PTHREAD_MUTEX_ERRORCHECK"),
         other => unimplemented!("unsupported pthread mutex kind {}", other),
     }
     (*mutex).kind.store(kind, SeqCst);
@@ -266,7 +266,7 @@ unsafe extern "C" fn pthread_mutex_lock(mutex: *mut PthreadMutexT) -> c_int {
     match (*mutex).kind.load(SeqCst) as i32 {
         libc::PTHREAD_MUTEX_NORMAL => (*mutex).u.normal.lock(),
         libc::PTHREAD_MUTEX_RECURSIVE => (*mutex).u.reentrant.lock(),
-        libc::PTHREAD_MUTEX_ERRORCHECK => unimplemented!("PTHREAD_MUTEX_ERRORCHECK"),
+        libc::PTHREAD_MUTEX_ERRORCHECK => todo!("PTHREAD_MUTEX_ERRORCHECK"),
         other => unimplemented!("unsupported pthread mutex kind {}", other),
     }
     0
@@ -278,7 +278,7 @@ unsafe extern "C" fn pthread_mutex_trylock(mutex: *mut PthreadMutexT) -> c_int {
     if match (*mutex).kind.load(SeqCst) as i32 {
         libc::PTHREAD_MUTEX_NORMAL => (*mutex).u.normal.try_lock(),
         libc::PTHREAD_MUTEX_RECURSIVE => (*mutex).u.reentrant.try_lock(),
-        libc::PTHREAD_MUTEX_ERRORCHECK => unimplemented!("PTHREAD_MUTEX_ERRORCHECK"),
+        libc::PTHREAD_MUTEX_ERRORCHECK => todo!("PTHREAD_MUTEX_ERRORCHECK"),
         other => unimplemented!("unsupported pthread mutex kind {}", other),
     } {
         0
@@ -293,7 +293,7 @@ unsafe extern "C" fn pthread_mutex_unlock(mutex: *mut PthreadMutexT) -> c_int {
     match (*mutex).kind.load(SeqCst) as i32 {
         libc::PTHREAD_MUTEX_NORMAL => (*mutex).u.normal.unlock(),
         libc::PTHREAD_MUTEX_RECURSIVE => (*mutex).u.reentrant.unlock(),
-        libc::PTHREAD_MUTEX_ERRORCHECK => unimplemented!("PTHREAD_MUTEX_ERRORCHECK"),
+        libc::PTHREAD_MUTEX_ERRORCHECK => todo!("PTHREAD_MUTEX_ERRORCHECK"),
         other => unimplemented!("unsupported pthread mutex kind {}", other),
     }
     0
@@ -488,8 +488,8 @@ unsafe extern "C" fn pthread_cond_wait(cond: *mut PthreadCondT, lock: *mut Pthre
     ));
     match (*lock).kind.load(SeqCst) as i32 {
         libc::PTHREAD_MUTEX_NORMAL => (*cond).inner.wait(&(*lock).u.normal),
-        libc::PTHREAD_MUTEX_RECURSIVE => unimplemented!("PTHREAD_MUTEX_RECURSIVE"),
-        libc::PTHREAD_MUTEX_ERRORCHECK => unimplemented!("PTHREAD_MUTEX_ERRORCHECK"),
+        libc::PTHREAD_MUTEX_RECURSIVE => todo!("PTHREAD_MUTEX_RECURSIVE"),
+        libc::PTHREAD_MUTEX_ERRORCHECK => todo!("PTHREAD_MUTEX_ERRORCHECK"),
         other => unimplemented!("unsupported pthread mutex kind {}", other),
     }
     0
@@ -519,8 +519,8 @@ unsafe extern "C" fn pthread_cond_timedwait(
                 libc::ETIMEDOUT
             }
         }
-        libc::PTHREAD_MUTEX_RECURSIVE => unimplemented!("PTHREAD_MUTEX_RECURSIVE"),
-        libc::PTHREAD_MUTEX_ERRORCHECK => unimplemented!("PTHREAD_MUTEX_ERRORCHECK"),
+        libc::PTHREAD_MUTEX_RECURSIVE => todo!("PTHREAD_MUTEX_RECURSIVE"),
+        libc::PTHREAD_MUTEX_ERRORCHECK => todo!("PTHREAD_MUTEX_ERRORCHECK"),
         other => unimplemented!("unsupported pthread mutex kind {}", other),
     }
 }
@@ -776,5 +776,5 @@ unsafe extern "C" fn __tls_get_addr(p: &[usize; 2]) -> *mut c_void {
 #[no_mangle]
 unsafe extern "C" fn ___tls_get_addr() {
     //libc!(libc::___tls_get_addr());
-    unimplemented!("___tls_get_addr")
+    todo!("___tls_get_addr")
 }

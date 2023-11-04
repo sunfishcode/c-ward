@@ -1,11 +1,13 @@
+#[cfg(feature = "todo")]
 #[no_mangle]
 unsafe extern "C" fn siglongjmp() {
     //libc!(libc::siglongjmp());
-    unimplemented!("siglongjmp")
+    todo!("siglongjmp")
 }
 
+#[cfg(feature = "todo")]
 #[no_mangle]
 unsafe extern "C" fn __sigsetjmp() {
     //libc!(libc::__sigsetjmp());
-    unimplemented!("__sigsetjmp")
+    todo!("__sigsetjmp")
 }

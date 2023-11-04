@@ -4,7 +4,7 @@ use libc::{c_int, c_void};
 #[no_mangle]
 unsafe extern "C" fn posix_spawnp() {
     //libc!(libc::posix_spawnp());
-    unimplemented!("posix_spawnp");
+    todo!("posix_spawnp");
 }
 
 #[cfg(not(target_os = "wasi"))]

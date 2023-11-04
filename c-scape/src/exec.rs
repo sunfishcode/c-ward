@@ -36,8 +36,11 @@ unsafe extern "C" fn __register_atfork(
     0
 }
 
+#[cfg(feature = "todo")]
 #[no_mangle]
 unsafe extern "C" fn clone3() {
     //libc!(libc::clone3());
-    unimplemented!("clone3")
+
+    // We also have disabled `clone3` support in `dlsym` for now.
+    todo!("clone3")
 }

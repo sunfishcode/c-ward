@@ -107,7 +107,7 @@ fn _getauxval(type_: c_ulong) -> *mut c_void {
     match type_ {
         libc::AT_HWCAP => ptr::invalid_mut(rustix::param::linux_hwcap().0),
         libc::AT_HWCAP2 => ptr::invalid_mut(rustix::param::linux_hwcap().1),
-        _ => unimplemented!("unrecognized __getauxval {}", type_),
+        _ => todo!("unrecognized __getauxval {}", type_),
     }
 }
 

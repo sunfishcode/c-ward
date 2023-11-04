@@ -4,7 +4,7 @@ use libc::{c_char, c_int, c_long, c_longlong, c_ulong, c_ulonglong};
 unsafe extern "C" fn strtol(nptr: *const c_char, endptr: *mut *mut c_char, base: c_int) -> c_long {
     libc!(libc::strtol(nptr, endptr, base));
 
-    unimplemented!("strtol")
+    todo!("strtol")
 }
 
 #[no_mangle]
@@ -15,7 +15,7 @@ unsafe extern "C" fn strtoll(
 ) -> c_longlong {
     //libc!(libc::strtoll(nptr, endptr, base));
 
-    unimplemented!("strtoll")
+    todo!("strtoll")
 }
 
 #[no_mangle]
@@ -26,7 +26,7 @@ unsafe extern "C" fn strtoul(
 ) -> c_ulong {
     libc!(libc::strtoul(nptr, endptr, base));
 
-    unimplemented!("strtoul")
+    todo!("strtoul")
 }
 
 #[no_mangle]
@@ -37,5 +37,5 @@ unsafe extern "C" fn strtoull(
 ) -> c_ulonglong {
     //libc!(libc::strtoull(nptr, endptr, base));
 
-    unimplemented!("strtoull")
+    todo!("strtoull")
 }

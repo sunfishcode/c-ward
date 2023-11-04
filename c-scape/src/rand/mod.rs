@@ -50,10 +50,10 @@ fn internal_seed(state: &mut Option<Pcg32>, seed: c_uint) {
 unsafe extern "C" fn rand_r(seed: *mut c_uint) -> c_int {
     // libc!(libc::rand_r(seed));
 
-    let mut z = *seed + 0x6D2B79F5;
+    let mut z = (*seed).wrapping_add(0x6D2B79F5);
     *seed = z;
 
-    z = (z ^ (z >> 15)) * (z | 1);
-    z ^= z + (z ^ (z >> 7)) * (z | 61);
+    z = (z ^ (z >> 15)).wrapping_mul(z | 1);
+    z ^= z.wrapping_add((z ^ (z >> 7)).wrapping_mul(z | 61));
     (z ^ (z >> 14)) as c_int
 }

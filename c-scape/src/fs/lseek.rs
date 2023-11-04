@@ -10,7 +10,7 @@ use crate::convert_res;
 unsafe extern "C" fn lseek(fd: c_int, offset: off_t, whence: c_int) -> off_t {
     libc!(libc::lseek(fd, offset, whence));
 
-    match lseek64(fd, offset as off64_t, whence).try_into() {
+    match lseek64(fd, off64_t::from(offset), whence).try_into() {
         Ok(v) => v,
         Err(_) => {
             set_errno(Errno(libc::EOVERFLOW));
@@ -27,7 +27,14 @@ unsafe extern "C" fn lseek64(fd: c_int, offset: off64_t, whence: c_int) -> off64
         libc::SEEK_SET => rustix::fs::SeekFrom::Start(offset as u64),
         libc::SEEK_CUR => rustix::fs::SeekFrom::Current(offset),
         libc::SEEK_END => rustix::fs::SeekFrom::End(offset),
-        _ => panic!("unrecognized whence({})", whence),
+        #[cfg(any(apple, freebsdlike, linux_kernel, solarish))]
+        libc::SEEK_DATA => rustix::fs::SeekFrom::Data(offset),
+        #[cfg(any(apple, freebsdlike, linux_kernel, solarish))]
+        libc::SEEK_HOLE => rustix::fs::SeekFrom::Hole(offset),
+        _ => {
+            set_errno(Errno(libc::EINVAL));
+            return -1;
+        }
     };
     match convert_res(rustix::fs::seek(BorrowedFd::borrow_raw(fd), seek_from)) {
         Some(offset) => offset as off64_t,

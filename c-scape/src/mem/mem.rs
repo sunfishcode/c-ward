@@ -129,3 +129,26 @@ unsafe extern "C" fn memmem(
 
     null_mut()
 }
+
+#[no_mangle]
+unsafe extern "C" fn memccpy(
+    dst: *mut c_void,
+    src: *const c_void,
+    c: c_int,
+    len: size_t,
+) -> *mut c_void {
+    //libc!(libc::memccpy(dst, src, c, len));
+
+    let dst = dst.cast::<u8>();
+    let src = src.cast::<u8>();
+
+    for i in 0..len {
+        let b = src.add(i).read();
+        if b == c as u8 {
+            break;
+        }
+        dst.add(i).write(b);
+    }
+
+    dst.cast()
+}

@@ -802,10 +802,6 @@ unsafe extern "C" fn __pthread_unregister_cancel() {
     todo!("__pthread_unregister_cancel")
 }
 #[no_mangle]
-unsafe extern "C" fn reallocarray() {
-    todo!("reallocarray")
-}
-#[no_mangle]
 unsafe extern "C" fn regcomp() {
     todo!("regcomp")
 }
@@ -1338,14 +1334,6 @@ unsafe extern "C" fn lldiv() {
     todo!("lldiv")
 }
 #[no_mangle]
-unsafe extern "C" fn memalign() {
-    todo!("memalign")
-}
-#[no_mangle]
-unsafe extern "C" fn memccpy() {
-    todo!("memccpy")
-}
-#[no_mangle]
 unsafe extern "C" fn opterr() {
     todo!("opterr")
 }
@@ -1400,10 +1388,6 @@ unsafe extern "C" fn towctrans() {
 #[no_mangle]
 unsafe extern "C" fn ungetwc() {
     todo!("ungetwc")
-}
-#[no_mangle]
-unsafe extern "C" fn valloc() {
-    todo!("valloc")
 }
 #[no_mangle]
 unsafe extern "C" fn wcscasecmp() {

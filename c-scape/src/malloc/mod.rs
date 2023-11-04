@@ -108,10 +108,17 @@ unsafe extern "C" fn malloc(size: usize) -> *mut c_void {
 
     // TODO: Add `max_align_t` for riscv64 to upstream libc.
     #[cfg(target_arch = "riscv64")]
-    let layout = alloc::alloc::Layout::from_size_align(size, 16).unwrap();
+    let layout = alloc::alloc::Layout::from_size_align(size, 16);
     #[cfg(not(target_arch = "riscv64"))]
-    let layout =
-        alloc::alloc::Layout::from_size_align(size, align_of::<libc::max_align_t>()).unwrap();
+    let layout = alloc::alloc::Layout::from_size_align(size, align_of::<libc::max_align_t>());
+
+    let layout = match layout {
+        Ok(layout) => layout,
+        Err(_) => {
+            set_errno(Errno(libc::ENOMEM));
+            return null_mut();
+        }
+    };
 
     let ret = tagged_alloc(layout);
     if ret.is_null() {
@@ -134,14 +141,31 @@ unsafe extern "C" fn realloc(old: *mut c_void, size: usize) -> *mut c_void {
 
         let new = malloc(size);
 
-        copy_nonoverlapping(
-            old.cast::<u8>(),
-            new.cast::<u8>(),
-            core::cmp::min(size, old_layout.size()),
-        );
+        if !new.is_null() {
+            copy_nonoverlapping(
+                old.cast::<u8>(),
+                new.cast::<u8>(),
+                core::cmp::min(size, old_layout.size()),
+            );
+        }
         tagged_dealloc(old.cast());
         new
     }
+}
+
+#[no_mangle]
+unsafe extern "C" fn reallocarray(old: *mut c_void, nmemb: size_t, size: size_t) -> *mut c_void {
+    libc!(libc::reallocarray(old, nmemb, size));
+
+    let product = match nmemb.checked_mul(size) {
+        Some(product) => product,
+        None => {
+            set_errno(Errno(libc::ENOMEM));
+            return null_mut();
+        }
+    };
+
+    realloc(old, product)
 }
 
 #[no_mangle]
@@ -173,7 +197,12 @@ unsafe extern "C" fn posix_memalign(
         return libc::EINVAL;
     }
 
-    let layout = alloc::alloc::Layout::from_size_align(size, alignment).unwrap();
+    let layout = alloc::alloc::Layout::from_size_align(size, alignment);
+    let layout = match layout {
+        Ok(layout) => layout,
+        Err(_) => return libc::ENOMEM,
+    };
+
     let ptr = tagged_alloc(layout);
     if ptr.is_null() {
         return libc::ENOMEM;
@@ -181,6 +210,29 @@ unsafe extern "C" fn posix_memalign(
 
     *memptr = ptr.cast();
     0
+}
+
+#[deprecated]
+#[no_mangle]
+unsafe extern "C" fn memalign(alignment: usize, size: usize) -> *mut c_void {
+    libc!(libc::memalign(alignment, size));
+
+    let layout = alloc::alloc::Layout::from_size_align(size, alignment);
+    let layout = match layout {
+        Ok(layout) => layout,
+        Err(_) => {
+            set_errno(Errno(libc::ENOMEM));
+            return null_mut();
+        }
+    };
+
+    let ptr = tagged_alloc(layout);
+    if ptr.is_null() {
+        set_errno(Errno(libc::ENOMEM));
+        return null_mut();
+    }
+
+    ptr.cast()
 }
 
 #[no_mangle]
@@ -200,6 +252,15 @@ unsafe extern "C" fn aligned_alloc(alignment: size_t, size: size_t) -> *mut c_vo
     }
 
     ptr.cast()
+}
+
+#[deprecated]
+#[allow(deprecated)]
+#[no_mangle]
+unsafe extern "C" fn valloc(size: size_t) -> *mut c_void {
+    //libc!(libc::valloc(size));
+
+    memalign(rustix::param::page_size(), size)
 }
 
 #[no_mangle]

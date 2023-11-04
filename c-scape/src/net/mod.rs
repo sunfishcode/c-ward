@@ -882,7 +882,7 @@ unsafe extern "C" fn sendmsg(sockfd: c_int, msg: *const libc::msghdr, flags: c_i
     match convert_res(rustix::net::sendmsg_any(
         fd,
         addr.as_ref(),
-        slice::from_raw_parts_mut(msg.msg_iov.cast(), msg.msg_iovlen as usize),
+        slice::from_raw_parts(msg.msg_iov.cast(), msg.msg_iovlen as usize),
         &mut SendAncillaryBuffer::default(),
         flags,
     )) {

@@ -1237,3 +1237,211 @@ unsafe extern "C" fn wcsstr() {
 unsafe extern "C" fn wctob() {
     todo!("wctob")
 }
+#[no_mangle]
+unsafe extern "C" fn a64l() {
+    todo!("a64l")
+}
+#[no_mangle]
+unsafe extern "C" fn alphasort() {
+    todo!("alphasort")
+}
+#[no_mangle]
+unsafe extern "C" fn asctime() {
+    todo!("asctime")
+}
+#[no_mangle]
+unsafe extern "C" fn asprintf() {
+    todo!("asprintf")
+}
+#[no_mangle]
+unsafe extern "C" fn atof() {
+    todo!("atof")
+}
+#[no_mangle]
+unsafe extern "C" fn brk() {
+    todo!("brk")
+}
+#[no_mangle]
+unsafe extern "C" fn ctime() {
+    todo!("ctime")
+}
+#[no_mangle]
+unsafe extern "C" fn ctime_r() {
+    todo!("ctime_r")
+}
+#[no_mangle]
+unsafe extern "C" fn endhostent() {
+    todo!("endhostent")
+}
+#[no_mangle]
+unsafe extern "C" fn endprotoent() {
+    todo!("endprotoent")
+}
+#[no_mangle]
+unsafe extern "C" fn endservent() {
+    todo!("endservent")
+}
+#[no_mangle]
+unsafe extern "C" fn fputwc() {
+    todo!("fputwc")
+}
+#[no_mangle]
+unsafe extern "C" fn fputws() {
+    todo!("fputws")
+}
+#[no_mangle]
+unsafe extern "C" fn fwide() {
+    todo!("fwide")
+}
+#[no_mangle]
+unsafe extern "C" fn gethostbyaddr() {
+    todo!("gethostbyaddr")
+}
+#[no_mangle]
+unsafe extern "C" fn gethostent() {
+    todo!("gethostent")
+}
+#[no_mangle]
+unsafe extern "C" fn getnetbyname() {
+    todo!("getnetbyname")
+}
+#[no_mangle]
+unsafe extern "C" fn getnetent() {
+    todo!("getnetent")
+}
+#[no_mangle]
+unsafe extern "C" fn getprotobyname() {
+    todo!("getprotobyname")
+}
+#[no_mangle]
+unsafe extern "C" fn getprotobynumber() {
+    todo!("getprotobynumber")
+}
+#[no_mangle]
+unsafe extern "C" fn getprotoent() {
+    todo!("getprotoent")
+}
+#[no_mangle]
+unsafe extern "C" fn getservent() {
+    todo!("getservent")
+}
+#[no_mangle]
+unsafe extern "C" fn __isoc99_vsscanf() {
+    todo!("__isoc99_vsscanf")
+}
+#[no_mangle]
+unsafe extern "C" fn l64a() {
+    todo!("l64a")
+}
+#[no_mangle]
+unsafe extern "C" fn lldiv() {
+    todo!("lldiv")
+}
+#[no_mangle]
+unsafe extern "C" fn memalign() {
+    todo!("memalign")
+}
+#[no_mangle]
+unsafe extern "C" fn memccpy() {
+    todo!("memccpy")
+}
+#[no_mangle]
+unsafe extern "C" fn opterr() {
+    todo!("opterr")
+}
+#[no_mangle]
+unsafe extern "C" fn putwchar() {
+    todo!("putwchar")
+}
+#[no_mangle]
+unsafe extern "C" fn sethostent() {
+    todo!("sethostent")
+}
+#[no_mangle]
+unsafe extern "C" fn setnetent() {
+    todo!("setnetent")
+}
+#[no_mangle]
+unsafe extern "C" fn setprotoent() {
+    todo!("setprotoent")
+}
+#[no_mangle]
+unsafe extern "C" fn setregid() {
+    todo!("setregid")
+}
+#[no_mangle]
+unsafe extern "C" fn setreuid() {
+    todo!("setreuid")
+}
+#[no_mangle]
+unsafe extern "C" fn setservent() {
+    todo!("setservent")
+}
+#[no_mangle]
+unsafe extern "C" fn strcasestr() {
+    todo!("strcasestr")
+}
+#[no_mangle]
+unsafe extern "C" fn strnlen_s() {
+    todo!("strnlen_s")
+}
+#[no_mangle]
+unsafe extern "C" fn swab() {
+    todo!("swab")
+}
+#[no_mangle]
+unsafe extern "C" fn times() {
+    todo!("times")
+}
+#[no_mangle]
+unsafe extern "C" fn towctrans() {
+    todo!("towctrans")
+}
+#[no_mangle]
+unsafe extern "C" fn ungetwc() {
+    todo!("ungetwc")
+}
+#[no_mangle]
+unsafe extern "C" fn valloc() {
+    todo!("valloc")
+}
+#[no_mangle]
+unsafe extern "C" fn wcscasecmp() {
+    todo!("wcscasecmp")
+}
+#[no_mangle]
+unsafe extern "C" fn wcscspn() {
+    todo!("wcscspn")
+}
+#[no_mangle]
+unsafe extern "C" fn wcsrchr() {
+    todo!("wcsrchr")
+}
+#[no_mangle]
+unsafe extern "C" fn wcstod() {
+    todo!("wcstod")
+}
+#[no_mangle]
+unsafe extern "C" fn wcstoimax() {
+    todo!("wcstoimax")
+}
+#[no_mangle]
+unsafe extern "C" fn wcstok() {
+    todo!("wcstok")
+}
+#[no_mangle]
+unsafe extern "C" fn wcstoumax() {
+    todo!("wcstoumax")
+}
+#[no_mangle]
+unsafe extern "C" fn wcswidth() {
+    todo!("wcswidth")
+}
+#[no_mangle]
+unsafe extern "C" fn wctrans() {
+    todo!("wctrans")
+}
+#[no_mangle]
+unsafe extern "C" fn wprintf() {
+    todo!("wprintf")
+}

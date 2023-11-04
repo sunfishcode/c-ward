@@ -1,4 +1,5 @@
 use core::ffi::VaList;
+use errno::{set_errno, Errno};
 use rustix::fd::{BorrowedFd, IntoRawFd};
 use rustix::fs::{FdFlags, FlockOperation, OFlags};
 
@@ -73,7 +74,10 @@ unsafe fn _fcntl<FlockTy: Flock>(fd: c_int, cmd: c_int, mut args: VaList) -> c_i
                 (libc::F_RDLCK, false) => FlockOperation::NonBlockingLockShared,
                 (libc::F_WRLCK, false) => FlockOperation::NonBlockingLockExclusive,
                 (libc::F_UNLCK, false) => FlockOperation::NonBlockingUnlock,
-                _ => unreachable!(),
+                _ => {
+                    set_errno(Errno(libc::EINVAL));
+                    return -1;
+                }
             };
             // We currently only support whole-file locks.
             assert_eq!(flock.l_whence(), libc::SEEK_SET as _);
@@ -97,7 +101,7 @@ unsafe fn _fcntl<FlockTy: Flock>(fd: c_int, cmd: c_int, mut args: VaList) -> c_i
                 None => -1,
             }
         }
-        _ => panic!("unrecognized fnctl({})", cmd),
+        _ => todo!("unimplemented fnctl({})", cmd),
     }
 }
 

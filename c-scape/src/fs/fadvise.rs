@@ -1,9 +1,8 @@
+use crate::convert_res;
+use errno::{set_errno, Errno};
+use libc::{c_int, off_t};
 use rustix::fd::BorrowedFd;
 use rustix::fs::Advice;
-
-use libc::{c_int, off_t};
-
-use crate::convert_res;
 
 #[no_mangle]
 unsafe extern "C" fn posix_fadvise(fd: c_int, offset: off_t, len: off_t, advice: c_int) -> c_int {
@@ -16,7 +15,10 @@ unsafe extern "C" fn posix_fadvise(fd: c_int, offset: off_t, len: off_t, advice:
         libc::POSIX_FADV_NOREUSE => Advice::NoReuse,
         libc::POSIX_FADV_WILLNEED => Advice::WillNeed,
         libc::POSIX_FADV_DONTNEED => Advice::DontNeed,
-        _ => panic!(),
+        _ => {
+            set_errno(Errno(libc::EINVAL));
+            return -1;
+        }
     };
     match convert_res(rustix::fs::fadvise(
         BorrowedFd::borrow_raw(fd),

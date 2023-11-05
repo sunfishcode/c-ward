@@ -766,10 +766,6 @@ unsafe extern "C" fn pthread_mutexattr_getrobust() {
     todo!("pthread_mutexattr_getrobust")
 }
 #[no_mangle]
-unsafe extern "C" fn pthread_mutexattr_gettype() {
-    todo!("pthread_mutexattr_gettype")
-}
-#[no_mangle]
 unsafe extern "C" fn pthread_mutexattr_setprotocol() {
     todo!("pthread_mutexattr_setprotocol")
 }

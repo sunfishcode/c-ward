@@ -1,6 +1,6 @@
 use core::ptr;
 use errno::{set_errno, Errno};
-use libc::{c_char, c_int, c_long, c_void, timespec};
+use libc::{c_char, c_int, c_long, c_void, timespec, size_t};
 #[cfg(feature = "thread")]
 use {crate::convert_res, core::mem::zeroed, core::ptr::null};
 
@@ -10,6 +10,12 @@ use {crate::convert_res, core::mem::zeroed, core::ptr::null};
 #[no_mangle]
 unsafe extern "C" fn syscall(number: c_long, mut args: ...) -> *mut c_void {
     match number {
+        libc::SYS_read => {
+            let fd = args.arg::<c_int>();
+            let buf = args.arg::<*mut c_void>();
+            let count = args.arg::<size_t>();
+            ptr::invalid_mut(libc::read(fd, buf, count) as _)
+        }
         libc::SYS_getrandom => {
             let buf = args.arg::<*mut c_void>();
             let len = args.arg::<usize>();

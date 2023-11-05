@@ -142,9 +142,11 @@ unsafe extern "C" fn readdir(dir: *mut libc::DIR) -> *mut libc::dirent {
 
 #[cfg(feature = "todo")]
 #[no_mangle]
-unsafe extern "C" fn rewinddir() {
-    //libc!(libc::rewinddir());
-    todo!("rewinddir")
+unsafe extern "C" fn rewinddir(dir: *mut libc::DIR) {
+    libc!(libc::rewinddir(dir));
+
+    let c_scape_dir = dir.cast::<CScapeDir>();
+    (*c_scape_dir).dir.rewind();
 }
 
 #[cfg(feature = "todo")]

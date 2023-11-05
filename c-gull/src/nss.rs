@@ -7,7 +7,7 @@
 //! This file doesn't yet implement enumeration, but the `getent` command does,
 //! so it's theoretically doable.
 
-use errno::{errno, set_errno, Errno};
+use errno::{set_errno, Errno};
 use libc::{c_char, c_int, c_void, gid_t, group, passwd, uid_t};
 use rustix::path::DecInt;
 use std::ffi::{CStr, OsStr};
@@ -93,24 +93,14 @@ unsafe fn getpw_r(
     let mut command = command;
     let output = match command.output() {
         Ok(output) => output,
-        Err(_err) => {
-            *result = null_mut();
-            return libc::EIO;
-        }
+        Err(_err) => return parse_error(result.cast()),
     };
 
     match output.status.code() {
         Some(0) => {}
-        Some(2) => {
-            // The username was not found.
-            *result = null_mut();
-            return 0;
-        }
+        Some(2) => return success(result.cast(), null_mut()),
         Some(r) => panic!("unexpected exit status from `getent passwd`: {}", r),
-        None => {
-            *result = null_mut();
-            return libc::EIO;
-        }
+        None => return parse_error(result.cast()),
     }
 
     let stdout = match str::from_utf8(&output.stdout) {
@@ -224,8 +214,7 @@ unsafe fn getpw_r(
             pw_shell,
         },
     );
-    *result = pwd;
-    0
+    success(result.cast(), pwd.cast())
 }
 
 unsafe fn getgr_r(
@@ -238,24 +227,14 @@ unsafe fn getgr_r(
     let mut command = command;
     let output = match command.output() {
         Ok(output) => output,
-        Err(_err) => {
-            *result = null_mut();
-            return libc::EIO;
-        }
+        Err(_err) => return parse_error(result.cast()),
     };
 
     match output.status.code() {
         Some(0) => {}
-        Some(2) => {
-            // The groupname was not found.
-            *result = null_mut();
-            return 0;
-        }
+        Some(2) => return success(result.cast(), null_mut()),
         Some(r) => panic!("unexpected exit status from `getent group`: {}", r),
-        None => {
-            *result = null_mut();
-            return libc::EIO;
-        }
+        None => return parse_error(result.cast()),
     }
 
     let stdout = match str::from_utf8(&output.stdout) {
@@ -351,20 +330,32 @@ unsafe fn getgr_r(
             gr_mem,
         },
     );
-    *result = grp;
-    0
+    success(result.cast(), grp.cast())
 }
 
 #[cold]
 unsafe fn buffer_exhausted(result: *mut *mut c_void) -> c_int {
     *result = null_mut();
+    // It isn't documented that the `_r` functions set `errno` in addition to
+    // returning it, but other popular implementations do, so set it.
+    set_errno(Errno(libc::ERANGE));
     libc::ERANGE
 }
 
 #[cold]
 unsafe fn parse_error(result: *mut *mut c_void) -> c_int {
     *result = null_mut();
+    // As above, also set `errno`.
+    set_errno(Errno(libc::EIO));
     libc::EIO
+}
+
+unsafe fn success(result: *mut *mut c_void, value: *mut c_void) -> c_int {
+    *result = value;
+    // As above, also set `errno`. Explicitly set it to zero in case any
+    // intermediate operations failed.
+    set_errno(Errno(0));
+    0
 }
 
 struct StaticPasswd {
@@ -429,17 +420,17 @@ unsafe extern "C" fn getpwnam(name: *const c_char) -> *mut libc::passwd {
             return null_mut();
         }
 
-        if getpwnam_r(
+        let r = getpwnam_r(
             name,
             &mut STATIC_PASSWD.record,
             STATIC_PASSWD.buf,
             STATIC_PASSWD.len,
             &mut ptr,
-        ) == 0
-        {
+        );
+        if r == 0 {
             return ptr;
         }
-        if errno() != Errno(libc::ERANGE) {
+        if r != libc::ERANGE {
             return null_mut();
         }
     }
@@ -466,17 +457,17 @@ unsafe extern "C" fn getpwuid(uid: uid_t) -> *mut libc::passwd {
             return null_mut();
         }
 
-        if getpwuid_r(
+        let r = getpwuid_r(
             uid,
             &mut STATIC_PASSWD.record,
             STATIC_PASSWD.buf,
             STATIC_PASSWD.len,
             &mut ptr,
-        ) == 0
-        {
+        );
+        if r == 0 {
             return ptr;
         }
-        if errno() != Errno(libc::ERANGE) {
+        if r != libc::ERANGE {
             return null_mut();
         }
     }
@@ -503,17 +494,17 @@ unsafe extern "C" fn getgrnam(name: *const c_char) -> *mut libc::group {
             return null_mut();
         }
 
-        if getgrnam_r(
+        let r = getgrnam_r(
             name,
             &mut STATIC_GROUP.record,
             STATIC_GROUP.buf,
             STATIC_GROUP.len,
             &mut ptr,
-        ) == 0
-        {
+        );
+        if r == 0 {
             return ptr;
         }
-        if errno() != Errno(libc::ERANGE) {
+        if r != libc::ERANGE {
             return null_mut();
         }
     }
@@ -540,17 +531,17 @@ unsafe extern "C" fn getgrgid(gid: gid_t) -> *mut libc::group {
             return null_mut();
         }
 
-        if getgrgid_r(
+        let r = getgrgid_r(
             gid,
             &mut STATIC_GROUP.record,
             STATIC_GROUP.buf,
             STATIC_GROUP.len,
             &mut ptr,
-        ) == 0
-        {
+        );
+        if r == 0 {
             return ptr;
         }
-        if errno() != Errno(libc::ERANGE) {
+        if r != libc::ERANGE {
             return null_mut();
         }
     }

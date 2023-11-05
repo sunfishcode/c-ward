@@ -10,6 +10,13 @@ use libc::{c_char, c_int, c_long, c_void};
 use rustix::cstr;
 
 #[no_mangle]
+unsafe extern "C" fn getpagesize() -> c_int {
+    //libc!(libc::getpagesize());
+
+    rustix::param::page_size() as _
+}
+
+#[no_mangle]
 unsafe extern "C" fn sysconf(name: c_int) -> c_long {
     libc!(libc::sysconf(name));
     _sysconf(name)

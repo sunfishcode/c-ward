@@ -76,6 +76,21 @@ unsafe extern "C" fn memset(dst: *mut c_void, fill: c_int, len: size_t) -> *mut 
 }
 
 #[no_mangle]
+unsafe extern "C" fn bzero(dst: *mut c_void, len: size_t) {
+    //libc!(libc::bzero(dst, len));
+
+    libc::memset(dst, 0, len);
+}
+
+#[no_mangle]
+unsafe extern "C" fn explicit_bzero(dst: *mut c_void, len: size_t) {
+    libc!(libc::explicit_bzero(dst, len));
+
+    bzero(dst, len);
+    core::arch::asm!("# {}, {}", in(reg) dst, in(reg) len, options(nostack, preserves_flags));
+}
+
+#[no_mangle]
 unsafe extern "C" fn mempcpy(dst: *mut c_void, src: *const c_void, len: size_t) -> *mut c_void {
     //libc!(libc::mempcpy(dst, src, len));
 

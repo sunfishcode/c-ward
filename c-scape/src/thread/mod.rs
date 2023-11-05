@@ -218,7 +218,10 @@ unsafe extern "C" fn pthread_mutexattr_settype(attr: *mut PthreadMutexattrT, kin
 }
 
 #[no_mangle]
-unsafe extern "C" fn pthread_mutexattr_gettype(attr: *mut PthreadMutexattrT, kind: *mut c_int) -> c_int {
+unsafe extern "C" fn pthread_mutexattr_gettype(
+    attr: *mut PthreadMutexattrT,
+    kind: *mut c_int,
+) -> c_int {
     //libc!(libc::pthread_mutexattr_gettype(checked_cast!(attr), kind));
 
     *kind = (*attr).kind.load(SeqCst) as c_int;

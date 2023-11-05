@@ -1,6 +1,6 @@
 use core::ptr;
 use errno::{set_errno, Errno};
-use libc::{c_char, c_int, c_long, c_void, timespec, size_t};
+use libc::{c_char, c_int, c_long, c_void, size_t, timespec};
 #[cfg(feature = "thread")]
 use {crate::convert_res, core::mem::zeroed, core::ptr::null};
 

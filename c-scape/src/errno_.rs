@@ -39,9 +39,13 @@ unsafe extern "C" fn __xpg_strerror_r(errnum: c_int, buf: *mut c_char, buflen: u
         return libc::ERANGE;
     }
 
-    let message = match crate::error_str::error_str(rustix::io::Errno::from_raw_os_error(errnum)) {
-        Some(s) => s.to_owned(),
-        None => format!("Unknown error {}", errnum),
+    let message = if errnum == 0 {
+        "Success".to_owned()
+    } else {
+        match crate::error_str::error_str(rustix::io::Errno::from_raw_os_error(errnum)) {
+            Some(s) => s.to_owned(),
+            None => format!("Unknown error {}", errnum),
+        }
     };
 
     let min = core::cmp::min(buflen - 1, message.len());

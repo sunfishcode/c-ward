@@ -174,10 +174,6 @@ unsafe extern "C" fn clock_getcpuclockid() {
     todo!("clock_getcpuclockid")
 }
 #[no_mangle]
-unsafe extern "C" fn clock_getres() {
-    todo!("clock_getres")
-}
-#[no_mangle]
 unsafe extern "C" fn eaccess() {
     todo!("eaccess")
 }

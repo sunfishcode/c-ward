@@ -27,13 +27,37 @@ unsafe extern "C" fn clock_gettime(id: c_int, tp: *mut libc::timespec) -> c_int 
             rustix::time::DynamicClockId::Known(rustix::time::ClockId::Realtime)
         }
         libc::CLOCK_BOOTTIME => rustix::time::DynamicClockId::Boottime,
-        _ => panic!("unimplemented clock({})", id),
+        _ => panic!("unimplemented clock_gettime({})", id),
     };
 
     let rustix_time = match convert_res(rustix::time::clock_gettime_dynamic(id)) {
         Some(rustix_time) => rustix_time,
         None => return -1,
     };
+
+    match rustix_timespec_to_libc_timespec(rustix_time) {
+        Ok(t) => {
+            *tp = t;
+            0
+        }
+        Err(_) => {
+            set_errno(Errno(libc::EOVERFLOW));
+            -1
+        }
+    }
+}
+
+#[no_mangle]
+unsafe extern "C" fn clock_getres(id: c_int, tp: *mut libc::timespec) -> c_int {
+    libc!(libc::clock_getres(id, tp));
+
+    let id = match id {
+        libc::CLOCK_MONOTONIC => rustix::time::ClockId::Monotonic,
+        libc::CLOCK_REALTIME => rustix::time::ClockId::Realtime,
+        _ => panic!("unimplemented clock_getres({})", id),
+    };
+
+    let rustix_time = rustix::time::clock_getres(id);
 
     match rustix_timespec_to_libc_timespec(rustix_time) {
         Ok(t) => {

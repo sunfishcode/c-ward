@@ -86,3 +86,31 @@ unsafe extern "C" fn mempcpy(dst: *mut c_void, src: *const c_void, len: size_t) 
         .add(len)
         .cast()
 }
+
+#[no_mangle]
+unsafe extern "C" fn memmem(
+    haystack: *const c_void,
+    haystacklen: size_t,
+    needle: *const c_void,
+    needlelen: size_t,
+) -> *mut c_void {
+    libc!(libc::memmem(haystack, haystacklen, needle, needlelen));
+
+    let haystack = haystack.cast::<u8>();
+    let needle = needle.cast::<u8>();
+
+    if haystacklen == 0 || needlelen == 0 || haystacklen < needlelen {
+        return null_mut();
+    }
+
+    let last = haystack.add(haystacklen).sub(needlelen);
+    let mut p = haystack;
+    while p <= last {
+        if p.read() == needle.read() && libc::memcmp(p.cast(), needle.cast(), needlelen) == 0 {
+            return p.cast::<c_void>().cast_mut();
+        }
+        p = p.add(1);
+    }
+
+    null_mut()
+}

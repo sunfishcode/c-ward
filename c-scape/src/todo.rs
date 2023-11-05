@@ -1058,10 +1058,6 @@ unsafe extern "C" fn mbsrtowcs() {
     todo!("mbsrtowcs")
 }
 #[no_mangle]
-unsafe extern "C" fn memmem() {
-    todo!("memmem")
-}
-#[no_mangle]
 unsafe extern "C" fn mkdtemp() {
     todo!("mkdtemp")
 }

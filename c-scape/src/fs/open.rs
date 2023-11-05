@@ -2,7 +2,7 @@ use core::ffi::CStr;
 use rustix::fd::{BorrowedFd, IntoRawFd};
 use rustix::fs::{Mode, OFlags, CWD};
 
-use libc::{c_char, c_int};
+use libc::{c_char, c_int, mode_t};
 
 use crate::convert_res;
 
@@ -69,6 +69,13 @@ unsafe extern "C" fn openat64(
     libc!(libc::openat64(fd, pathname, flags, args));
 
     openat_impl!(BorrowedFd::borrow_raw(fd), pathname, flags, args)
+}
+
+#[no_mangle]
+unsafe extern "C" fn creat(name: *const c_char, mode: mode_t) -> c_int {
+    libc!(libc::creat(name, mode));
+
+    open(name, libc::O_CREAT | libc::O_WRONLY | libc::O_TRUNC, mode)
 }
 
 #[no_mangle]

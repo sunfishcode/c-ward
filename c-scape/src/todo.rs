@@ -650,10 +650,6 @@ unsafe extern "C" fn posix_spawn() {
     todo!("posix_spawn")
 }
 #[no_mangle]
-unsafe extern "C" fn pthread_attr_getdetachstate() {
-    todo!("pthread_attr_getdetachstate")
-}
-#[no_mangle]
 unsafe extern "C" fn pthread_attr_getinheritsched() {
     todo!("pthread_attr_getinheritsched")
 }
@@ -672,10 +668,6 @@ unsafe extern "C" fn pthread_attr_getscope() {
 #[no_mangle]
 unsafe extern "C" fn pthread_attr_getstacksize() {
     todo!("pthread_attr_getstacksize")
-}
-#[no_mangle]
-unsafe extern "C" fn pthread_attr_setdetachstate() {
-    todo!("pthread_attr_setdetachstate")
 }
 #[no_mangle]
 unsafe extern "C" fn pthread_attr_setinheritsched() {

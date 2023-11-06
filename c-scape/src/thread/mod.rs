@@ -33,6 +33,18 @@ unsafe impl lock_api::GetThreadId for GetThreadId {
 type PthreadT = *mut c_void;
 libc_type!(PthreadT, pthread_t);
 
+bitflags::bitflags! {
+    /// Flags for use with [`PthreaadAttrT`].
+    #[repr(transparent)]
+    #[derive(Copy, Clone, Eq, PartialEq, Hash, Debug)]
+    pub struct PthreadAttrFlags: usize {
+        const DETACHSTATE = 0x1;
+
+        /// <https://docs.rs/bitflags/*/bitflags/#externally-defined-flags>
+        const _ = !0;
+    }
+}
+
 #[allow(non_camel_case_types)]
 #[repr(C)]
 #[derive(Clone)]
@@ -40,14 +52,14 @@ struct PthreadAttrT {
     stack_addr: *mut c_void,
     stack_size: usize,
     guard_size: usize,
+    flags: PthreadAttrFlags,
     pad0: usize,
     pad1: usize,
     pad2: usize,
-    pad3: usize,
     #[cfg(any(target_arch = "aarch64", target_arch = "x86"))]
-    pad4: usize,
+    pad3: usize,
     #[cfg(target_arch = "x86")]
-    pad5: usize,
+    pad4: usize,
 }
 libc_type!(PthreadAttrT, pthread_attr_t);
 
@@ -57,14 +69,14 @@ impl Default for PthreadAttrT {
             stack_addr: null_mut(),
             stack_size: origin::thread::default_stack_size(),
             guard_size: origin::thread::default_guard_size(),
+            flags: PthreadAttrFlags::empty(),
             pad0: 0,
             pad1: 0,
             pad2: 0,
-            pad3: 0,
             #[cfg(any(target_arch = "aarch64", target_arch = "x86"))]
-            pad4: 0,
+            pad3: 0,
             #[cfg(target_arch = "x86")]
-            pad5: 0,
+            pad4: 0,
         }
     }
 }
@@ -138,14 +150,14 @@ unsafe extern "C" fn pthread_getattr_np(thread: PthreadT, attr: *mut PthreadAttr
             stack_addr,
             stack_size,
             guard_size,
+            flags: PthreadAttrFlags::empty(),
             pad0: 0,
             pad1: 0,
             pad2: 0,
-            pad3: 0,
             #[cfg(any(target_arch = "aarch64", target_arch = "x86"))]
-            pad4: 0,
+            pad3: 0,
             #[cfg(target_arch = "x86")]
-            pad5: 0,
+            pad4: 0,
         },
     );
     0
@@ -178,6 +190,39 @@ unsafe extern "C" fn pthread_attr_getstack(
     ));
     *stackaddr = (*attr).stack_addr;
     *stacksize = (*attr).stack_size;
+    0
+}
+
+#[no_mangle]
+unsafe extern "C" fn pthread_attr_setdetachstate(
+    attr: *mut PthreadAttrT,
+    detachstate: c_int,
+) -> c_int {
+    libc!(libc::pthread_attr_setdetachstate(
+        checked_cast!(attr),
+        detachstate
+    ));
+    let value = match detachstate {
+        libc::PTHREAD_CREATE_DETACHED => true,
+        libc::PTHREAD_CREATE_JOINABLE => false,
+        _ => return libc::EINVAL,
+    };
+    (*attr).flags.set(PthreadAttrFlags::DETACHSTATE, value);
+    0
+}
+
+#[no_mangle]
+unsafe extern "C" fn pthread_attr_getdetachstate(
+    attr: *const PthreadAttrT,
+    detachstate: *mut c_int,
+) -> c_int {
+    //libc!(libc::pthread_attr_getdetachstate(checked_cast!(attr), detachstate));
+    let newstate = if (*attr).flags.contains(PthreadAttrFlags::DETACHSTATE) {
+        libc::PTHREAD_CREATE_DETACHED
+    } else {
+        libc::PTHREAD_CREATE_JOINABLE
+    };
+    *detachstate = newstate;
     0
 }
 
@@ -596,14 +641,14 @@ unsafe extern "C" fn pthread_create(
         stack_addr,
         stack_size,
         guard_size,
+        flags,
         pad0: _,
         pad1: _,
         pad2: _,
-        pad3: _,
         #[cfg(any(target_arch = "aarch64", target_arch = "x86"))]
-            pad4: _,
+            pad3: _,
         #[cfg(target_arch = "x86")]
-            pad5: _,
+            pad4: _,
     } = if attr.is_null() {
         PthreadAttrT::default()
     } else {
@@ -622,6 +667,13 @@ unsafe extern "C" fn pthread_create(
         Ok(thread) => thread,
         Err(e) => return e.raw_os_error(),
     };
+
+    // In theory we could optimize this by adding an argument to origin's
+    // `create_thread` to initialize the thread in the detached state,
+    // however this seems adequate for now.
+    if flags.contains(PthreadAttrFlags::DETACHSTATE) {
+        origin::thread::detach_thread(thread);
+    }
 
     pthread.write(thread.to_raw().cast());
     0

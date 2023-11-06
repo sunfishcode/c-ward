@@ -766,16 +766,8 @@ unsafe extern "C" fn __pthread_register_cancel() {
     todo!("__pthread_register_cancel")
 }
 #[no_mangle]
-unsafe extern "C" fn pthread_rwlockattr_destroy() {
-    todo!("pthread_rwlockattr_destroy")
-}
-#[no_mangle]
 unsafe extern "C" fn pthread_rwlockattr_getpshared() {
     todo!("pthread_rwlockattr_getpshared")
-}
-#[no_mangle]
-unsafe extern "C" fn pthread_rwlockattr_init() {
-    todo!("pthread_rwlockattr_init")
 }
 #[no_mangle]
 unsafe extern "C" fn pthread_rwlockattr_setpshared() {

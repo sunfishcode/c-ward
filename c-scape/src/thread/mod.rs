@@ -611,6 +611,23 @@ unsafe extern "C" fn pthread_rwlock_wrlock(rwlock: *mut PthreadRwlockT) -> c_int
     0
 }
 
+#[no_mangle]
+unsafe extern "C" fn pthread_rwlockattr_init(attr: *mut PthreadRwlockattrT) -> c_int {
+    libc!(libc::pthread_rwlockattr_init(checked_cast!(attr)));
+
+    attr.write(PthreadRwlockattrT {
+        kind: AtomicU32::new(0),
+        pad0: 0,
+    });
+    0
+}
+
+#[no_mangle]
+unsafe extern "C" fn pthread_rwlockattr_destroy(_attr: *mut PthreadRwlockattrT) -> c_int {
+    libc!(libc::pthread_rwlockattr_destroy(checked_cast!(_attr)));
+    0
+}
+
 // TODO: signals, create thread-local storage, arrange for thread-local storage
 // destructors to run, free the `mmap`.
 #[no_mangle]

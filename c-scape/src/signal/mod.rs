@@ -171,7 +171,13 @@ unsafe extern "C" fn sigaltstack(new: *const stack_t, old: *mut stack_t) -> c_in
 unsafe extern "C" fn raise(sig: c_int) -> c_int {
     libc!(libc::raise(sig));
 
-    let sig = Signal::from_raw(sig).unwrap();
+    let sig = match Signal::from_raw(sig) {
+        Some(sig) => sig,
+        None => {
+            set_errno(Errno(EINVAL));
+            return -1;
+        }
+    };
     let tid = origin::thread::current_thread_id();
 
     // `tkill` is ordinarily considered obsolete and dangerous, because a

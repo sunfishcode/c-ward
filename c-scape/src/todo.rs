@@ -1425,3 +1425,99 @@ unsafe extern "C" fn wctrans() {
 unsafe extern "C" fn wprintf() {
     todo!("wprintf")
 }
+#[no_mangle]
+unsafe extern "C" fn clock_nanosleep() {
+    todo!("clock_nanosleep")
+}
+#[no_mangle]
+unsafe extern "C" fn pthread_getcpuclockid() {
+    todo!("pthread_getcpuclockid")
+}
+#[no_mangle]
+unsafe extern "C" fn pthread_mutexattr_getprioceiling() {
+    todo!("pthread_mutexattr_getprioceiling")
+}
+#[no_mangle]
+unsafe extern "C" fn pthread_mutexattr_setprioceiling() {
+    todo!("pthread_mutexattr_setprioceiling")
+}
+#[no_mangle]
+unsafe extern "C" fn pthread_mutex_getprioceiling() {
+    todo!("pthread_mutex_getprioceiling")
+}
+#[no_mangle]
+unsafe extern "C" fn pthread_rwlock_timedrdlock() {
+    todo!("pthread_rwlock_timedrdlock")
+}
+#[no_mangle]
+unsafe extern "C" fn pthread_rwlock_timedwrlock() {
+    todo!("pthread_rwlock_timedwrlock")
+}
+#[no_mangle]
+unsafe extern "C" fn pthread_setaffinity_np() {
+    todo!("pthread_setaffinity_np")
+}
+#[no_mangle]
+unsafe extern "C" fn pthread_setschedprio() {
+    todo!("pthread_setschedprio")
+}
+#[no_mangle]
+unsafe extern "C" fn pthread_spin_destroy() {
+    todo!("pthread_spin_destroy")
+}
+#[no_mangle]
+unsafe extern "C" fn pthread_spin_init() {
+    todo!("pthread_spin_init")
+}
+#[no_mangle]
+unsafe extern "C" fn pthread_spin_lock() {
+    todo!("pthread_spin_lock")
+}
+#[no_mangle]
+unsafe extern "C" fn pthread_spin_trylock() {
+    todo!("pthread_spin_trylock")
+}
+#[no_mangle]
+unsafe extern "C" fn pthread_spin_unlock() {
+    todo!("pthread_spin_unlock")
+}
+#[no_mangle]
+unsafe extern "C" fn sched_getparam() {
+    todo!("sched_getparam")
+}
+#[no_mangle]
+unsafe extern "C" fn sched_get_priority_max() {
+    todo!("sched_get_priority_max")
+}
+#[no_mangle]
+unsafe extern "C" fn sched_get_priority_min() {
+    todo!("sched_get_priority_min")
+}
+#[no_mangle]
+unsafe extern "C" fn sched_getscheduler() {
+    todo!("sched_getscheduler")
+}
+#[no_mangle]
+unsafe extern "C" fn sched_rr_get_interval() {
+    todo!("sched_rr_get_interval")
+}
+#[no_mangle]
+unsafe extern "C" fn sched_setparam() {
+    todo!("sched_setparam")
+}
+#[no_mangle]
+unsafe extern "C" fn sched_setscheduler() {
+    todo!("sched_setscheduler")
+}
+#[no_mangle]
+unsafe extern "C" fn sigpending() {
+    todo!("sigpending")
+}
+#[no_mangle]
+unsafe extern "C" fn sigqueue() {
+    todo!("sigqueue")
+}
+#[no_mangle]
+unsafe extern "C" fn timer_getoverrun() {
+    todo!("timer_getoverrun")
+}

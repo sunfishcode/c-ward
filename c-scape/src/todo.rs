@@ -1410,10 +1410,6 @@ unsafe extern "C" fn wprintf() {
     todo!("wprintf")
 }
 #[no_mangle]
-unsafe extern "C" fn clock_nanosleep() {
-    todo!("clock_nanosleep")
-}
-#[no_mangle]
 unsafe extern "C" fn pthread_getcpuclockid() {
     todo!("pthread_getcpuclockid")
 }

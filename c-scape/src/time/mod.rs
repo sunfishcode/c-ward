@@ -119,10 +119,12 @@ unsafe extern "C" fn nanosleep(req: *const libc::timespec, rem: *mut libc::times
     match rustix::thread::nanosleep(&req) {
         rustix::thread::NanosleepRelativeResult::Ok => 0,
         rustix::thread::NanosleepRelativeResult::Interrupted(remaining) => {
-            *rem = libc::timespec {
-                tv_sec: remaining.tv_sec.try_into().unwrap(),
-                tv_nsec: remaining.tv_nsec as _,
-            };
+            if !rem.is_null() {
+                *rem = libc::timespec {
+                    tv_sec: remaining.tv_sec.try_into().unwrap(),
+                    tv_nsec: remaining.tv_nsec as _,
+                };
+            }
             set_errno(Errno(libc::EINTR));
             -1
         }
@@ -130,6 +132,54 @@ unsafe extern "C" fn nanosleep(req: *const libc::timespec, rem: *mut libc::times
             set_errno(Errno(err.raw_os_error()));
             -1
         }
+    }
+}
+
+#[no_mangle]
+unsafe extern "C" fn clock_nanosleep(
+    clockid: libc::clockid_t,
+    flags: c_int,
+    req: *const libc::timespec,
+    rem: *mut libc::timespec,
+) -> c_int {
+    libc!(libc::clock_nanosleep(clockid, flags, req, rem));
+
+    let clockid = match clockid {
+        libc::CLOCK_MONOTONIC => rustix::thread::ClockId::Monotonic,
+        libc::CLOCK_REALTIME => rustix::thread::ClockId::Realtime,
+        libc::CLOCK_PROCESS_CPUTIME_ID => rustix::thread::ClockId::ProcessCPUTime,
+        libc::CLOCK_THREAD_CPUTIME_ID => rustix::thread::ClockId::ThreadCPUTime,
+        libc::CLOCK_REALTIME_COARSE => rustix::thread::ClockId::RealtimeCoarse,
+        libc::CLOCK_MONOTONIC_COARSE => rustix::thread::ClockId::MonotonicCoarse,
+        libc::CLOCK_MONOTONIC_RAW => rustix::thread::ClockId::MonotonicRaw,
+        _ => return libc::EINVAL,
+    };
+
+    let req = rustix::time::Timespec {
+        tv_sec: (*req).tv_sec.into(),
+        tv_nsec: (*req).tv_nsec as _,
+    };
+    if flags == libc::TIMER_ABSTIME {
+        match convert_res(rustix::thread::clock_nanosleep_absolute(clockid, &req)) {
+            Some(()) => 0,
+            None => -1,
+        }
+    } else if flags == 0 {
+        match rustix::thread::clock_nanosleep_relative(clockid, &req) {
+            rustix::thread::NanosleepRelativeResult::Ok => 0,
+            rustix::thread::NanosleepRelativeResult::Interrupted(remaining) => {
+                if !rem.is_null() {
+                    *rem = libc::timespec {
+                        tv_sec: remaining.tv_sec.try_into().unwrap(),
+                        tv_nsec: remaining.tv_nsec as _,
+                    };
+                }
+                libc::EINTR
+            }
+            rustix::thread::NanosleepRelativeResult::Err(err) => err.raw_os_error(),
+        }
+    } else {
+        libc::EINVAL
     }
 }
 

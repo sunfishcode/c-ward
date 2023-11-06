@@ -794,10 +794,6 @@ unsafe extern "C" fn regfree() {
     todo!("regfree")
 }
 #[no_mangle]
-unsafe extern "C" fn sbrk() {
-    todo!("sbrk")
-}
-#[no_mangle]
 unsafe extern "C" fn setgrent() {
     todo!("setgrent")
 }
@@ -1232,10 +1228,6 @@ unsafe extern "C" fn asprintf() {
 #[no_mangle]
 unsafe extern "C" fn atof() {
     todo!("atof")
-}
-#[no_mangle]
-unsafe extern "C" fn brk() {
-    todo!("brk")
 }
 #[no_mangle]
 unsafe extern "C" fn ctime() {

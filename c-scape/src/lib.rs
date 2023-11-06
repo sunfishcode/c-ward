@@ -44,6 +44,7 @@ mod sync_ptr;
 use core::ptr::addr_of;
 use errno::{set_errno, Errno};
 
+mod brk;
 mod ctype;
 mod env;
 mod fs;

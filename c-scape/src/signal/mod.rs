@@ -23,9 +23,9 @@ unsafe extern "C" fn signal(signal: c_int, handler: sighandler_t) -> sighandler_
     new.sa_handler_kernel = transmute(handler);
     new.sa_flags = SA_RESTART as _;
 
-    match origin::signal::sigaction(signal, Some(new)) {
-        Ok(old) => transmute(old.sa_handler_kernel),
-        Err(_) => SIG_ERR,
+    match convert_res(origin::signal::sigaction(signal, Some(new))) {
+        Some(old) => transmute(old.sa_handler_kernel),
+        None => SIG_ERR,
     }
 }
 

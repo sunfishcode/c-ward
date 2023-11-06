@@ -6,6 +6,7 @@ mod isatty;
 mod pipe;
 mod poll;
 mod read;
+mod select;
 mod splice;
 #[cfg(any(target_os = "android", target_os = "linux"))]
 mod timerfd;

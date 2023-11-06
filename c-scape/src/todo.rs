@@ -126,10 +126,6 @@ unsafe extern "C" fn swapcontext() {
     todo!("swapcontext")
 }
 #[no_mangle]
-unsafe extern "C" fn select() {
-    todo!("select")
-}
-#[no_mangle]
 unsafe extern "C" fn shmat() {
     todo!("shmat")
 }

@@ -234,10 +234,6 @@ unsafe extern "C" fn sched_getcpu() {
     todo!("sched_getcpu")
 }
 #[no_mangle]
-unsafe extern "C" fn sched_setaffinity() {
-    todo!("sched_setaffinity")
-}
-#[no_mangle]
 unsafe extern "C" fn sendmmsg() {
     todo!("sendmmsg")
 }

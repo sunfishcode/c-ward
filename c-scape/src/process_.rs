@@ -210,29 +210,83 @@ unsafe extern "C" fn sched_yield() -> c_int {
 }
 
 #[cfg(not(target_os = "wasi"))]
-unsafe fn set_cpu(cpu: usize, cpuset: &mut libc::cpu_set_t) {
-    libc::CPU_SET(cpu, cpuset)
+#[no_mangle]
+unsafe extern "C" fn sched_getaffinity(
+    pid: libc::pid_t,
+    cpu_set_size: libc::size_t,
+    mask: *mut libc::cpu_set_t,
+) -> c_int {
+    libc!(libc::sched_getaffinity(pid, cpu_set_size, mask.cast()));
+
+    let pid = rustix::process::Pid::from_raw(pid as _);
+    let set = match convert_res(rustix::process::sched_getaffinity(pid)) {
+        Some(set) => set,
+        None => return -1,
+    };
+
+    mask.write(core::mem::zeroed());
+    libc::CPU_ZERO(&mut *mask);
+    for i in 0..core::cmp::min(rustix::process::CpuSet::MAX_CPU, cpu_set_size * 8) {
+        if set.is_set(i) {
+            libc::CPU_SET(i, &mut *mask);
+        }
+    }
+    0
 }
 
 #[cfg(not(target_os = "wasi"))]
 #[no_mangle]
-unsafe extern "C" fn sched_getaffinity(
-    pid: c_int,
-    cpu_set_size: usize,
-    mask: *mut libc::cpu_set_t,
+unsafe extern "C" fn sched_setaffinity(
+    pid: libc::pid_t,
+    cpu_set_size: libc::size_t,
+    mask: *const libc::cpu_set_t,
 ) -> c_int {
-    libc!(libc::sched_getaffinity(pid, cpu_set_size, mask.cast()));
-    let pid = rustix::process::Pid::from_raw(pid as _);
-    match convert_res(rustix::process::sched_getaffinity(pid)) {
-        Some(cpu_set) => {
-            let mask = &mut *mask;
-            (0..cpu_set_size)
-                .filter(|&i| cpu_set.is_set(i))
-                .for_each(|i| set_cpu(i, mask));
-            0
+    libc!(libc::sched_setaffinity(pid, cpu_set_size, mask));
+
+    let mut set = rustix::process::CpuSet::new();
+    let mask = &*mask;
+    for i in 0..core::cmp::min(rustix::process::CpuSet::MAX_CPU, cpu_set_size * 8) {
+        if libc::CPU_ISSET(i, mask) {
+            set.set(i);
         }
+    }
+
+    let pid = rustix::process::Pid::from_raw(pid as _);
+    match convert_res(rustix::process::sched_setaffinity(pid, &set)) {
+        Some(()) => 0,
         None => -1,
     }
+}
+
+#[cfg(not(target_os = "wasi"))]
+#[no_mangle]
+unsafe extern "C" fn __sched_cpucount(size: libc::size_t, set: *const libc::cpu_set_t) -> c_int {
+    //libc!(libc::___sched_cpucount(size, set));
+
+    let mut count = 0;
+    for i in 0..core::cmp::min(rustix::process::CpuSet::MAX_CPU, size * 8) {
+        if libc::CPU_ISSET(i, &*set) {
+            count += 1;
+        }
+    }
+    count
+}
+
+#[cfg(not(target_os = "wasi"))]
+#[no_mangle]
+unsafe extern "C" fn __sched_cpualloc(count: libc::size_t) -> *mut libc::cpu_set_t {
+    //libc!(libc::___sched_cpualloc(count));
+
+    let count = core::cmp::min(count, rustix::process::CpuSet::MAX_CPU);
+    libc::malloc(libc::CPU_ALLOC_SIZE(count as _)).cast()
+}
+
+#[cfg(not(target_os = "wasi"))]
+#[no_mangle]
+unsafe extern "C" fn __sched_cpufree(set: *mut libc::cpu_set_t) {
+    //libc!(libc::___sched_cpufree(set));
+
+    libc::free(set.cast());
 }
 
 // In Linux, `prctl`'s arguments are described as `unsigned long`, however we

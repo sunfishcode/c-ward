@@ -7,7 +7,7 @@ use core::ffi::c_void;
 #[cfg(not(target_os = "wasi"))]
 use core::mem::size_of;
 use core::num::NonZeroU32;
-use core::ptr::copy_nonoverlapping;
+use core::ptr::{addr_of, copy_nonoverlapping};
 use core::slice;
 use errno::{set_errno, Errno};
 use libc::{c_int, c_uint, ssize_t};
@@ -763,15 +763,15 @@ unsafe extern "C" fn recvfrom(
 unsafe extern "C" fn recvmsg(sockfd: c_int, msg: *mut libc::msghdr, flags: c_int) -> ssize_t {
     libc!(libc::recvmsg(sockfd, msg, flags));
 
-    let msg = &mut *msg;
-
     let fd = BorrowedFd::borrow_raw(sockfd);
     let flags = RecvFlags::from_bits(flags as _).unwrap();
     let mut ancillaries = RecvAncillaryBuffer::default();
 
+    let msg_iov = (*addr_of!((*msg).msg_iov)).cast();
+    let msg_iovlen = (*addr_of!((*msg).msg_iovlen)) as usize;
     match convert_res(rustix::net::recvmsg(
         fd,
-        slice::from_raw_parts_mut(msg.msg_iov.cast(), msg.msg_iovlen as usize),
+        slice::from_raw_parts_mut(msg_iov, msg_iovlen),
         &mut ancillaries,
         flags,
     )) {
@@ -783,6 +783,7 @@ unsafe extern "C" fn recvmsg(sockfd: c_int, msg: *mut libc::msghdr, flags: c_int
             for _ancillary in ancillaries.drain() {
                 todo!("recvmsg ancillary messages");
             }
+            let msg = &mut *msg;
             msg.msg_flags = flags.bits() as _;
             if !msg.msg_name.is_null() {
                 if let Some(address) = address {

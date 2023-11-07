@@ -1,61 +1,61 @@
 use crate::convert_res;
-use core::ptr::copy_nonoverlapping;
+use core::ptr::{addr_of_mut, copy_nonoverlapping};
 use core::slice;
 use errno::{set_errno, Errno};
 use libc::{c_char, c_double, c_int};
+use memoffset::span_of;
 
 #[no_mangle]
 unsafe extern "C" fn uname(buf: *mut libc::utsname) -> c_int {
     libc!(libc::uname(buf));
 
     let uname = rustix::system::uname();
-    let buf = &mut *buf;
 
     let sysname = uname.sysname().to_bytes_with_nul();
-    assert!(sysname.len() <= buf.sysname.len());
+    assert!(sysname.len() <= span_of!(libc::utsname, sysname).len());
     copy_nonoverlapping(
-        checked_cast!(sysname.as_ptr()),
-        buf.sysname.as_mut_ptr(),
+        sysname.as_ptr(),
+        addr_of_mut!((*buf).sysname).cast::<u8>(),
         sysname.len(),
     );
 
     let nodename = uname.nodename().to_bytes_with_nul();
-    assert!(nodename.len() <= buf.nodename.len());
+    assert!(nodename.len() <= span_of!(libc::utsname, nodename).len());
     copy_nonoverlapping(
-        checked_cast!(nodename.as_ptr()),
-        buf.nodename.as_mut_ptr(),
+        nodename.as_ptr(),
+        addr_of_mut!((*buf).nodename).cast::<u8>(),
         nodename.len(),
     );
 
     let release = uname.release().to_bytes_with_nul();
-    assert!(release.len() <= buf.release.len());
+    assert!(release.len() <= span_of!(libc::utsname, release).len());
     copy_nonoverlapping(
-        checked_cast!(release.as_ptr()),
-        buf.release.as_mut_ptr(),
+        release.as_ptr(),
+        addr_of_mut!((*buf).release).cast::<u8>(),
         release.len(),
     );
 
     let version = uname.version().to_bytes_with_nul();
-    assert!(version.len() <= buf.version.len());
+    assert!(version.len() <= span_of!(libc::utsname, version).len());
     copy_nonoverlapping(
-        checked_cast!(version.as_ptr()),
-        buf.version.as_mut_ptr(),
+        version.as_ptr(),
+        addr_of_mut!((*buf).version).cast::<u8>(),
         version.len(),
     );
 
     let machine = uname.machine().to_bytes_with_nul();
-    assert!(machine.len() <= buf.machine.len());
+    assert!(machine.len() <= span_of!(libc::utsname, machine).len());
     copy_nonoverlapping(
-        checked_cast!(machine.as_ptr()),
-        buf.machine.as_mut_ptr(),
+        machine.as_ptr(),
+        addr_of_mut!((*buf).machine).cast::<u8>(),
         machine.len(),
     );
 
     let domainname = uname.domainname().to_bytes_with_nul();
-    assert!(domainname.len() <= buf.domainname.len());
+    assert!(domainname.len() <= span_of!(libc::utsname, domainname).len());
     copy_nonoverlapping(
-        checked_cast!(domainname.as_ptr()),
-        buf.domainname.as_mut_ptr(),
+        domainname.as_ptr(),
+        addr_of_mut!((*buf).domainname).cast::<u8>(),
         domainname.len(),
     );
 

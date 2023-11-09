@@ -1,6 +1,6 @@
 mod inet;
 
-use alloc::vec;
+use crate::READ_BUFFER;
 use core::cmp::min;
 use core::convert::TryInto;
 use core::ffi::c_void;
@@ -709,14 +709,13 @@ unsafe extern "C" fn recv(fd: c_int, ptr: *mut c_void, len: usize, flags: c_int)
     // `slice::from_raw_parts_mut` assumes that the memory is initialized,
     // which our C API here doesn't guarantee. Since rustix currently requires
     // a slice, use a temporary copy.
-    let mut tmp = vec![0u8; len];
     match convert_res(rustix::net::recv(
         BorrowedFd::borrow_raw(fd),
-        &mut tmp,
+        &mut READ_BUFFER[..min(len, READ_BUFFER.len())],
         flags,
     )) {
         Some(nread) => {
-            copy_nonoverlapping(tmp.as_ptr(), ptr.cast::<u8>(), len);
+            copy_nonoverlapping(READ_BUFFER.as_ptr(), ptr.cast::<u8>(), len);
             nread as isize
         }
         None => -1,
@@ -741,14 +740,13 @@ unsafe extern "C" fn recvfrom(
     // `slice::from_raw_parts_mut` assumes that the memory is initialized,
     // which our C API here doesn't guarantee. Since rustix currently requires
     // a slice, use a temporary copy.
-    let mut tmp = vec![0u8; len];
     match convert_res(rustix::net::recvfrom(
         BorrowedFd::borrow_raw(fd),
-        &mut tmp,
+        &mut READ_BUFFER[..min(len, READ_BUFFER.len())],
         flags,
     )) {
         Some((nread, addr)) => {
-            copy_nonoverlapping(tmp.as_ptr(), buf.cast::<u8>(), len);
+            copy_nonoverlapping(READ_BUFFER.as_ptr(), buf.cast::<u8>(), len);
             if let Some(addr) = addr {
                 let encoded_len = addr.write(from);
                 *from_len = encoded_len.try_into().unwrap();

@@ -45,7 +45,7 @@ unsafe extern "C" fn remove(pathname: *const c_char) -> c_int {
     let result = rustix::fs::unlink(pathname);
 
     if let Err(rustix::io::Errno::ISDIR) = result {
-        libc::rmdir(pathname.as_ptr())
+        rmdir(pathname.as_ptr())
     } else {
         match convert_res(result) {
             Some(()) => 0,

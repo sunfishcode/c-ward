@@ -154,7 +154,7 @@ unsafe extern "C" fn dlsym(handle: *mut c_void, symbol: *const c_char) -> *mut c
 
     let symbol = CStr::from_ptr(symbol.cast());
 
-    if handle.is_null() {
+    if handle == libc::RTLD_DEFAULT {
         // `std` uses `dlsym` to dynamically detect feature availability; recognize
         // functions it asks for.
         match symbol.to_bytes() {
@@ -178,6 +178,10 @@ unsafe extern "C" fn dlsym(handle: *mut c_void, symbol: *const c_char) -> *mut c
 
             _ => unimplemented!("dlsym(_, {:?})", symbol),
         }
+    } else if handle == libc::RTLD_NEXT {
+        // We don't support any dynamic linking, so there's no "next" dynamic
+        // library.
+        null_mut()
     } else {
         unimplemented!("dlsym with a handle")
     }

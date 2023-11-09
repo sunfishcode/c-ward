@@ -3,8 +3,8 @@ mod key;
 use alloc::boxed::Box;
 use core::convert::TryInto;
 use core::ffi::c_void;
-use core::mem::{align_of, size_of, zeroed, ManuallyDrop};
-use core::ptr::{self, null_mut};
+use core::mem::{align_of, size_of, transmute, zeroed, ManuallyDrop};
+use core::ptr::{self, null_mut, NonNull};
 use core::sync::atomic::Ordering::SeqCst;
 use core::sync::atomic::{AtomicBool, AtomicU32};
 use core::time::Duration;
@@ -635,30 +635,20 @@ unsafe extern "C" fn pthread_rwlockattr_destroy(_attr: *mut PthreadRwlockattrT) 
 }
 
 // TODO: signals, create thread-local storage, arrange for thread-local storage
-// destructors to run, free the `mmap`.
+// destructors to run.
 #[no_mangle]
 unsafe extern "C" fn pthread_create(
     pthread: *mut PthreadT,
     attr: *const PthreadAttrT,
-    fn_: extern "C" fn(*mut c_void) -> *mut c_void,
+    fn_: unsafe extern "C" fn(*mut c_void) -> *mut c_void,
     arg: *mut c_void,
 ) -> c_int {
     libc!(libc::pthread_create(
         pthread as _,
         checked_cast!(attr),
-        fn_,
+        core::mem::transmute(fn_),
         arg
     ));
-
-    // Wrap `arg` in a newtype to make it `Send`.
-    //
-    // SAFETY: It is up to the caller of `pthread_create` to ensure that the
-    // pointer is pointing to data which is safe to be accessed from the new
-    // thread.
-    #[repr(transparent)]
-    struct UnsafeSendVoidStar(*mut c_void);
-    unsafe impl Send for UnsafeSendVoidStar {}
-    let arg = UnsafeSendVoidStar(arg);
 
     let PthreadAttrT {
         stack_addr,
@@ -679,14 +669,29 @@ unsafe extern "C" fn pthread_create(
     };
     assert!(stack_addr.is_null());
 
-    let thread = match origin::thread::create_thread(
-        Box::new(move || {
-            fn_(arg.0);
-            Some(Box::new(arg))
-        }),
-        stack_size,
-        guard_size,
-    ) {
+    let args = [NonNull::new(fn_ as *mut c_void), NonNull::new(arg)];
+
+    // `create_thread` takes a bare function pointer, and it's not
+    // `extern "C"`, so we have to wrap the user's `fn_`.
+    unsafe fn call(args: &mut [Option<NonNull<c_void>>]) -> Option<NonNull<c_void>> {
+        let fn_ = match args[0] {
+            Some(fn_) => fn_.as_ptr(),
+            None => null_mut(),
+        };
+        let fn_: unsafe extern "C" fn(*mut c_void) -> *mut c_void = transmute(fn_);
+
+        let arg = match args[1] {
+            Some(arg) => arg.as_ptr(),
+            None => null_mut(),
+        };
+
+        let return_value = fn_(arg);
+
+        NonNull::new(return_value)
+    }
+
+    // Create the thread.
+    let thread = match origin::thread::create_thread(call, &args, stack_size, guard_size) {
         Ok(thread) => thread,
         Err(e) => return e.raw_os_error(),
     };
@@ -712,12 +717,16 @@ unsafe extern "C" fn pthread_detach(pthread: PthreadT) -> c_int {
 #[no_mangle]
 unsafe extern "C" fn pthread_join(pthread: PthreadT, retval: *mut *mut c_void) -> c_int {
     libc!(libc::pthread_join(pthread.expose_addr() as _, retval));
-    assert!(
-        retval.is_null(),
-        "pthread_join return values not supported yet"
-    );
 
-    origin::thread::join_thread(Thread::from_raw(pthread.cast()));
+    let return_value = origin::thread::join_thread(Thread::from_raw(pthread.cast()));
+
+    if !retval.is_null() {
+        *retval = match return_value {
+            Some(return_value) => return_value.as_ptr(),
+            None => null_mut(),
+        };
+    }
+
     0
 }
 

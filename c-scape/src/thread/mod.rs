@@ -563,13 +563,19 @@ unsafe extern "C" fn pthread_cond_timedwait(
         abstime,
     ));
     let abstime = ptr::read(abstime);
-    let duration = Duration::new(
+    let abstime = Duration::new(
         abstime.tv_sec.try_into().unwrap(),
         abstime.tv_nsec.try_into().unwrap(),
     );
+    let now = rustix::time::clock_gettime(rustix::time::ClockId::Realtime);
+    let now = Duration::new(
+        now.tv_sec.try_into().unwrap(),
+        now.tv_nsec.try_into().unwrap(),
+    );
+    let reltime = abstime.saturating_sub(now);
     match (*lock).kind.load(SeqCst) as i32 {
         libc::PTHREAD_MUTEX_NORMAL => {
-            if (*cond).inner.wait_timeout(&(*lock).u.normal, duration) {
+            if (*cond).inner.wait_timeout(&(*lock).u.normal, reltime) {
                 0
             } else {
                 libc::ETIMEDOUT

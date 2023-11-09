@@ -1,4 +1,6 @@
 use crate::convert_res;
+use crate::READ_BUFFER;
+use core::cmp::min;
 use errno::{set_errno, Errno};
 use libc::c_void;
 
@@ -16,10 +18,12 @@ unsafe extern "C" fn getrandom(buf: *mut c_void, buflen: usize, flags: u32) -> i
     // `slice::from_raw_parts_mut` assumes that the memory is initialized,
     // which our C API here doesn't guarantee. Since rustix currently requires
     // a slice, use a temporary copy.
-    let mut tmp = alloc::vec![0u8; buflen];
-    match convert_res(rustix::rand::getrandom(&mut tmp, flags)) {
+    match convert_res(rustix::rand::getrandom(
+        &mut READ_BUFFER[..min(buflen, READ_BUFFER.len())],
+        flags,
+    )) {
         Some(num) => {
-            core::ptr::copy_nonoverlapping(tmp.as_ptr(), buf.cast::<u8>(), buflen);
+            core::ptr::copy_nonoverlapping(READ_BUFFER.as_ptr(), buf.cast::<u8>(), buflen);
             num as isize
         }
         None => -1,
@@ -39,6 +43,7 @@ unsafe extern "C" fn getentropy(buf: *mut c_void, buflen: usize) -> i32 {
         set_errno(Errno(libc::EIO));
         return -1;
     }
+    assert!(buflen < READ_BUFFER.len());
 
     let flags = rustix::rand::GetRandomFlags::empty();
 
@@ -47,9 +52,8 @@ unsafe extern "C" fn getentropy(buf: *mut c_void, buflen: usize) -> i32 {
     // `slice::from_raw_parts_mut` assumes that the memory is initialized,
     // which our C API here doesn't guarantee. Since rustix currently requires
     // a slice, use a temporary copy.
-    let mut tmp = alloc::vec![0u8; buflen];
     while filled < buflen {
-        match rustix::rand::getrandom(&mut tmp[filled..], flags) {
+        match rustix::rand::getrandom(&mut READ_BUFFER[filled..buflen], flags) {
             Ok(num) => filled += num,
             Err(rustix::io::Errno::INTR) => {}
             Err(err) => {
@@ -59,7 +63,7 @@ unsafe extern "C" fn getentropy(buf: *mut c_void, buflen: usize) -> i32 {
         }
     }
 
-    core::ptr::copy_nonoverlapping(tmp.as_ptr(), buf.cast::<u8>(), buflen);
+    core::ptr::copy_nonoverlapping(READ_BUFFER.as_ptr(), buf.cast::<u8>(), buflen);
 
     0
 }

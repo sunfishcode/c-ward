@@ -141,3 +141,8 @@ fn convert_res<T>(result: Result<T, rustix::io::Errno>) -> Option<T> {
         .map_err(|err| set_errno(Errno(err.raw_os_error())))
         .ok()
 }
+
+/// A thread-local buffer for reading into, when the user-supplied buffer
+/// may not be initialized.
+#[thread_local]
+static mut READ_BUFFER: [u8; libc::PIPE_BUF] = [0_u8; libc::PIPE_BUF];

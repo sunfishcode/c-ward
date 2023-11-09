@@ -16,6 +16,44 @@ unsafe extern "C" fn syscall(number: c_long, mut args: ...) -> *mut c_void {
             let count = args.arg::<size_t>();
             ptr::invalid_mut(libc::read(fd, buf, count) as _)
         }
+        libc::SYS_write => {
+            let fd = args.arg::<c_int>();
+            let buf = args.arg::<*const c_void>();
+            let count = args.arg::<size_t>();
+            ptr::invalid_mut(libc::write(fd, buf, count) as _)
+        }
+        #[cfg(not(any(target_arch = "aarch64", target_arch = "riscv64")))]
+        libc::SYS_open => {
+            let path = args.arg::<*const c_char>();
+            let flags = args.arg::<c_int>();
+            let fd = if ((flags & libc::O_CREAT) == libc::O_CREAT)
+                || ((flags & libc::O_TMPFILE) == libc::O_TMPFILE)
+            {
+                let mode = args.arg::<libc::mode_t>();
+                libc::open(path, flags, mode)
+            } else {
+                libc::open(path, flags)
+            };
+            ptr::invalid_mut(fd as _)
+        }
+        libc::SYS_openat => {
+            let dirfd = args.arg::<c_int>();
+            let path = args.arg::<*const c_char>();
+            let flags = args.arg::<c_int>();
+            let fd = if ((flags & libc::O_CREAT) == libc::O_CREAT)
+                || ((flags & libc::O_TMPFILE) == libc::O_TMPFILE)
+            {
+                let mode = args.arg::<libc::mode_t>();
+                libc::openat(dirfd, path, flags, mode)
+            } else {
+                libc::openat(dirfd, path, flags)
+            };
+            ptr::invalid_mut(fd as _)
+        }
+        libc::SYS_close => {
+            let fd = args.arg::<c_int>();
+            ptr::invalid_mut(libc::close(fd) as _)
+        }
         libc::SYS_getrandom => {
             let buf = args.arg::<*mut c_void>();
             let len = args.arg::<usize>();

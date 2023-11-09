@@ -27,6 +27,18 @@ unsafe extern "C" fn clock_gettime(id: c_int, tp: *mut libc::timespec) -> c_int 
             rustix::time::DynamicClockId::Known(rustix::time::ClockId::Realtime)
         }
         libc::CLOCK_BOOTTIME => rustix::time::DynamicClockId::Boottime,
+        libc::CLOCK_MONOTONIC_COARSE => {
+            rustix::time::DynamicClockId::Known(rustix::time::ClockId::MonotonicCoarse)
+        }
+        libc::CLOCK_REALTIME_COARSE => {
+            rustix::time::DynamicClockId::Known(rustix::time::ClockId::RealtimeCoarse)
+        }
+        libc::CLOCK_MONOTONIC_RAW => {
+            rustix::time::DynamicClockId::Known(rustix::time::ClockId::MonotonicRaw)
+        }
+        libc::CLOCK_THREAD_CPUTIME_ID => {
+            rustix::time::DynamicClockId::Known(rustix::time::ClockId::ThreadCPUTime)
+        }
         _ => panic!("unimplemented clock_gettime({})", id),
     };
 

@@ -346,9 +346,21 @@ unsafe extern "C" fn pthread_mutex_trylock(mutex: *mut PthreadMutexT) -> c_int {
 #[no_mangle]
 unsafe extern "C" fn pthread_mutex_unlock(mutex: *mut PthreadMutexT) -> c_int {
     libc!(libc::pthread_mutex_unlock(checked_cast!(mutex)));
-    match (*mutex).kind.load(SeqCst) as i32 {
-        libc::PTHREAD_MUTEX_NORMAL => (*mutex).u.normal.unlock(),
-        libc::PTHREAD_MUTEX_RECURSIVE => (*mutex).u.reentrant.unlock(),
+
+    let mutex = &*mutex;
+    match mutex.kind.load(SeqCst) as i32 {
+        libc::PTHREAD_MUTEX_NORMAL => {
+            if !mutex.u.normal.is_locked() {
+                return libc::EPERM;
+            }
+            mutex.u.normal.unlock()
+        }
+        libc::PTHREAD_MUTEX_RECURSIVE => {
+            if !mutex.u.reentrant.is_locked() {
+                return libc::EPERM;
+            }
+            mutex.u.reentrant.unlock()
+        }
         libc::PTHREAD_MUTEX_ERRORCHECK => todo!("PTHREAD_MUTEX_ERRORCHECK"),
         other => unimplemented!("unsupported pthread mutex kind {}", other),
     }
@@ -390,10 +402,18 @@ unsafe extern "C" fn pthread_rwlock_rdlock(rwlock: *mut PthreadRwlockT) -> c_int
 #[no_mangle]
 unsafe extern "C" fn pthread_rwlock_unlock(rwlock: *mut PthreadRwlockT) -> c_int {
     libc!(libc::pthread_rwlock_unlock(checked_cast!(rwlock)));
-    if (*rwlock).exclusive.load(SeqCst) {
-        (*rwlock).lock.unlock_exclusive();
+
+    let rwlock = &*rwlock;
+    if rwlock.exclusive.load(SeqCst) {
+        if !rwlock.lock.is_locked_exclusive() {
+            return libc::EPERM;
+        }
+        rwlock.lock.unlock_exclusive();
     } else {
-        (*rwlock).lock.unlock_shared();
+        if !rwlock.lock.is_locked() {
+            return libc::EPERM;
+        }
+        rwlock.lock.unlock_shared();
     }
     0
 }
@@ -771,6 +791,19 @@ unsafe extern "C" fn pthread_sigmask(
         }
         Err(e) => e.raw_os_error(),
     }
+}
+
+#[no_mangle]
+unsafe extern "C" fn pthread_attr_getstacksize(
+    attr: *const PthreadAttrT,
+    stacksize: *mut usize,
+) -> c_int {
+    libc!(libc::pthread_attr_getstacksize(
+        checked_cast!(attr),
+        stacksize
+    ));
+    *stacksize = (*attr).stack_size;
+    0
 }
 
 #[no_mangle]

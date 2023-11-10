@@ -53,7 +53,11 @@ static HAS_REGISTERED_CLEANUP: Cell<bool> = Cell::new(false);
 unsafe extern "C" fn pthread_getspecific(key: libc::pthread_key_t) -> *mut c_void {
     libc!(libc::pthread_getspecific(key));
 
-    let latest_epoch = EPOCHS[key as usize].load(Ordering::SeqCst);
+    let latest_epoch = match EPOCHS.get(key as usize) {
+        Some(epoch) => epoch,
+        None => return null_mut(),
+    };
+    let latest_epoch = latest_epoch.load(Ordering::SeqCst);
     let ValueWithEpoch { epoch, data } = VALUES[key as usize].get();
 
     // If the latest epoch is newer, then that means this slot got reallocated.
@@ -116,8 +120,13 @@ unsafe extern "C" fn pthread_setspecific(key: libc::pthread_key_t, value: *const
         HAS_REGISTERED_CLEANUP.set(true);
     }
 
+    let latest_epoch = match EPOCHS.get(key as usize) {
+        Some(epoch) => epoch,
+        None => return libc::EINVAL,
+    };
+    let latest_epoch = latest_epoch.load(Ordering::SeqCst);
     VALUES[key as usize].set(ValueWithEpoch {
-        epoch: EPOCHS[key as usize].load(Ordering::SeqCst),
+        epoch: latest_epoch,
         data: value.cast_mut(),
     });
     0

@@ -662,10 +662,6 @@ unsafe extern "C" fn pthread_attr_getscope() {
     todo!("pthread_attr_getscope")
 }
 #[no_mangle]
-unsafe extern "C" fn pthread_attr_getstacksize() {
-    todo!("pthread_attr_getstacksize")
-}
-#[no_mangle]
 unsafe extern "C" fn pthread_attr_setinheritsched() {
     todo!("pthread_attr_setinheritsched")
 }

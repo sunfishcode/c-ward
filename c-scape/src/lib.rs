@@ -21,6 +21,11 @@ extern crate compiler_builtins;
 // crate in place of libc.
 pub use libc::*;
 
+// Re-export the `environ` lock so that users can use it to access `environ`
+// safely.
+#[cfg(feature = "lock-environ")]
+pub use env::ENVIRON_LOCK;
+
 #[macro_use]
 mod use_libc;
 

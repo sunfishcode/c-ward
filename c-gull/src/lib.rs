@@ -7,9 +7,9 @@
 
 extern crate c_scape;
 
-// Re-export the libc crate's API. This allows users to depend on the c-scape
-// crate in place of libc.
-pub use libc::*;
+// Re-export the c_scape crate's API, which includes the libc API. This allows
+// users to depend on the c-scape crate in place of libc.
+pub use c_scape::*;
 
 #[macro_use]
 mod use_libc;

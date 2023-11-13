@@ -9,6 +9,8 @@ use core::ptr::{copy_nonoverlapping, null_mut};
 use core::slice;
 
 use crate::env::environ;
+#[cfg(feature = "lock-environ")]
+use crate::env::ENVIRON_LOCK;
 use crate::{convert_res, set_errno, Errno};
 
 use libc::{c_char, c_int};
@@ -64,6 +66,10 @@ unsafe extern "C" fn execlp(file: *const c_char, arg: *const c_char, mut argv: .
 #[no_mangle]
 unsafe extern "C" fn execv(prog: *const c_char, argv: *const *const c_char) -> c_int {
     libc!(libc::execv(prog, argv));
+
+    #[cfg(feature = "lock-environ")]
+    let _lock = ENVIRON_LOCK.read();
+
     execve(prog, argv, environ as *const _)
 }
 
@@ -88,6 +94,10 @@ unsafe extern "C" fn execve(
 #[no_mangle]
 unsafe extern "C" fn execvp(file: *const c_char, argv: *const *const c_char) -> c_int {
     libc!(libc::execvp(file, argv));
+
+    #[cfg(feature = "lock-environ")]
+    let _lock = ENVIRON_LOCK.read();
+
     execvpe(file, argv, environ as *const _)
 }
 
@@ -215,7 +225,7 @@ unsafe extern "C" fn fexecve(
         error = rustix::runtime::execve(
             CStr::from_bytes_with_nul_unchecked(&buf),
             argv.cast(),
-            environ.cast(),
+            envp.cast(),
         );
     }
 

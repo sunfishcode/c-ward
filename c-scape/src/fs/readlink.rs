@@ -1,6 +1,6 @@
-use alloc::vec::Vec;
 use core::ffi::CStr;
-use core::ptr::copy_nonoverlapping;
+use core::mem::MaybeUninit;
+use core::slice;
 use rustix::fd::BorrowedFd;
 
 use libc::{c_char, c_int};
@@ -21,18 +21,16 @@ unsafe extern "C" fn readlinkat(
     buf: *mut c_char,
     bufsiz: usize,
 ) -> isize {
-    libc!(libc::readlink(pathname, buf, bufsiz));
+    libc!(libc::readlinkat(fd, pathname, buf, bufsiz));
 
-    let path = match convert_res(rustix::fs::readlinkat(
+    let buf = slice::from_raw_parts_mut(buf.cast::<MaybeUninit<u8>>(), bufsiz);
+    let (yes, _no) = match convert_res(rustix::fs::readlinkat_raw(
         BorrowedFd::borrow_raw(fd),
         CStr::from_ptr(pathname.cast()),
-        Vec::new(),
+        buf,
     )) {
-        Some(path) => path,
+        Some(slices) => slices,
         None => return -1,
     };
-    let bytes = path.as_bytes();
-    let min = core::cmp::min(bytes.len(), bufsiz);
-    copy_nonoverlapping(bytes.as_ptr(), buf.cast(), min);
-    min as isize
+    yes.len() as isize
 }

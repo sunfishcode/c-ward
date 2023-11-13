@@ -300,6 +300,14 @@ unsafe extern "C" fn __sched_cpufree(set: *mut libc::cpu_set_t) {
     libc::free(set.cast());
 }
 
+#[cfg(not(target_os = "wasi"))]
+#[no_mangle]
+unsafe extern "C" fn sched_getcpu() -> c_int {
+    libc!(libc::sched_getcpu());
+
+    rustix::process::sched_getcpu() as _
+}
+
 // In Linux, `prctl`'s arguments are described as `unsigned long`, however we
 // use pointer types in order to preserve provenance.
 #[cfg(any(target_os = "android", target_os = "linux"))]

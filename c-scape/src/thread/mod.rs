@@ -4,7 +4,7 @@ use alloc::boxed::Box;
 use core::convert::TryInto;
 use core::ffi::c_void;
 use core::mem::{align_of, size_of, transmute, zeroed, ManuallyDrop};
-use core::ptr::{self, null_mut, NonNull};
+use core::ptr::{self, copy_nonoverlapping, null_mut, NonNull};
 use core::sync::atomic::Ordering::SeqCst;
 use core::sync::atomic::{AtomicBool, AtomicU32};
 use core::time::Duration;
@@ -12,7 +12,7 @@ use origin::thread::Thread;
 use rustix_futex_sync::lock_api::{self, RawMutex as _, RawReentrantMutex, RawRwLock as _};
 use rustix_futex_sync::{RawCondvar, RawMutex, RawRwLock};
 
-use libc::c_int;
+use libc::{c_char, c_int, size_t};
 
 struct GetThreadId;
 
@@ -879,6 +879,33 @@ unsafe extern "C" fn pthread_atfork(
 ) -> c_int {
     libc!(libc::pthread_atfork(prepare, parent, child));
     crate::at_fork::at_fork(prepare, parent, child);
+    0
+}
+
+#[no_mangle]
+unsafe extern "C" fn pthread_getname_np(
+    pthread: PthreadT,
+    name: *mut c_char,
+    len: size_t,
+) -> c_int {
+    libc!(libc::pthread_getname_np(
+        pthread.expose_addr() as _,
+        name,
+        len
+    ));
+
+    let prctl_name = match rustix::thread::name() {
+        Ok(prctl_name) => prctl_name,
+        Err(err) => return err.raw_os_error(),
+    };
+
+    let bytes = prctl_name.to_bytes_with_nul();
+
+    if len < bytes.len() {
+        return libc::ERANGE;
+    }
+
+    copy_nonoverlapping(bytes.as_ptr().cast(), name, bytes.len());
     0
 }
 

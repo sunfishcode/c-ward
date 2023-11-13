@@ -714,10 +714,6 @@ unsafe extern "C" fn pthread_condattr_setpshared() {
     todo!("pthread_condattr_setpshared")
 }
 #[no_mangle]
-unsafe extern "C" fn pthread_getname_np() {
-    todo!("pthread_getname_np")
-}
-#[no_mangle]
 unsafe extern "C" fn pthread_getschedparam() {
     todo!("pthread_getschedparam")
 }

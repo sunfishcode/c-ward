@@ -109,6 +109,10 @@ malloc-via-rust-global-alloc = []
 # is useful to do when using the Rust global allocator is using `malloc`.
 malloc-via-crates = ["rustix-dlmalloc/global"]
 
+# In "take-charge" mode, this enables use of an `RwLock` within `getenv`,
+# `setenv`, and related functions, to make them thread-safe.
+lock-environ = []
+
 # Special feature for use when c-scape is a dependency of std.
 rustc-dep-of-std = [
     "dep:core",

@@ -6,6 +6,8 @@ use core::ptr::null_mut;
 use core::slice;
 use libc::{c_char, c_int};
 use rustix::ffi::{CStr, CString};
+#[cfg(feature = "lock-environ")]
+use rustix_futex_sync::RwLock;
 
 #[no_mangle]
 unsafe extern "C" fn getenv(key: *const c_char) -> *mut c_char {
@@ -32,6 +34,9 @@ unsafe extern "C" fn secure_getenv(key: *const c_char) -> *mut c_char {
 }
 
 pub(crate) unsafe fn _getenv(key_bytes: &[u8]) -> *mut c_char {
+    #[cfg(feature = "lock-environ")]
+    let _lock = ENVIRON_LOCK.read();
+
     let mut ptr = environ;
     loop {
         let env = *ptr;
@@ -97,15 +102,18 @@ unsafe extern "C" fn setenv(key: *const c_char, value: *const c_char, overwrite:
         return -1;
     }
 
-    let environ_vecs = ENVIRON_VECS.get_mut();
-    sync_environ(environ_vecs);
-
     // Construct the new "key=value" string.
     let mut owned = Vec::new();
     owned.extend_from_slice(key_bytes);
     owned.extend_from_slice(b"=");
     owned.extend_from_slice(value_bytes);
     let owned = CString::new(owned).unwrap();
+
+    #[cfg(feature = "lock-environ")]
+    let _lock = ENVIRON_LOCK.write();
+
+    let environ_vecs = ENVIRON_VECS.get_mut();
+    sync_environ(environ_vecs);
 
     // Search for the key.
     let mut ptr = environ;
@@ -159,6 +167,9 @@ unsafe extern "C" fn unsetenv(key: *const c_char) -> c_int {
         return -1;
     }
 
+    #[cfg(feature = "lock-environ")]
+    let _lock = ENVIRON_LOCK.write();
+
     let environ_vecs = ENVIRON_VECS.get_mut();
     sync_environ(environ_vecs);
 
@@ -195,7 +206,7 @@ unsafe extern "C" fn unsetenv(key: *const c_char) -> c_int {
 unsafe extern "C" fn getlogin() -> *mut c_char {
     libc!(libc::getlogin());
 
-    getenv(rustix::cstr!("LOGNAME").as_ptr())
+    _getenv(b"LOGNAME")
 }
 
 /// GLIBC and origin pass argc, argv, and envp to functions in .init_array, as
@@ -224,6 +235,14 @@ fn init_from_envp(envp: *mut *mut c_char) {
 
 #[no_mangle]
 pub(crate) static mut environ: *mut *mut c_char = null_mut();
+
+/// A lock protecting `environ`.
+///
+/// This library's `getenv`, `setenv`, and related functions acquire this lock
+/// when reading or writing environment variables. Users manipulating the global
+/// `environ` variable directly must also acquire this lock.
+#[cfg(feature = "lock-environ")]
+pub static ENVIRON_LOCK: RwLock<()> = RwLock::new(());
 
 struct EnvironVecs {
     ptrs: Vec<*mut c_char>,

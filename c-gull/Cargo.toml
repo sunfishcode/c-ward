@@ -82,5 +82,9 @@ malloc-via-rust-global-alloc = ["c-scape/malloc-via-rust-global-alloc"]
 # is useful to do when using the Rust global allocator is using `malloc`.
 malloc-via-crates = ["c-scape/malloc-via-crates"]
 
+# In "take-charge" mode, this enables use of an `RwLock` within `getenv`,
+# `setenv`, and related functions, to make them thread-safe.
+lock-environ = ["c-scape/lock-environ"]
+
 # Enable `todo!()` stubs for unimplemented functions.
 todo = ["c-scape/todo"]

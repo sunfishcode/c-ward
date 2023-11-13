@@ -157,9 +157,21 @@ unsafe extern "C" fn putc(c: c_int, file: *mut c_void) -> c_int {
 }
 
 #[no_mangle]
+unsafe extern "C" fn putc_unlocked(c: c_int, file: *mut c_void) -> c_int {
+    //libc!(libc::putc_unlocked(c, file));
+    putc(c, file)
+}
+
+#[no_mangle]
 unsafe extern "C" fn putchar(c: c_int) -> c_int {
     libc!(libc::putchar(c));
     fputc(c, stdout)
+}
+
+#[no_mangle]
+unsafe extern "C" fn putchar_unlocked(c: c_int) -> c_int {
+    libc!(libc::putchar_unlocked(c));
+    putchar(c)
 }
 
 #[no_mangle]

@@ -438,14 +438,6 @@ unsafe extern "C" fn popen() {
     todo!("popen")
 }
 #[no_mangle]
-unsafe extern "C" fn putchar_unlocked() {
-    todo!("putchar_unlocked")
-}
-#[no_mangle]
-unsafe extern "C" fn putc_unlocked() {
-    todo!("putc_unlocked")
-}
-#[no_mangle]
 unsafe extern "C" fn putw() {
     todo!("putw")
 }

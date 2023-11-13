@@ -410,15 +410,32 @@ unsafe extern "C" fn strstr(haystack: *const c_char, needle: *const c_char) -> *
 }
 
 #[no_mangle]
-pub unsafe extern "C" fn index(s: *const c_char, c: c_int) -> *mut c_char {
+unsafe extern "C" fn index(s: *const c_char, c: c_int) -> *mut c_char {
     //libc!(libc::index(s, c));
 
     strchr(s, c)
 }
 
 #[no_mangle]
-pub unsafe extern "C" fn rindex(s: *const c_char, c: c_int) -> *mut c_char {
+unsafe extern "C" fn rindex(s: *const c_char, c: c_int) -> *mut c_char {
     //libc!(libc::rindex(s, c));
 
     strrchr(s, c)
+}
+
+#[no_mangle]
+unsafe extern "C" fn strsep(str_: *mut *mut c_char, sep: *const c_char) -> *mut c_char {
+    let s = *str_;
+    if s.is_null() {
+        return ptr::null_mut();
+    }
+    let mut end = s.add(strcspn(s, sep));
+    if *end != 0 {
+        *end = 0;
+        end = end.add(1);
+    } else {
+        end = ptr::null_mut();
+    }
+    *str_ = end;
+    s
 }

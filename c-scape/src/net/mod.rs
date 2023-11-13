@@ -998,3 +998,14 @@ fn offsetof_sun_path() -> usize {
     };
     (core::ptr::addr_of!(z.sun_path).addr()) - (core::ptr::addr_of!(z).addr())
 }
+
+#[allow(non_upper_case_globals)]
+#[no_mangle]
+static in6addr_any: libc::in6_addr = libc::in6_addr {
+    s6_addr: { [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0] },
+};
+#[allow(non_upper_case_globals)]
+#[no_mangle]
+static in6addr_loopback: libc::in6_addr = libc::in6_addr {
+    s6_addr: { [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1] },
+};

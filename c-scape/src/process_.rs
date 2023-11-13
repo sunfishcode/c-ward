@@ -13,6 +13,13 @@ use rustix::cstr;
 unsafe extern "C" fn getpagesize() -> c_int {
     //libc!(libc::getpagesize());
 
+    __getpagesize()
+}
+
+#[no_mangle]
+unsafe extern "C" fn __getpagesize() -> c_int {
+    //libc!(libc::__getpagesize());
+
     rustix::param::page_size() as _
 }
 

@@ -234,10 +234,6 @@ unsafe extern "C" fn renameat2() {
     todo!("renameat2")
 }
 #[no_mangle]
-unsafe extern "C" fn sched_getcpu() {
-    todo!("sched_getcpu")
-}
-#[no_mangle]
 unsafe extern "C" fn sendmmsg() {
     todo!("sendmmsg")
 }

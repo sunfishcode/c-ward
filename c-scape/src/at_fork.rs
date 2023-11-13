@@ -60,20 +60,20 @@ pub(crate) unsafe fn fork() -> rustix::io::Result<Option<rustix::process::Pid>> 
 
     // Call `fork`.
     match rustix::runtime::fork()? {
-        None => {
+        rustix::runtime::Fork::Child(pid) => {
             // The child's thread record is copied from the parent;
             // update it with the child's current-thread-id.
             #[cfg(feature = "thread")]
-            origin::thread::set_current_thread_id_after_a_fork(rustix::thread::gettid());
+            origin::thread::set_current_thread_id_after_a_fork(pid);
 
             // Callbacks after calling `fork`, in the child.
             funcs.child.iter().for_each(|func| func());
             Ok(None)
         }
-        Some(pid) => {
+        rustix::runtime::Fork::Parent(child_pid) => {
             // Callbacks after calling `fork`, in the parent.
             funcs.parent.iter().for_each(|func| func());
-            Ok(Some(pid))
+            Ok(Some(child_pid))
         }
     }
 }

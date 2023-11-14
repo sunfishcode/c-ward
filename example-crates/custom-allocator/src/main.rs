@@ -5,5 +5,7 @@ static GLOBAL_ALLOCATOR: rustix_dlmalloc::GlobalDlmalloc = rustix_dlmalloc::Glob
 
 fn main() {
     println!("Hello world using Rust `println!`!");
-    unsafe { libc::printf("Hello world using libc `printf`!\n\0".as_ptr().cast()); }
+    unsafe {
+        libc::printf("Hello world using libc `printf`!\n\0".as_ptr().cast());
+    }
 }

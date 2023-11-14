@@ -4,12 +4,23 @@ version = "0.0.0"
 edition = "2021"
 publish = false
 
-[dependencies]
+[dependencies.libc]
+path = "../../c-gull"
 # Disable the default features, and enable "take-charge" mode. And enable
 # malloc via the rust global allocator, which works since we've redirected
 # the global allocator to not use malloc.
-libc = { path = "../../c-gull", default-features = false, features = ["take-charge", "std", "thread", "call-main", "malloc-via-rust-global-alloc", "define-mem-functions"], package = "c-gull" }
+default-features = false
+features = [
+    "take-charge",
+    "std",
+    "thread",
+    "call-main",
+    "malloc-via-rust-global-alloc",
+    "define-mem-functions",
+]
+package = "c-gull"
 
+[dependencies]
 # We'll use this to provide our custom allocator.
 rustix-dlmalloc = { version = "0.1.0", features = ["global"] }
 

@@ -28,7 +28,7 @@ unsafe extern "C" fn main(_argc: i32, _argv: *const *const u8, _envp: *const *co
             -1 => match errno::errno().0 {
                 libc::EINTR => continue,
                 _ => panic!(),
-            }
+            },
             n => remaining = &remaining[n as usize..],
         }
     }

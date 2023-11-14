@@ -60,7 +60,7 @@ libc = "0.2.138"
 static_assertions = "1.1.0"
 
 [features]
-default = ["thread", "std", "coexist-with-libc"]
+default = ["thread", "std", "coexist-with-libc", "threadsafe-setenv"]
 thread = ["origin/set_thread_id"]
 std = ["rustix/std"]
 
@@ -109,9 +109,8 @@ malloc-via-rust-global-alloc = []
 # is useful to do when using the Rust global allocator is using `malloc`.
 malloc-via-crates = ["rustix-dlmalloc/global"]
 
-# In "take-charge" mode, this enables use of an `RwLock` within `getenv`,
-# `setenv`, and related functions, to make them thread-safe.
-lock-environ = []
+# This makes `setenv` and friends thread-safe by leaking memory.
+threadsafe-setenv = []
 
 # Special feature for use when c-scape is a dependency of std.
 rustc-dep-of-std = [

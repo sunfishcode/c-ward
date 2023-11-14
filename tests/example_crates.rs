@@ -115,3 +115,19 @@ fn example_crate_dns() {
         None,
     );
 }
+
+#[test]
+fn example_crate_threadsafe_setenv() {
+    test_crate(
+        "threadsafe-setenv",
+        &[],
+        &[],
+        "will call std::env::set_var() 100 times ...\n\
+         spawning thread to lookup localhost (may crash with glibc; run with try_getenv to call getenv instead)...\n\
+         localhost: ip=::1 port=1\n\
+         localhost: ip=127.0.0.1 port=1\n\
+         exiting without error\n",
+        "",
+        None,
+    );
+}

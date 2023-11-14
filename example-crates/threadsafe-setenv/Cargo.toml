@@ -1,0 +1,23 @@
+[package]
+name = "threadsafe-setenv"
+version = "0.0.0"
+edition = "2021"
+publish = false
+
+[dependencies.libc]
+path = "../../c-gull"
+default-features = false
+# Enable the "threadsafe-setenv" feature to make `setenv` threadsafe!
+features = [
+    "take-charge",
+    "std",
+    "thread",
+    "call-main",
+    "malloc-via-crates",
+    "define-mem-functions",
+    "threadsafe-setenv"
+]
+package = "c-gull"
+
+# This is just an example crate, and not part of the c-ward workspace.
+[workspace]

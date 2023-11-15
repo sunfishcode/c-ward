@@ -1,6 +1,8 @@
 use core::ptr;
 use errno::{set_errno, Errno};
-use libc::{c_char, c_int, c_long, c_void, size_t, timespec};
+#[cfg(feature = "extra-syscalls")]
+use libc::{c_char, size_t};
+use libc::{c_int, c_long, c_void, timespec};
 #[cfg(feature = "thread")]
 use {crate::convert_res, core::mem::zeroed, core::ptr::null};
 
@@ -10,18 +12,21 @@ use {crate::convert_res, core::mem::zeroed, core::ptr::null};
 #[no_mangle]
 unsafe extern "C" fn syscall(number: c_long, mut args: ...) -> *mut c_void {
     match number {
+        #[cfg(feature = "extra-syscalls")]
         libc::SYS_read => {
             let fd = args.arg::<c_int>();
             let buf = args.arg::<*mut c_void>();
             let count = args.arg::<size_t>();
             ptr::invalid_mut(libc::read(fd, buf, count) as _)
         }
+        #[cfg(feature = "extra-syscalls")]
         libc::SYS_write => {
             let fd = args.arg::<c_int>();
             let buf = args.arg::<*const c_void>();
             let count = args.arg::<size_t>();
             ptr::invalid_mut(libc::write(fd, buf, count) as _)
         }
+        #[cfg(feature = "extra-syscalls")]
         #[cfg(not(any(target_arch = "aarch64", target_arch = "riscv64")))]
         libc::SYS_open => {
             let path = args.arg::<*const c_char>();
@@ -36,6 +41,7 @@ unsafe extern "C" fn syscall(number: c_long, mut args: ...) -> *mut c_void {
             };
             ptr::invalid_mut(fd as _)
         }
+        #[cfg(feature = "extra-syscalls")]
         libc::SYS_openat => {
             let dirfd = args.arg::<c_int>();
             let path = args.arg::<*const c_char>();
@@ -50,6 +56,7 @@ unsafe extern "C" fn syscall(number: c_long, mut args: ...) -> *mut c_void {
             };
             ptr::invalid_mut(fd as _)
         }
+        #[cfg(feature = "extra-syscalls")]
         libc::SYS_close => {
             let fd = args.arg::<c_int>();
             ptr::invalid_mut(libc::close(fd) as _)
@@ -75,15 +82,18 @@ unsafe extern "C" fn syscall(number: c_long, mut args: ...) -> *mut c_void {
             set_errno(Errno(libc::ENOSYS));
             ptr::invalid_mut(!0)
         }
+        #[cfg(feature = "extra-syscalls")]
         libc::SYS_epoll_create1 => {
             let flags = args.arg::<c_int>();
             ptr::invalid_mut(libc::epoll_create(flags) as isize as usize)
         }
+        #[cfg(feature = "extra-syscalls")]
         libc::SYS_timerfd_create => {
             let clockid = args.arg::<c_int>();
             let flags = args.arg::<c_int>();
             ptr::invalid_mut(libc::timerfd_create(clockid, flags) as isize as usize)
         }
+        #[cfg(feature = "extra-syscalls")]
         libc::SYS_timerfd_settime => {
             let fd = args.arg::<c_int>();
             let flags = args.arg::<c_int>();
@@ -93,6 +103,7 @@ unsafe extern "C" fn syscall(number: c_long, mut args: ...) -> *mut c_void {
                 libc::timerfd_settime(fd, flags, new_value, old_value) as isize as usize,
             )
         }
+        #[cfg(feature = "extra-syscalls")]
         libc::SYS_utimensat => {
             let fd = args.arg::<c_int>();
             let path = args.arg::<*const c_char>();
@@ -100,10 +111,12 @@ unsafe extern "C" fn syscall(number: c_long, mut args: ...) -> *mut c_void {
             let flags = args.arg::<c_int>();
             ptr::invalid_mut(libc::utimensat(fd, path, times, flags) as isize as usize)
         }
+        #[cfg(feature = "extra-syscalls")]
         libc::SYS_fdatasync => {
             let fd = args.arg::<c_int>();
             ptr::invalid_mut(libc::fdatasync(fd) as isize as usize)
         }
+        #[cfg(feature = "extra-syscalls")]
         libc::SYS_syncfs => {
             let fd = args.arg::<c_int>();
             ptr::invalid_mut(libc::syncfs(fd) as isize as usize)

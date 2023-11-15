@@ -88,5 +88,10 @@ malloc-via-crates = ["c-scape/malloc-via-crates"]
 # This makes `setenv` and friends thread-safe by leaking memory.
 threadsafe-setenv = ["c-scape/threadsafe-setenv"]
 
+# This extends the `syscall` function with suppport for more syscalls. This is
+# not enabled by default because it increases the code size of `syscall` by
+# several kibibytes and isn't needed by most Rust programs.
+extra-syscalls = ["c-scape/extra-syscalls"]
+
 # Enable `todo!()` stubs for unimplemented functions.
 todo = ["c-scape/todo"]

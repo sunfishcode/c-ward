@@ -60,7 +60,7 @@ libc = "0.2.138"
 static_assertions = "1.1.0"
 
 [features]
-default = ["thread", "std", "coexist-with-libc", "threadsafe-setenv"]
+default = ["thread", "std", "coexist-with-libc", "threadsafe-setenv", "use-compiler-builtins"]
 thread = ["origin/set_thread_id"]
 std = ["rustix/std"]
 
@@ -74,6 +74,9 @@ call-main = []
 # `compiler_builtins::mem`) or should it rely on `compiler_builtins`
 # being linked in and providing those definitions?
 define-mem-functions = []
+
+# Should c-scape's `memcpy` etc. use compiler-builtins?
+use-compiler-builtins = []
 
 # Enable logging of program and thread startup and shutdown.
 log = ["origin/log"]

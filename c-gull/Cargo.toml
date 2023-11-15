@@ -22,7 +22,7 @@ printf-compat = { version = "0.1.1", optional = true }
 rustix = { version = "0.38.23", default-features = false, optional = true, features = ["fs", "itoa", "net", "param", "process", "procfs", "rand", "termios", "thread", "time"] }
 
 [features]
-default = ["thread", "std", "coexist-with-libc", "threadsafe-setenv"]
+default = ["thread", "std", "coexist-with-libc", "threadsafe-setenv", "use-compiler-builtins"]
 thread = ["c-scape/thread"]
 std = ["c-scape/std", "rustix/std", "printf-compat/std", "tz-rs/std", "errno/std"]
 
@@ -36,6 +36,9 @@ call-main = ["c-scape/call-main"]
 # `compiler_builtins::mem`) or should it rely on `compiler_builtins`
 # being linked in and providing those definitions?
 define-mem-functions = ["c-scape/define-mem-functions"]
+
+# Should c-scape's `memcpy` etc. use compiler-builtins?
+use-compiler-builtins = ["c-scape/use-compiler-builtins"]
 
 # Enable logging of program and thread startup and shutdown.
 log = ["c-scape/log"]

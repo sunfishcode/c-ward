@@ -2,7 +2,7 @@
 #![no_std]
 #![feature(thread_local)] // for `__errno_location`
 #![feature(c_variadic)] // for `ioctl` etc.
-#![feature(rustc_private)] // for compiler-builtins
+#![cfg_attr(feature = "use-compiler-builtins", feature(rustc_private))]
 #![feature(strict_provenance)]
 #![feature(inline_const)]
 #![feature(sync_unsafe_cell)]
@@ -15,6 +15,7 @@ compile_error!("Enable only one of \"coexist-with-libc\" and \"take-charge\".");
 compile_error!("Enable one \"coexist-with-libc\" and \"take-charge\".");
 
 extern crate alloc;
+#[cfg(feature = "use-compiler-builtins")]
 extern crate compiler_builtins;
 
 // Re-export the libc crate's API. This allows users to depend on the c-scape

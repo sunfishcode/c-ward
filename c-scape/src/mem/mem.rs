@@ -39,7 +39,27 @@ unsafe extern "C" fn memrchr(s: *const c_void, c: c_int, len: size_t) -> *mut c_
 unsafe extern "C" fn memcmp(a: *const c_void, b: *const c_void, len: size_t) -> c_int {
     libc!(libc::memcmp(a, b, len));
 
-    compiler_builtins::mem::memcmp(a.cast(), b.cast(), len)
+    #[cfg(feature = "use-compiler-builtins")]
+    {
+        compiler_builtins::mem::memcmp(a.cast(), b.cast(), len)
+    }
+
+    #[cfg(not(feature = "use-compiler-builtins"))]
+    {
+        let a = a.cast::<u8>();
+        let b = b.cast::<u8>();
+        let mut i = 0;
+        while i < len {
+            let a = *a.add(i);
+            let b = *b.add(i);
+            if a != b {
+                return a as i32 - b as i32;
+            }
+            i += 1;
+            core::arch::asm!("");
+        }
+        0
+    }
 }
 
 // Obsolescent
@@ -48,7 +68,7 @@ unsafe extern "C" fn memcmp(a: *const c_void, b: *const c_void, len: size_t) -> 
 unsafe extern "C" fn bcmp(a: *const c_void, b: *const c_void, len: size_t) -> c_int {
     //libc!(libc::bcmp(a, b, len));
 
-    compiler_builtins::mem::bcmp(a.cast(), b.cast(), len)
+    memcmp(a, b, len)
 }
 
 #[cfg(feature = "define-mem-functions")]
@@ -56,7 +76,26 @@ unsafe extern "C" fn bcmp(a: *const c_void, b: *const c_void, len: size_t) -> c_
 unsafe extern "C" fn memcpy(dst: *mut c_void, src: *const c_void, len: size_t) -> *mut c_void {
     libc!(libc::memcpy(dst, src, len));
 
-    compiler_builtins::mem::memcpy(dst.cast(), src.cast(), len).cast()
+    #[cfg(feature = "use-compiler-builtins")]
+    {
+        asdf;
+        compiler_builtins::mem::memcpy(dst.cast(), src.cast(), len).cast()
+    }
+
+    #[cfg(not(feature = "use-compiler-builtins"))]
+    {
+        let start = dst;
+        let mut dst = dst.cast::<u8>();
+        let mut src = src.cast::<u8>();
+        let dst_end = dst.add(len);
+        while dst < dst_end {
+            *dst = *src;
+            dst = dst.add(1);
+            src = src.add(1);
+            core::arch::asm!("");
+        }
+        start
+    }
 }
 
 #[cfg(feature = "define-mem-functions")]
@@ -64,7 +103,38 @@ unsafe extern "C" fn memcpy(dst: *mut c_void, src: *const c_void, len: size_t) -
 unsafe extern "C" fn memmove(dst: *mut c_void, src: *const c_void, len: size_t) -> *mut c_void {
     libc!(libc::memmove(dst, src, len));
 
-    compiler_builtins::mem::memmove(dst.cast(), src.cast(), len).cast()
+    #[cfg(feature = "use-compiler-builtins")]
+    {
+        compiler_builtins::mem::memmove(dst.cast(), src.cast(), len).cast()
+    }
+
+    #[cfg(not(feature = "use-compiler-builtins"))]
+    {
+        let start = dst;
+        let mut dst = dst.cast::<u8>();
+        let mut src = src.cast::<u8>();
+        let delta = (dst.addr()).wrapping_sub(src.addr());
+        if delta >= len {
+            let dst_end = dst.add(len);
+            while dst < dst_end {
+                *dst = *src;
+                dst = dst.add(1);
+                src = src.add(1);
+                core::arch::asm!("");
+            }
+        } else {
+            let dst_start = dst;
+            let mut dst = dst.add(len);
+            let mut src = src.add(len);
+            while dst > dst_start {
+                dst = dst.sub(1);
+                src = src.sub(1);
+                *dst = *src;
+                core::arch::asm!("");
+            }
+        }
+        start
+    }
 }
 
 #[cfg(feature = "define-mem-functions")]
@@ -72,7 +142,22 @@ unsafe extern "C" fn memmove(dst: *mut c_void, src: *const c_void, len: size_t) 
 unsafe extern "C" fn memset(dst: *mut c_void, fill: c_int, len: size_t) -> *mut c_void {
     libc!(libc::memset(dst, fill, len));
 
-    compiler_builtins::mem::memset(dst.cast(), fill, len).cast()
+    #[cfg(feature = "use-compiler-builtins")]
+    {
+        compiler_builtins::mem::memset(dst.cast(), fill, len).cast()
+    }
+
+    #[cfg(not(feature = "use-compiler-builtins"))]
+    {
+        let mut s = dst.cast::<u8>();
+        let end = s.add(len);
+        while s < end {
+            *s = fill as _;
+            s = s.add(1);
+            core::arch::asm!("");
+        }
+        dst
+    }
 }
 
 #[no_mangle]
@@ -96,10 +181,7 @@ unsafe extern "C" fn mempcpy(dst: *mut c_void, src: *const c_void, len: size_t) 
 
     // `mempcpy` is the same as `memcpy` except it returns the pointer at the
     // end instead of the beginning.
-    compiler_builtins::mem::memcpy(dst.cast(), src.cast(), len)
-        .cast::<u8>()
-        .add(len)
-        .cast()
+    libc::memcpy(dst, src, len).cast::<u8>().add(len).cast()
 }
 
 #[no_mangle]

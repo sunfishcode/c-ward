@@ -78,7 +78,6 @@ unsafe extern "C" fn memcpy(dst: *mut c_void, src: *const c_void, len: size_t) -
 
     #[cfg(feature = "use-compiler-builtins")]
     {
-        asdf;
         compiler_builtins::mem::memcpy(dst.cast(), src.cast(), len).cast()
     }
 

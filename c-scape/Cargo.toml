@@ -98,7 +98,6 @@ experimental-relocate = ["origin/experimental-relocate"]
 # c-scape to write Rust programs completely implemented in Rust.
 eyra = [
     "take-charge",
-    "std",
     "thread",
     "call-main",
     "malloc-via-crates",

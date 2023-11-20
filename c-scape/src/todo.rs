@@ -778,10 +778,6 @@ unsafe extern "C" fn setgrent() {
     todo!("setgrent")
 }
 #[no_mangle]
-unsafe extern "C" fn setlocale() {
-    todo!("setlocale")
-}
-#[no_mangle]
 unsafe extern "C" fn sigsuspend() {
     todo!("sigsuspend")
 }
@@ -808,10 +804,6 @@ unsafe extern "C" fn sigset() {
 #[no_mangle]
 unsafe extern "C" fn __xpg_sigpause() {
     todo!("__xpg_sigpause")
-}
-#[no_mangle]
-unsafe extern "C" fn strxfrm() {
-    todo!("strxfrm")
 }
 #[no_mangle]
 unsafe extern "C" fn system() {
@@ -1740,10 +1732,6 @@ unsafe extern "C" fn confstr() {
 #[no_mangle]
 unsafe extern "C" fn getdtablesize() {
     todo!("getdtablesize")
-}
-#[no_mangle]
-unsafe extern "C" fn dup3() {
-    todo!("dup3")
 }
 #[no_mangle]
 unsafe extern "C" fn epoll_pwait() {

@@ -3,7 +3,7 @@
 //! This currently only supports the C/POSIX locale.
 
 use core::ptr::{addr_of, null_mut};
-use libc::{c_char, c_int, lconv};
+use libc::{c_char, c_int, lconv, size_t};
 
 static EMPTY_STR: [c_char; 1] = [b'\0' as _];
 static C_STR: [c_char; 2] = [b'C' as _, b'\0' as _];
@@ -70,4 +70,17 @@ unsafe extern "C" fn strcoll(l: *const c_char, r: *const c_char) -> c_int {
     libc!(libc::strcoll(l, r));
 
     libc::strcmp(l, r)
+}
+
+#[no_mangle]
+unsafe extern "C" fn strxfrm(dest: *mut c_char, src: *const c_char, n: size_t) -> size_t {
+    libc!(libc::strxfrm(dest, src, n));
+
+    let src_len = libc::strlen(src);
+
+    if src_len < n {
+        libc::strcpy(dest, src);
+    }
+
+    src_len
 }

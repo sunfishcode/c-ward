@@ -9,6 +9,7 @@ mod flock;
 mod inotify;
 mod link;
 mod lseek;
+mod makedev;
 mod memfd;
 mod mkdir;
 mod mknod;

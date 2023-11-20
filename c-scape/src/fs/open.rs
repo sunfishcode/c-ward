@@ -1,4 +1,5 @@
 use core::ffi::CStr;
+use errno::{set_errno, Errno};
 use rustix::fd::{BorrowedFd, IntoRawFd};
 use rustix::fs::{Mode, OFlags, CWD};
 
@@ -81,6 +82,11 @@ unsafe extern "C" fn creat(name: *const c_char, mode: mode_t) -> c_int {
 #[no_mangle]
 unsafe extern "C" fn close(fd: c_int) -> c_int {
     libc!(libc::close(fd));
+
+    if fd == -1 {
+        set_errno(Errno(libc::EBADF));
+        return -1;
+    }
 
     rustix::io::close(fd);
     0

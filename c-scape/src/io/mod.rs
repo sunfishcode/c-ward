@@ -25,6 +25,7 @@ use crate::convert_res;
 unsafe extern "C" fn ioctl(fd: c_int, request: c_long, mut args: ...) -> c_int {
     const TCGETS: c_long = libc::TCGETS as c_long;
     const FIONBIO: c_long = libc::FIONBIO as c_long;
+    const TIOCINQ: c_long = libc::TIOCINQ as c_long;
     const TIOCGWINSZ: c_long = libc::TIOCGWINSZ as c_long;
     const FICLONE: c_long = libc::FICLONE as c_long;
     match request {
@@ -39,7 +40,7 @@ unsafe extern "C" fn ioctl(fd: c_int, request: c_long, mut args: ...) -> c_int {
                 None => -1,
             }
         }
-        FIONBIO => {
+        FIONBIO | TIOCINQ => {
             let ptr = args.arg::<*mut c_int>();
             let value = *ptr != 0;
             libc!(libc::ioctl(fd, libc::FIONBIO, value as c_int));

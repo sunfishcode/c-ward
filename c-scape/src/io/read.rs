@@ -13,6 +13,11 @@ use crate::convert_res;
 unsafe extern "C" fn read(fd: c_int, ptr: *mut c_void, len: usize) -> isize {
     libc!(libc::read(fd, ptr, len));
 
+    if fd == -1 {
+        set_errno(Errno(libc::EBADF));
+        return -1;
+    }
+
     // `slice::from_raw_parts_mut` assumes that the memory is initialized,
     // which our C API here doesn't guarantee. Since rustix currently requires
     // a slice, use a temporary copy.
@@ -31,6 +36,11 @@ unsafe extern "C" fn read(fd: c_int, ptr: *mut c_void, len: usize) -> isize {
 #[no_mangle]
 unsafe extern "C" fn readv(fd: c_int, iov: *const iovec, iovcnt: c_int) -> isize {
     libc!(libc::readv(fd, iov, iovcnt));
+
+    if fd == -1 {
+        set_errno(Errno(libc::EBADF));
+        return -1;
+    }
 
     if iovcnt < 0 {
         set_errno(Errno(libc::EINVAL));
@@ -60,6 +70,11 @@ unsafe extern "C" fn pread(fd: c_int, ptr: *mut c_void, len: usize, offset: off_
 #[no_mangle]
 unsafe extern "C" fn pread64(fd: c_int, ptr: *mut c_void, len: usize, offset: off64_t) -> isize {
     libc!(libc::pread64(fd, ptr, len, offset));
+
+    if fd == -1 {
+        set_errno(Errno(libc::EBADF));
+        return -1;
+    }
 
     // `slice::from_raw_parts_mut` assumes that the memory is initialized,
     // which our C API here doesn't guarantee. Since rustix currently requires
@@ -91,6 +106,11 @@ unsafe extern "C" fn preadv64(
     offset: off64_t,
 ) -> isize {
     libc!(libc::preadv64(fd, iov, iovcnt, offset));
+
+    if fd == -1 {
+        set_errno(Errno(libc::EBADF));
+        return -1;
+    }
 
     let iov: *const IoSliceMut = checked_cast!(iov);
 

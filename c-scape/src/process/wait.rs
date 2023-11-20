@@ -1,4 +1,4 @@
-//use errno::{set_errno, Errno};
+use errno::{set_errno, Errno};
 use libc::{c_int, pid_t};
 use rustix::process::{Pid, WaitOptions};
 
@@ -19,6 +19,10 @@ unsafe extern "C" fn waitpid(pid: c_int, status: *mut c_int, options: c_int) -> 
             Some(None) => return 0,
             None => return -1,
         },
+        pid if pid == pid_t::MIN => {
+            set_errno(Errno(libc::ESRCH));
+            return -1;
+        }
         pid if pid < 0 => match convert_res(rustix::process::waitpgid(
             Pid::from_raw_unchecked(pid.wrapping_neg()),
             options,

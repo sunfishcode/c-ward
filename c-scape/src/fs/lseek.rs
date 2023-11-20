@@ -1,10 +1,8 @@
-use rustix::fd::BorrowedFd;
-
+use crate::convert_res;
 use core::convert::TryInto;
 use errno::{set_errno, Errno};
 use libc::{c_int, off64_t, off_t};
-
-use crate::convert_res;
+use rustix::fd::BorrowedFd;
 
 #[no_mangle]
 unsafe extern "C" fn lseek(fd: c_int, offset: off_t, whence: c_int) -> off_t {
@@ -22,6 +20,11 @@ unsafe extern "C" fn lseek(fd: c_int, offset: off_t, whence: c_int) -> off_t {
 #[no_mangle]
 unsafe extern "C" fn lseek64(fd: c_int, offset: off64_t, whence: c_int) -> off64_t {
     libc!(libc::lseek64(fd, offset, whence));
+
+    if fd == -1 {
+        set_errno(Errno(libc::EBADF));
+        return -1;
+    }
 
     let seek_from = match whence {
         libc::SEEK_SET => rustix::fs::SeekFrom::Start(offset as u64),

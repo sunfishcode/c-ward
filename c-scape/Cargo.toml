@@ -94,6 +94,17 @@ max_level_off = ["origin/max_level_off"]
 # needed to support statically-linked PIE executables.
 experimental-relocate = ["origin/experimental-relocate"]
 
+# A feature that pulls in all the individual features needed to use
+# c-scape to write Rust programs completely implemented in Rust.
+eyra = [
+    "take-charge",
+    "std",
+    "thread",
+    "call-main",
+    "malloc-via-crates",
+    "define-mem-functions"
+]
+
 # One of the following two features must be enabled:
 
 # Enable this to tell c-scape to take control of the process.

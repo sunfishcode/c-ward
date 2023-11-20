@@ -4,6 +4,7 @@ use core::mem::{size_of, zeroed};
 #[cfg(feature = "take-charge")]
 use core::ptr;
 use core::ptr::{addr_of, null_mut};
+use errno::{set_errno, Errno};
 #[cfg(feature = "take-charge")]
 use libc::c_ulong;
 use libc::{c_char, c_int, c_long, c_void};
@@ -322,6 +323,10 @@ unsafe extern "C" fn prctl(
     libc!(libc::prctl(option, arg2, _arg3, _arg4, _arg5));
     match option {
         libc::PR_SET_NAME => {
+            if arg2.is_null() {
+                set_errno(Errno(libc::EFAULT));
+                return -1;
+            }
             match convert_res(rustix::runtime::set_thread_name(CStr::from_ptr(
                 arg2.cast::<c_char>(),
             ))) {

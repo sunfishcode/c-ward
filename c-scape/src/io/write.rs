@@ -10,6 +10,11 @@ use crate::convert_res;
 unsafe extern "C" fn write(fd: c_int, ptr: *const c_void, len: usize) -> isize {
     libc!(libc::write(fd, ptr, len));
 
+    if fd == -1 {
+        set_errno(Errno(libc::EBADF));
+        return -1;
+    }
+
     match convert_res(rustix::io::write(
         BorrowedFd::borrow_raw(fd),
         slice::from_raw_parts(ptr.cast::<u8>(), len),

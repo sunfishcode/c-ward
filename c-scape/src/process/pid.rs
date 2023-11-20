@@ -1,4 +1,5 @@
 use crate::convert_res;
+use errno::{set_errno, Errno};
 use libc::{c_int, pid_t};
 use rustix::process::Pid;
 
@@ -30,6 +31,11 @@ unsafe extern "C" fn setpgid(pid: pid_t, pgid: pid_t) -> c_int {
 #[no_mangle]
 unsafe extern "C" fn getpgid(pid: pid_t) -> pid_t {
     libc!(libc::getpgid(pid));
+
+    if pid < 0 {
+        set_errno(Errno(libc::ESRCH));
+        return -1;
+    }
 
     match convert_res(rustix::process::getpgid(Pid::from_raw(pid as _))) {
         Some(pid) => pid.as_raw_nonzero().get(),

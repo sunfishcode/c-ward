@@ -61,6 +61,8 @@ unsafe extern "C" fn syscall(number: c_long, mut args: ...) -> *mut c_void {
             let fd = args.arg::<c_int>();
             ptr::invalid_mut(libc::close(fd) as _)
         }
+        #[cfg(feature = "extra-syscalls")]
+        libc::SYS_getpid => ptr::invalid_mut(rustix::process::getpid().as_raw_nonzero().get() as _),
         libc::SYS_getrandom => {
             let buf = args.arg::<*mut c_void>();
             let len = args.arg::<usize>();

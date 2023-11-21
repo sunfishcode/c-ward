@@ -1806,10 +1806,6 @@ unsafe extern "C" fn gethostbyname_r() {
     todo!("gethostbyname_r")
 }
 #[no_mangle]
-unsafe extern "C" fn gethostid() {
-    todo!("gethostid")
-}
-#[no_mangle]
 unsafe extern "C" fn sethostid() {
     todo!("sethostid")
 }

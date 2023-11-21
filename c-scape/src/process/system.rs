@@ -2,7 +2,7 @@ use crate::convert_res;
 use core::ptr::{addr_of_mut, copy_nonoverlapping};
 use core::slice;
 use errno::{set_errno, Errno};
-use libc::{c_char, c_double, c_int};
+use libc::{c_char, c_double, c_int, c_long};
 use memoffset::span_of;
 
 #[no_mangle]
@@ -87,6 +87,8 @@ unsafe extern "C" fn getloadavg(a: *mut c_double, n: c_int) -> c_int {
 #[cfg(not(target_os = "wasi"))]
 #[no_mangle]
 unsafe extern "C" fn gethostname(name: *mut c_char, len: usize) -> c_int {
+    libc!(libc::gethostname(name, len));
+
     let uname = rustix::system::uname();
     let nodename = uname.nodename();
     if nodename.to_bytes().len() + 1 > len {
@@ -105,9 +107,20 @@ unsafe extern "C" fn gethostname(name: *mut c_char, len: usize) -> c_int {
 #[cfg(not(target_os = "wasi"))]
 #[no_mangle]
 unsafe extern "C" fn sethostname(name: *mut c_char, len: usize) -> c_int {
+    libc!(libc::sethostname(name, len));
+
     let slice = slice::from_raw_parts(name.cast(), len);
     match convert_res(rustix::system::sethostname(slice)) {
         Some(()) => 0,
         None => -1,
     }
+}
+
+#[deprecated]
+#[no_mangle]
+unsafe extern "C" fn gethostid() -> c_long {
+    libc!(libc::gethostid());
+
+    // 32 bits isn't enough to uniquely identify a "host".
+    0
 }

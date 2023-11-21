@@ -11,7 +11,7 @@ macro_rules! checked_cast {
         let src_ptr = $ptr;
         let target_ptr = src_ptr.cast();
 
-        if !src_ptr.is_null() {
+        if false {
             let target = crate::use_libc::Pad::new(core::ptr::read(target_ptr));
 
             // Uses the fact that the compiler checks for size equality,

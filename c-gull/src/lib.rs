@@ -24,8 +24,6 @@ mod resolve;
 #[cfg(feature = "std")]
 mod strtod;
 #[cfg(feature = "std")]
-mod strtol;
-#[cfg(feature = "std")]
 mod sysconf;
 #[cfg(feature = "std")]
 mod system;

@@ -500,7 +500,12 @@ unsafe extern "C" fn pthread_condattr_setclock(
         checked_cast!(attr),
         clock_id
     ));
-    let _ = (attr, clock_id);
+    let _ = attr;
+
+    if clock_id == libc::CLOCK_PROCESS_CPUTIME_ID || clock_id == libc::CLOCK_THREAD_CPUTIME_ID {
+        return libc::EINVAL;
+    }
+
     rustix::io::write(
         rustix::stdio::stderr(),
         b"unimplemented: pthread_condattr_setclock\n",

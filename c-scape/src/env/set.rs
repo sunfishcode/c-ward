@@ -216,6 +216,18 @@ unsafe extern "C" fn putenv(key_value: *mut c_char) -> c_int {
     0
 }
 
+#[no_mangle]
+unsafe extern "C" fn clearenv() -> c_int {
+    libc!(libc::clearenv());
+
+    let environ_vecs = ENVIRON_VECS.get_mut();
+    environ_vecs.ptrs.clear();
+    environ_vecs.ptrs.push(null_mut());
+    environ_vecs.allocs.clear();
+
+    0
+}
+
 struct EnvironVecs {
     ptrs: Vec<*mut c_char>,
     allocs: Vec<CString>,

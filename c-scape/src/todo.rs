@@ -1797,3 +1797,19 @@ unsafe extern "C" fn if_nameindex() {
 unsafe extern "C" fn if_freenameindex() {
     todo!("if_freenameindex")
 }
+#[no_mangle]
+unsafe extern "C" fn dladdr() {
+    todo!("dladdr")
+}
+#[no_mangle]
+unsafe extern "C" fn wcwidth() {
+    todo!("wcwidth")
+}
+#[no_mangle]
+unsafe extern "C" fn wordexp() {
+    todo!("wordexp")
+}
+#[no_mangle]
+unsafe extern "C" fn wordfree() {
+    todo!("wordfree")
+}

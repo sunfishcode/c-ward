@@ -887,6 +887,10 @@ unsafe extern "C" fn pthread_getname_np(
         len
     ));
 
+    if len < 16 {
+        return libc::ERANGE;
+    }
+
     let prctl_name = match rustix::thread::name() {
         Ok(prctl_name) => prctl_name,
         Err(err) => return err.raw_os_error(),
@@ -894,9 +898,7 @@ unsafe extern "C" fn pthread_getname_np(
 
     let bytes = prctl_name.to_bytes_with_nul();
 
-    if len < bytes.len() {
-        return libc::ERANGE;
-    }
+    debug_assert!(bytes.len() <= len);
 
     copy_nonoverlapping(bytes.as_ptr().cast(), name, bytes.len());
     0

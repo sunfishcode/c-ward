@@ -427,7 +427,14 @@ unsafe extern "C" fn pthread_setname_np(
     name: *const libc::c_char,
 ) -> c_int {
     libc!(libc::pthread_setname_np(thread, name));
-    match rustix::thread::set_name(CStr::from_ptr(name)) {
+
+    let name = CStr::from_ptr(name);
+
+    if name.to_bytes_with_nul().len() > 16 {
+        return libc::ERANGE;
+    }
+
+    match rustix::thread::set_name(name) {
         Ok(()) => 0,
         Err(err) => err.raw_os_error(),
     }

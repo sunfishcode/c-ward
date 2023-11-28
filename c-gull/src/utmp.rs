@@ -1,10 +1,10 @@
+use core::cell::OnceCell;
 use core::ffi::CStr;
 use core::mem::{size_of, zeroed};
 use core::ptr::null_mut;
 use core::slice;
 use errno::{set_errno, Errno};
 use libc::{c_char, c_int, utmpx};
-use std::cell::OnceCell;
 use std::ffi::OsStr;
 use std::fs::File;
 use std::io::{Read, Seek, SeekFrom};

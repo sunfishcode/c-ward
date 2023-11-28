@@ -7,15 +7,16 @@
 //! This file doesn't yet implement enumeration, but the `getent` command does,
 //! so it's theoretically doable.
 
+use core::ffi::CStr;
+use core::mem::align_of;
+use core::ptr::{copy_nonoverlapping, null_mut, write};
+use core::str;
 use errno::{set_errno, Errno};
 use libc::{c_char, c_int, c_void, gid_t, group, passwd, uid_t};
 use rustix::path::DecInt;
-use std::ffi::{CStr, OsStr};
-use std::mem::align_of;
+use std::ffi::OsStr;
 use std::os::unix::ffi::OsStrExt;
 use std::process::Command;
-use std::ptr::{copy_nonoverlapping, null_mut, write};
-use std::str;
 
 #[no_mangle]
 unsafe extern "C" fn getpwnam_r(

@@ -47,13 +47,22 @@ unsafe extern "C" fn exit(status: c_int) -> ! {
     origin::program::exit(status)
 }
 
+/// C-compatible `_Exit`.
+///
+/// Just exit the process.
+#[no_mangle]
+unsafe extern "C" fn _Exit(status: c_int) -> ! {
+    //libc!(libc::_Exit(status));
+    origin::program::exit_immediately(status)
+}
+
 /// POSIX-compatible `_exit`.
 ///
 /// Just exit the process.
 #[no_mangle]
-unsafe extern "C" fn _exit(status: c_int) -> ! {
+unsafe extern "C" fn _exit(status: c_int) {
     libc!(libc::_exit(status));
-    origin::program::exit_immediately(status)
+    _Exit(status)
 }
 
 #[no_mangle]

@@ -192,12 +192,16 @@ unsafe extern "C" fn memmem(
 ) -> *mut c_void {
     libc!(libc::memmem(haystack, haystacklen, needle, needlelen));
 
-    let haystack = haystack.cast::<u8>();
-    let needle = needle.cast::<u8>();
+    if needlelen == 0 {
+        return haystack.cast_mut();
+    }
 
-    if haystacklen == 0 || needlelen == 0 || haystacklen < needlelen {
+    if haystacklen < needlelen {
         return null_mut();
     }
+
+    let haystack = haystack.cast::<u8>();
+    let needle = needle.cast::<u8>();
 
     let last = haystack.add(haystacklen).sub(needlelen);
     let mut p = haystack;

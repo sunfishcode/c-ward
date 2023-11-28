@@ -714,10 +714,6 @@ unsafe extern "C" fn btowc() {
     todo!("btowc")
 }
 #[no_mangle]
-unsafe extern "C" fn clearenv() {
-    todo!("clearenv")
-}
-#[no_mangle]
 unsafe extern "C" fn copysignl() {
     todo!("copysignl")
 }

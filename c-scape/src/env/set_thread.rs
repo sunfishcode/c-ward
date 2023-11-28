@@ -12,6 +12,7 @@
 //! also non-leaking implementation in set.rs.
 
 use crate::{set_errno, Errno};
+use alloc::vec;
 use alloc::vec::Vec;
 use core::ptr::null_mut;
 use core::slice;
@@ -200,6 +201,17 @@ unsafe extern "C" fn putenv(key_value: *mut c_char) -> c_int {
 
     environ_vecs.install();
 
+    0
+}
+
+#[no_mangle]
+unsafe extern "C" fn clearenv() -> c_int {
+    libc!(libc::clearenv());
+
+    EnvironVecs {
+        ptrs: vec![null_mut()],
+    }
+    .install();
     0
 }
 

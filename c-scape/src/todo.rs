@@ -46,10 +46,6 @@ unsafe extern "C" fn posix_fallocate() {
     todo!("posix_fallocate")
 }
 #[no_mangle]
-unsafe extern "C" fn daemon() {
-    todo!("daemon")
-}
-#[no_mangle]
 unsafe extern "C" fn setfsuid() {
     todo!("setfsuid")
 }

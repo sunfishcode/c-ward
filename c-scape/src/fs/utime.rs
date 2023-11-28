@@ -35,6 +35,11 @@ unsafe fn timestamp_from_timespecs(times: *const [libc::timespec; 2]) -> Timesta
 unsafe extern "C" fn futimens(fd: c_int, times: *const libc::timespec) -> c_int {
     libc!(libc::futimens(fd, times));
 
+    if fd == -1 {
+        set_errno(Errno(libc::EBADF));
+        return -1;
+    }
+
     let times = times.cast::<[libc::timespec; 2]>();
 
     match convert_res(rustix::fs::futimens(

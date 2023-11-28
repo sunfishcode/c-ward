@@ -36,14 +36,13 @@ unsafe extern "C" fn stpncpy(
     libc!(libc::stpncpy(d, s, n));
 
     while n > 0 {
-        n -= 1;
-
         *d = *s;
 
         if *d == NUL {
             break;
         }
 
+        n -= 1;
         d = d.add(1);
         s = s.add(1);
     }
@@ -272,19 +271,7 @@ unsafe extern "C" fn strpbrk(s: *const c_char, m: *const c_char) -> *mut c_char 
 unsafe extern "C" fn strrchr(s: *const c_char, c: c_int) -> *mut c_char {
     libc!(libc::strrchr(s, c));
 
-    let mut s = s.cast_mut();
-    let mut ret = ptr::null_mut::<c_char>();
-    loop {
-        s = strchr(s, c);
-        if s.is_null() {
-            break;
-        }
-
-        ret = s;
-        s = s.add(1);
-    }
-
-    ret
+    libc::memrchr(s.cast(), c, libc::strlen(s) + 1).cast()
 }
 
 #[no_mangle]

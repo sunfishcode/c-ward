@@ -858,10 +858,6 @@ unsafe extern "C" fn dn_expand() {
     todo!("dn_expand")
 }
 #[no_mangle]
-unsafe extern "C" fn _Exit() {
-    todo!("_Exit")
-}
-#[no_mangle]
 unsafe extern "C" fn fgetwc() {
     todo!("fgetwc")
 }

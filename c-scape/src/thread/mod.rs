@@ -1,5 +1,6 @@
 mod key;
 
+use crate::GetThreadId;
 use alloc::boxed::Box;
 use core::convert::TryInto;
 use core::ffi::c_void;
@@ -9,23 +10,10 @@ use core::sync::atomic::Ordering::SeqCst;
 use core::sync::atomic::{AtomicBool, AtomicU32};
 use core::time::Duration;
 use origin::thread::Thread;
-use rustix_futex_sync::lock_api::{self, RawMutex as _, RawReentrantMutex, RawRwLock as _};
+use rustix_futex_sync::lock_api::{RawMutex as _, RawReentrantMutex, RawRwLock as _};
 use rustix_futex_sync::{RawCondvar, RawMutex, RawRwLock};
 
 use libc::{c_char, c_int, size_t};
-
-struct GetThreadId;
-
-unsafe impl lock_api::GetThreadId for GetThreadId {
-    const INIT: Self = Self;
-
-    fn nonzero_thread_id(&self) -> core::num::NonZeroUsize {
-        origin::thread::current_thread_id()
-            .as_raw_nonzero()
-            .try_into()
-            .unwrap()
-    }
-}
 
 // In Linux, `pthread_t` is usually `unsigned long`, but we make it a pointer
 // type so that it preserves provenance.

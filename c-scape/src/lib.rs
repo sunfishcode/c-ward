@@ -153,3 +153,20 @@ fn convert_res<T>(result: Result<T, rustix::io::Errno>) -> Option<T> {
 /// may not be initialized.
 #[thread_local]
 static mut READ_BUFFER: [u8; libc::PIPE_BUF] = [0_u8; libc::PIPE_BUF];
+
+/// A type that implements `lock_api::GetThreadId` for use with
+/// `lock_api::RawReentrantMutex`.
+#[cfg(feature = "thread")]
+pub(crate) struct GetThreadId;
+
+#[cfg(feature = "thread")]
+unsafe impl rustix_futex_sync::lock_api::GetThreadId for GetThreadId {
+    const INIT: Self = Self;
+
+    fn nonzero_thread_id(&self) -> core::num::NonZeroUsize {
+        origin::thread::current_thread_id()
+            .as_raw_nonzero()
+            .try_into()
+            .unwrap()
+    }
+}

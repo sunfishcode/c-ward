@@ -11,6 +11,8 @@
 //! [has differences with glibc]: https://docs.rs/printf-compat/*/printf_compat/output/fn.fmt_write.html#differences
 
 use crate::convert_res;
+#[cfg(feature = "thread")]
+use crate::GetThreadId;
 use alloc::boxed::Box;
 use alloc::string::String;
 use core::cmp::min;
@@ -22,8 +24,11 @@ use printf_compat::{format, output};
 use rustix::cstr;
 use rustix::fd::IntoRawFd;
 use rustix::fs::{Mode, OFlags};
-use rustix_futex_sync::lock_api::RawMutex as _;
-use rustix_futex_sync::{Mutex, RawMutex};
+#[cfg(feature = "thread")]
+use rustix_futex_sync::lock_api::RawReentrantMutex;
+use rustix_futex_sync::Mutex;
+#[cfg(feature = "thread")]
+use rustix_futex_sync::RawMutex;
 
 #[no_mangle]
 unsafe extern "C" fn fputc(c: c_int, file: *mut libc::FILE) -> c_int {
@@ -494,7 +499,8 @@ unsafe extern "C" fn fopen64(path: *const c_char, mode: *const c_char) -> *mut l
             at_eof: false,
             error: false,
         }),
-        flockfile_mutex: RawMutex::INIT,
+        #[cfg(feature = "thread")]
+        flockfile_mutex: RawReentrantMutex::INIT,
     }))
     .cast()
 }
@@ -530,7 +536,8 @@ unsafe extern "C" fn fdopen(fd: c_int, mode: *const c_char) -> *mut libc::FILE {
             at_eof: false,
             error: false,
         }),
-        flockfile_mutex: RawMutex::INIT,
+        #[cfg(feature = "thread")]
+        flockfile_mutex: RawReentrantMutex::INIT,
     }))
     .cast()
 }
@@ -563,24 +570,33 @@ unsafe extern "C" fn __fpurge(file: *mut libc::FILE) {
 unsafe extern "C" fn flockfile(file: *mut libc::FILE) {
     //libc!(libc::flockfile(file));
 
-    (*file.cast::<FILE>()).flockfile_mutex.lock();
+    #[cfg(feature = "thread")]
+    {
+        (*file.cast::<FILE>()).flockfile_mutex.lock();
+    }
 }
 
 #[no_mangle]
 unsafe extern "C" fn funlockfile(file: *mut libc::FILE) {
     //libc!(libc::funlockfile(file));
 
-    (*file.cast::<FILE>()).flockfile_mutex.unlock();
+    #[cfg(feature = "thread")]
+    {
+        (*file.cast::<FILE>()).flockfile_mutex.unlock();
+    }
 }
 
 #[no_mangle]
 unsafe extern "C" fn ftrylockfile(file: *mut libc::FILE) -> c_int {
     //libc!(libc::ftrylockfile(file));
 
-    if (*file.cast::<FILE>()).flockfile_mutex.try_lock() {
-        0
-    } else {
-        -1
+    #[cfg(feature = "thread")]
+    {
+        if (*file.cast::<FILE>()).flockfile_mutex.try_lock() {
+            0
+        } else {
+            -1
+        }
     }
 }
 
@@ -602,7 +618,8 @@ struct FILE {
     locked: Mutex<File>,
 
     /// An extra lock for implementing `flockfile` etc.
-    flockfile_mutex: RawMutex,
+    #[cfg(feature = "thread")]
+    flockfile_mutex: RawReentrantMutex<RawMutex, GetThreadId>,
 }
 
 /// The type that holds all the contents of a `FILE`, inside the mutex.
@@ -623,7 +640,8 @@ static THE_STDIN: FILE = FILE {
         at_eof: false,
         error: false,
     }),
-    flockfile_mutex: RawMutex::INIT,
+    #[cfg(feature = "thread")]
+    flockfile_mutex: RawReentrantMutex::INIT,
 };
 
 static THE_STDOUT: FILE = FILE {
@@ -632,7 +650,8 @@ static THE_STDOUT: FILE = FILE {
         at_eof: false,
         error: false,
     }),
-    flockfile_mutex: RawMutex::INIT,
+    #[cfg(feature = "thread")]
+    flockfile_mutex: RawReentrantMutex::INIT,
 };
 
 static THE_STDERR: FILE = FILE {
@@ -641,7 +660,8 @@ static THE_STDERR: FILE = FILE {
         at_eof: false,
         error: false,
     }),
-    flockfile_mutex: RawMutex::INIT,
+    #[cfg(feature = "thread")]
+    flockfile_mutex: RawReentrantMutex::INIT,
 };
 
 /// Parse a mode string for `fopen`/`freopen`/`fdopen`.

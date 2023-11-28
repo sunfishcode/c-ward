@@ -1,5 +1,6 @@
 mod chdir;
 mod chroot;
+mod daemon;
 mod egid;
 mod euid;
 mod exec;

@@ -1,7 +1,6 @@
 //! Extended attributes.
 
-use crate::convert_res;
-use crate::READ_BUFFER;
+use crate::{convert_res, READ_BUFFER};
 use core::cmp::min;
 use core::ffi::CStr;
 use core::ptr::copy_nonoverlapping;

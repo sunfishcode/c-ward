@@ -394,26 +394,6 @@ unsafe extern "C" fn inet_pton() {
     todo!("inet_pton")
 }
 #[no_mangle]
-unsafe extern "C" fn mkostemp() {
-    todo!("mkostemp")
-}
-#[no_mangle]
-unsafe extern "C" fn mkostemps() {
-    todo!("mkostemps")
-}
-#[no_mangle]
-unsafe extern "C" fn mkstemp() {
-    todo!("mkstemp")
-}
-#[no_mangle]
-unsafe extern "C" fn mkstemps() {
-    todo!("mkstemps")
-}
-#[no_mangle]
-unsafe extern "C" fn mktemp() {
-    todo!("mktemp")
-}
-#[no_mangle]
 unsafe extern "C" fn pclose() {
     todo!("pclose")
 }

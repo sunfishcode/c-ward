@@ -86,6 +86,7 @@ mod exit;
 mod glibc_versioning;
 mod int;
 mod locale;
+mod mkostemps;
 mod nss;
 mod posix_spawn;
 mod process_;

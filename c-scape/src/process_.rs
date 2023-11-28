@@ -355,7 +355,7 @@ unsafe extern "C" fn prctl(
                 set_errno(Errno(libc::EFAULT));
                 return -1;
             }
-            match convert_res(rustix::runtime::set_thread_name(CStr::from_ptr(
+            match convert_res(rustix::thread::set_name(CStr::from_ptr(
                 arg2.cast::<c_char>(),
             ))) {
                 Some(()) => 0,
@@ -427,8 +427,8 @@ unsafe extern "C" fn pthread_setname_np(
     name: *const libc::c_char,
 ) -> c_int {
     libc!(libc::pthread_setname_np(thread, name));
-    match convert_res(rustix::runtime::set_thread_name(CStr::from_ptr(name))) {
-        Some(()) => 0,
-        None => -1,
+    match rustix::thread::set_name(CStr::from_ptr(name)) {
+        Ok(()) => 0,
+        Err(err) => err.raw_os_error(),
     }
 }

@@ -2,10 +2,6 @@
 //! need these functions to link but don't (always) call them at runtime.
 
 #[no_mangle]
-unsafe extern "C" fn qsort() {
-    todo!("qsort")
-}
-#[no_mangle]
 unsafe extern "C" fn freeifaddrs() {
     todo!("freeifaddrs")
 }

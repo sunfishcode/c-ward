@@ -16,8 +16,7 @@ use alloc::vec;
 use alloc::vec::Vec;
 use core::ptr::null_mut;
 use core::slice;
-use core::sync::atomic::AtomicPtr;
-use core::sync::atomic::Ordering;
+use core::sync::atomic::{AtomicPtr, Ordering};
 use libc::{c_char, c_int};
 use rustix::ffi::{CStr, CString};
 

@@ -1,5 +1,4 @@
-use crate::convert_res;
-use crate::READ_BUFFER;
+use crate::{convert_res, READ_BUFFER};
 use core::cmp::min;
 use errno::{set_errno, Errno};
 use libc::c_void;

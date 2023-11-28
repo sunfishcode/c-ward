@@ -154,6 +154,55 @@ unsafe extern "C" fn unsetenv(key: *const c_char) -> c_int {
     0
 }
 
+#[no_mangle]
+unsafe extern "C" fn putenv(key_value: *mut c_char) -> c_int {
+    libc!(libc::putenv(key_value));
+
+    let key_value_cstr = CStr::from_ptr(key_value);
+    let key_value_bytes = key_value_cstr.to_bytes();
+
+    let eq = key_value_bytes.iter().position(|x| *x == b'=').unwrap();
+    let key_bytes = &key_value_bytes[..eq];
+
+    // Read the existing `environ` contents.
+    let mut environ_vecs = EnvironVecs::read();
+
+    // Search for the key.
+    let start = environ_vecs.ptrs.as_mut_ptr();
+    let mut ptr = start;
+    loop {
+        let env = *ptr;
+        if env.is_null() {
+            break;
+        }
+        let mut c = env;
+        while *c != (b'=' as c_char) {
+            c = c.add(1);
+        }
+        if key_bytes
+            == slice::from_raw_parts(env.cast::<u8>(), c.offset_from(env).try_into().unwrap())
+        {
+            // We found it.
+            let index = ptr.offset_from(start) as usize;
+            environ_vecs.ptrs[index] = key_value;
+
+            environ_vecs.install();
+
+            return 0;
+        }
+        ptr = ptr.add(1);
+    }
+
+    // We didn't find the key; append it (preserving the terminating null).
+    environ_vecs.ptrs.pop();
+    environ_vecs.ptrs.push(key_value);
+    environ_vecs.ptrs.push(null_mut());
+
+    environ_vecs.install();
+
+    0
+}
+
 struct EnvironVecs {
     ptrs: Vec<*mut c_char>,
 }

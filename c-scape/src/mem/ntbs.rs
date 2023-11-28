@@ -3,7 +3,7 @@
 use core::cell::SyncUnsafeCell;
 use core::ffi::CStr;
 use core::ptr;
-use libc::{c_char, c_int, c_schar, malloc, memcpy};
+use libc::{c_char, c_int, c_uchar, malloc, memcpy, size_t};
 
 use crate::sync_ptr::SyncMutPtr;
 
@@ -31,7 +31,7 @@ unsafe extern "C" fn stpcpy(mut d: *mut c_char, mut s: *const c_char) -> *mut c_
 unsafe extern "C" fn stpncpy(
     mut d: *mut c_char,
     mut s: *const c_char,
-    mut n: usize,
+    mut n: size_t,
 ) -> *mut c_char {
     libc!(libc::stpncpy(d, s, n));
 
@@ -109,7 +109,7 @@ unsafe extern "C" fn strcmp(mut s1: *const c_char, mut s2: *const c_char) -> c_i
         s2 = s2.add(1);
     }
 
-    *s1 as c_schar as c_int - *s2 as c_schar as c_int
+    *s1 as c_uchar as c_int - *s2 as c_uchar as c_int
 }
 
 #[no_mangle]
@@ -121,7 +121,7 @@ unsafe extern "C" fn strcpy(d: *mut c_char, s: *const c_char) -> *mut c_char {
 }
 
 #[no_mangle]
-unsafe extern "C" fn strncpy(d: *mut c_char, s: *const c_char, n: usize) -> *mut c_char {
+unsafe extern "C" fn strncpy(d: *mut c_char, s: *const c_char, n: size_t) -> *mut c_char {
     libc!(libc::strncpy(d, s, n));
 
     stpncpy(d, s, n);
@@ -129,7 +129,7 @@ unsafe extern "C" fn strncpy(d: *mut c_char, s: *const c_char, n: usize) -> *mut
 }
 
 #[no_mangle]
-unsafe extern "C" fn strcspn(s: *const c_char, m: *const c_char) -> usize {
+unsafe extern "C" fn strcspn(s: *const c_char, m: *const c_char) -> size_t {
     libc!(libc::strspn(s, m));
 
     let mut w = s;
@@ -149,7 +149,7 @@ unsafe extern "C" fn strcspn(s: *const c_char, m: *const c_char) -> usize {
         w = w.add(1);
     }
 
-    w.offset_from(s) as usize
+    w.offset_from(s) as size_t
 }
 
 #[no_mangle]
@@ -166,7 +166,7 @@ unsafe extern "C" fn strdup(s: *const c_char) -> *mut c_char {
 
 #[cfg(feature = "define-mem-functions")]
 #[no_mangle]
-unsafe extern "C" fn strlen(s: *const c_char) -> usize {
+unsafe extern "C" fn strlen(s: *const c_char) -> size_t {
     libc!(libc::strlen(s));
 
     #[cfg(feature = "use-compiler-builtins")]
@@ -188,7 +188,7 @@ unsafe extern "C" fn strlen(s: *const c_char) -> usize {
 }
 
 #[no_mangle]
-unsafe extern "C" fn strncat(d: *mut c_char, mut s: *const c_char, mut n: usize) -> *mut c_char {
+unsafe extern "C" fn strncat(d: *mut c_char, mut s: *const c_char, mut n: size_t) -> *mut c_char {
     libc!(libc::strncat(d, s, n));
 
     let mut w = strchr(d, 0);
@@ -207,7 +207,7 @@ unsafe extern "C" fn strncat(d: *mut c_char, mut s: *const c_char, mut n: usize)
 }
 
 #[no_mangle]
-unsafe extern "C" fn strncmp(mut s1: *const c_char, mut s2: *const c_char, mut n: usize) -> c_int {
+unsafe extern "C" fn strncmp(mut s1: *const c_char, mut s2: *const c_char, mut n: size_t) -> c_int {
     libc!(libc::strncmp(s1, s2, n));
 
     loop {
@@ -224,11 +224,11 @@ unsafe extern "C" fn strncmp(mut s1: *const c_char, mut s2: *const c_char, mut n
         s2 = s2.add(1);
     }
 
-    *s1 as c_schar as c_int - *s2 as c_schar as c_int
+    *s1 as c_uchar as c_int - *s2 as c_uchar as c_int
 }
 
 #[no_mangle]
-unsafe extern "C" fn strndup(s: *const c_char, n: usize) -> *mut c_char {
+unsafe extern "C" fn strndup(s: *const c_char, n: size_t) -> *mut c_char {
     libc!(libc::strndup(s, n));
 
     let len = strnlen(s, n);
@@ -243,7 +243,7 @@ unsafe extern "C" fn strndup(s: *const c_char, n: usize) -> *mut c_char {
 }
 
 #[no_mangle]
-unsafe extern "C" fn strnlen(s: *const c_char, mut n: usize) -> usize {
+unsafe extern "C" fn strnlen(s: *const c_char, mut n: size_t) -> size_t {
     libc!(libc::strnlen(s, n));
 
     let mut w = s;
@@ -252,7 +252,7 @@ unsafe extern "C" fn strnlen(s: *const c_char, mut n: usize) -> usize {
         w = w.add(1);
     }
 
-    w.offset_from(s) as usize
+    w.offset_from(s) as size_t
 }
 
 #[no_mangle]
@@ -288,7 +288,7 @@ unsafe extern "C" fn strrchr(s: *const c_char, c: c_int) -> *mut c_char {
 }
 
 #[no_mangle]
-unsafe extern "C" fn strspn(s: *const c_char, m: *const c_char) -> usize {
+unsafe extern "C" fn strspn(s: *const c_char, m: *const c_char) -> size_t {
     libc!(libc::strspn(s, m));
 
     let mut w = s;
@@ -308,7 +308,7 @@ unsafe extern "C" fn strspn(s: *const c_char, m: *const c_char) -> usize {
         w = w.add(1);
     }
 
-    w.offset_from(s) as usize
+    w.offset_from(s) as size_t
 }
 
 #[no_mangle]
@@ -357,7 +357,7 @@ unsafe extern "C" fn strcasecmp(mut s1: *const c_char, mut s2: *const c_char) ->
     libc!(libc::strcasecmp(s1, s2));
 
     while *s1 != NUL && *s2 != NUL {
-        if libc::tolower(*s1 as c_schar as c_int) != libc::tolower(*s2 as c_schar as c_int) {
+        if libc::tolower(*s1 as c_uchar as c_int) != libc::tolower(*s2 as c_uchar as c_int) {
             break;
         }
 
@@ -365,14 +365,14 @@ unsafe extern "C" fn strcasecmp(mut s1: *const c_char, mut s2: *const c_char) ->
         s2 = s2.add(1);
     }
 
-    libc::tolower(*s1 as c_schar as c_int) - libc::tolower(*s2 as c_schar as c_int)
+    libc::tolower(*s1 as c_uchar as c_int) - libc::tolower(*s2 as c_uchar as c_int)
 }
 
 #[no_mangle]
 unsafe extern "C" fn strncasecmp(
     mut s1: *const c_char,
     mut s2: *const c_char,
-    mut n: usize,
+    mut n: size_t,
 ) -> c_int {
     libc!(libc::strncasecmp(s1, s2, n));
 
@@ -382,7 +382,7 @@ unsafe extern "C" fn strncasecmp(
         }
         n -= 1;
 
-        if libc::tolower(*s1 as c_schar as c_int) != libc::tolower(*s2 as c_schar as c_int)
+        if libc::tolower(*s1 as c_uchar as c_int) != libc::tolower(*s2 as c_uchar as c_int)
             || *s1 == NUL
         {
             break;
@@ -392,7 +392,7 @@ unsafe extern "C" fn strncasecmp(
         s2 = s2.add(1);
     }
 
-    libc::tolower(*s1 as c_schar as c_int) - libc::tolower(*s2 as c_schar as c_int)
+    libc::tolower(*s1 as c_uchar as c_int) - libc::tolower(*s2 as c_uchar as c_int)
 }
 
 #[no_mangle]
@@ -440,6 +440,8 @@ unsafe extern "C" fn rindex(s: *const c_char, c: c_int) -> *mut c_char {
 
 #[no_mangle]
 unsafe extern "C" fn strsep(str_: *mut *mut c_char, sep: *const c_char) -> *mut c_char {
+    //libc!(libc::strsep(str_, sep));
+
     let s = *str_;
     if s.is_null() {
         return ptr::null_mut();
@@ -453,4 +455,32 @@ unsafe extern "C" fn strsep(str_: *mut *mut c_char, sep: *const c_char) -> *mut 
     }
     *str_ = end;
     s
+}
+
+#[no_mangle]
+unsafe extern "C" fn strlcpy(dst: *mut c_char, src: *const c_char, limit: size_t) -> size_t {
+    //libc!(libc::strlcpy(dst, src, limit));
+
+    let src_len = libc::strlen(src);
+
+    if src_len < limit {
+        libc::memcpy(dst.cast(), src.cast(), src_len + 1);
+    } else if limit > 0 {
+        libc::memcpy(dst.cast(), src.cast(), limit);
+        *dst.add(limit - 1) = 0;
+    }
+
+    src_len
+}
+
+#[no_mangle]
+unsafe extern "C" fn strlcat(dst: *mut c_char, src: *const c_char, limit: size_t) -> size_t {
+    //libc!(libc::strlcat(dst, src, limit));
+
+    let len = strnlen(dst, limit);
+    if len == limit {
+        return libc::strlen(src) + len;
+    }
+
+    strlcpy(dst.add(len), src, limit - len) + len
 }

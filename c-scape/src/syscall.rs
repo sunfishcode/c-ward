@@ -132,6 +132,11 @@ unsafe extern "C" fn syscall(number: c_long, mut args: ...) -> *mut c_void {
             let fd = args.arg::<c_int>();
             ptr::invalid_mut(libc::syncfs(fd) as isize as usize)
         }
+        #[cfg(feature = "extra-syscalls")]
+        libc::SYS_sync => {
+            libc::sync();
+            ptr::invalid_mut(0)
+        }
         _ => unimplemented!("syscall({:?})", number),
     }
 }

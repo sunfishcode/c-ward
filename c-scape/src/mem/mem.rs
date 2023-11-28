@@ -11,12 +11,27 @@ unsafe extern "C" fn memchr(s: *const c_void, c: c_int, len: size_t) -> *mut c_v
     // accessing memory at the first byte that matches.
     //
     // [memchr crate](https://crates.io/crates/memchr)
-    for i in 0..len {
-        if *s.cast::<u8>().add(i) == c as u8 {
-            return s.cast::<u8>().add(i).cast::<c_void>().cast_mut();
+    let mut s = s.cast::<u8>();
+    for _ in 0..len {
+        if *s == c as u8 {
+            return s.cast_mut().cast();
         }
+        s = s.add(1);
     }
     null_mut()
+}
+
+#[no_mangle]
+unsafe extern "C" fn rawmemchr(s: *const c_void, c: c_int) -> *mut c_void {
+    //libc!(libc::rawmemchr(s, c));
+
+    let mut s = s.cast::<u8>();
+    loop {
+        if *s == c as u8 {
+            return s.cast_mut().cast();
+        }
+        s = s.add(1);
+    }
 }
 
 // Extension: GNU
@@ -26,9 +41,11 @@ unsafe extern "C" fn memrchr(s: *const c_void, c: c_int, len: size_t) -> *mut c_
 
     // As above, it's tempting to use the memchr crate, but the C API here has
     // requirements that we can't meet here.
-    for i in 0..len {
-        if *s.cast::<u8>().add(len - i - 1) == c as u8 {
-            return s.cast::<u8>().add(len - i - 1).cast::<c_void>().cast_mut();
+    let mut s = s.cast::<u8>().add(len);
+    for _ in 0..len {
+        s = s.sub(1);
+        if *s == c as u8 {
+            return s.cast_mut().cast();
         }
     }
     null_mut()
@@ -224,16 +241,18 @@ unsafe extern "C" fn memccpy(
 ) -> *mut c_void {
     //libc!(libc::memccpy(dst, src, c, len));
 
-    let dst = dst.cast::<u8>();
-    let src = src.cast::<u8>();
+    let mut dst = dst.cast::<u8>();
+    let mut src = src.cast::<u8>();
 
-    for i in 0..len {
-        let b = src.add(i).read();
+    for _ in 0..len {
+        let b = src.read();
+        dst.write(b);
+        dst = dst.add(1);
+        src = src.add(1);
         if b == c as u8 {
-            break;
+            return dst.cast();
         }
-        dst.add(i).write(b);
     }
 
-    dst.cast()
+    null_mut()
 }

@@ -1813,3 +1813,207 @@ unsafe extern "C" fn wordexp() {
 unsafe extern "C" fn wordfree() {
     todo!("wordfree")
 }
+#[no_mangle]
+unsafe extern "C" fn ftw() {
+    todo!("ftw")
+}
+#[no_mangle]
+unsafe extern "C" fn getgrent_r() {
+    todo!("getgrent_r")
+}
+#[no_mangle]
+unsafe extern "C" fn getpass() {
+    todo!("getpass")
+}
+#[no_mangle]
+unsafe extern "C" fn getpwent_r() {
+    todo!("getpwent_r")
+}
+#[no_mangle]
+unsafe extern "C" fn getspent_r() {
+    todo!("getspent_r")
+}
+#[no_mangle]
+unsafe extern "C" fn getusershell() {
+    todo!("getusershell")
+}
+#[no_mangle]
+unsafe extern "C" fn glob() {
+    todo!("glob")
+}
+#[no_mangle]
+unsafe extern "C" fn __isoc99_swscanf() {
+    todo!("__isoc99_swscanf")
+}
+#[no_mangle]
+unsafe extern "C" fn iswctype() {
+    todo!("iswctype")
+}
+#[no_mangle]
+unsafe extern "C" fn malloc_stats() {
+    todo!("malloc_stats")
+}
+#[no_mangle]
+unsafe extern "C" fn __mbstowcs_chk() {
+    todo!("__mbstowcs_chk")
+}
+#[no_mangle]
+unsafe extern "C" fn setbuffer() {
+    todo!("setbuffer")
+}
+#[no_mangle]
+unsafe extern "C" fn wcscat() {
+    todo!("wcscat")
+}
+#[no_mangle]
+unsafe extern "C" fn wcstombs() {
+    todo!("wcstombs")
+}
+#[no_mangle]
+unsafe extern "C" fn wctype() {
+    todo!("wctype")
+}
+#[no_mangle]
+unsafe extern "C" fn wmemcpy() {
+    todo!("wmemcpy")
+}
+#[no_mangle]
+unsafe extern "C" fn on_exit() {
+    todo!("on_exit")
+}
+#[no_mangle]
+unsafe extern "C" fn printf_size() {
+    todo!("printf_size")
+}
+#[no_mangle]
+unsafe extern "C" fn printf_size_info() {
+    todo!("printf_size_info")
+}
+#[no_mangle]
+unsafe extern "C" fn register_printf_function() {
+    todo!("register_printf_function")
+}
+#[no_mangle]
+unsafe extern "C" fn vswprintf() {
+    todo!("vswprintf")
+}
+#[no_mangle]
+unsafe extern "C" fn wcsncat() {
+    todo!("wcsncat")
+}
+#[no_mangle]
+unsafe extern "C" fn wmemmove() {
+    todo!("wmemmove")
+}
+#[no_mangle]
+unsafe extern "C" fn wmemset() {
+    todo!("wmemset")
+}
+#[no_mangle]
+unsafe extern "C" fn adjtime() {
+    todo!("adjtime")
+}
+#[no_mangle]
+unsafe extern "C" fn isnanf() {
+    todo!("isnanf")
+}
+#[no_mangle]
+unsafe extern "C" fn drem() {
+    todo!("drem")
+}
+#[no_mangle]
+unsafe extern "C" fn dremf() {
+    todo!("dremf")
+}
+#[no_mangle]
+unsafe extern "C" fn gamma() {
+    todo!("gamma")
+}
+#[no_mangle]
+unsafe extern "C" fn gammaf() {
+    todo!("gammaf")
+}
+#[no_mangle]
+unsafe extern "C" fn lgamma() {
+    todo!("lgamma")
+}
+#[no_mangle]
+unsafe extern "C" fn lgammaf() {
+    todo!("lgammaf")
+}
+#[no_mangle]
+unsafe extern "C" fn llrint() {
+    todo!("llrint")
+}
+#[no_mangle]
+unsafe extern "C" fn llrintf() {
+    todo!("llrintf")
+}
+#[no_mangle]
+unsafe extern "C" fn llround() {
+    todo!("llround")
+}
+#[no_mangle]
+unsafe extern "C" fn llroundf() {
+    todo!("llroundf")
+}
+#[no_mangle]
+unsafe extern "C" fn logb() {
+    todo!("logb")
+}
+#[no_mangle]
+unsafe extern "C" fn logbf() {
+    todo!("logbf")
+}
+#[no_mangle]
+unsafe extern "C" fn lround() {
+    todo!("lround")
+}
+#[no_mangle]
+unsafe extern "C" fn lroundf() {
+    todo!("lroundf")
+}
+#[no_mangle]
+unsafe extern "C" fn scalb() {
+    todo!("scalb")
+}
+#[no_mangle]
+unsafe extern "C" fn scalbf() {
+    todo!("scalbf")
+}
+#[no_mangle]
+unsafe extern "C" fn strfromf() {
+    todo!("strfromf")
+}
+#[no_mangle]
+unsafe extern "C" fn wctomb() {
+    todo!("wctomb")
+}
+#[no_mangle]
+unsafe extern "C" fn scalbln() {
+    todo!("scalbln")
+}
+#[no_mangle]
+unsafe extern "C" fn scalblnf() {
+    todo!("scalblnf")
+}
+#[no_mangle]
+unsafe extern "C" fn signgam() {
+    todo!("signgam")
+}
+#[no_mangle]
+unsafe extern "C" fn endnetent() {
+    todo!("endnetent")
+}
+#[no_mangle]
+unsafe extern "C" fn hstrerror() {
+    todo!("hstrerror")
+}
+#[no_mangle]
+unsafe extern "C" fn getdate() {
+    todo!("getdate")
+}
+#[no_mangle]
+unsafe extern "C" fn getdate_err() {
+    todo!("getdate_err")
+}

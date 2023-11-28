@@ -35,7 +35,8 @@ implementations. It can also be used as a regular library in
 
 ## Similar crates
 
-Another libc implementation is [relibc].
+Another libc implementation is [relibc]. [tinyrlibc] is a very minimal set of
+libc functions for bare-metal embedded platforms.
 
 ## Where's the `#![no_builtins]`?
 
@@ -56,6 +57,7 @@ using `#![no_builtins]`.
 [c-scape]: https://github.com/sunfishcode/c-ward/tree/main/c-scape#readme
 [c-gull]: https://github.com/sunfishcode/c-ward/tree/main/c-gull#readme
 [relibc]: https://gitlab.redox-os.org/redox-os/relibc/
+[tinyrlibc]: https://github.com/rust-embedded-community/tinyrlibc
 [c-scape-example]: https://github.com/sunfishcode/c-ward/blob/main/example-crates/c-scape-example
 [c-gull-example]: https://github.com/sunfishcode/c-ward/blob/main/example-crates/c-gull-example
 [interferes with LTO optimization]: https://github.com/rust-lang/rust/blob/72e29da3eccd3e4c1fb2c581fa33216db50fcc93/compiler/rustc_codegen_ssa/src/back/link.rs#L1264

@@ -6,6 +6,7 @@
 #![feature(strict_provenance)]
 #![feature(inline_const)]
 #![feature(sync_unsafe_cell)]
+#![feature(linkage)]
 #![deny(fuzzy_provenance_casts, lossy_provenance_casts)]
 
 // Check that our features were used as we intend.

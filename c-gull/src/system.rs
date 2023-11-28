@@ -3,6 +3,7 @@ use errno::{set_errno, Errno};
 use libc::{c_char, c_int};
 use std::ffi::OsStr;
 use std::os::unix::ffi::OsStrExt;
+use std::os::unix::process::ExitStatusExt;
 
 #[no_mangle]
 unsafe extern "C" fn system(command: *const c_char) -> c_int {
@@ -21,7 +22,7 @@ fn _system(command: &OsStr) -> c_int {
     sh.arg(command);
 
     match sh.status() {
-        Ok(status) => status.code().unwrap(),
+        Ok(status) => status.into_raw(),
         Err(err) => {
             set_errno(Errno(err.raw_os_error().unwrap()));
             -1

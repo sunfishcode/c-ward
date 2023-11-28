@@ -65,20 +65,20 @@ unsafe extern "C" fn imaxabs(i: intmax_t) -> intmax_t {
 // The libc crate doesn't currently have `div_t` etc., so define them here.
 #[repr(C)]
 struct div_t {
-        quot: c_int,
-        rem: c_int,
+    quot: c_int,
+    rem: c_int,
 }
 
 #[repr(C)]
 struct ldiv_t {
-        quot: c_long,
-        rem: c_long,
+    quot: c_long,
+    rem: c_long,
 }
 
 #[repr(C)]
 struct lldiv_t {
-        quot: c_longlong,
-        rem: c_longlong,
+    quot: c_longlong,
+    rem: c_longlong,
 }
 
 #[no_mangle]

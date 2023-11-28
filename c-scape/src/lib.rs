@@ -92,6 +92,7 @@ mod process_;
 mod pty;
 mod rand_;
 mod setjmp;
+mod sort;
 mod syscall;
 mod time;
 

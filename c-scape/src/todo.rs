@@ -6,10 +6,6 @@ unsafe extern "C" fn qsort() {
     todo!("qsort")
 }
 #[no_mangle]
-unsafe extern "C" fn bsearch() {
-    todo!("bsearch")
-}
-#[no_mangle]
 unsafe extern "C" fn freeifaddrs() {
     todo!("freeifaddrs")
 }

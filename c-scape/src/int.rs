@@ -61,3 +61,52 @@ unsafe extern "C" fn imaxabs(i: intmax_t) -> intmax_t {
 
     i.abs()
 }
+
+// The libc crate doesn't currently have `div_t` etc., so define them here.
+#[repr(C)]
+struct div_t {
+        quot: c_int,
+        rem: c_int,
+}
+
+#[repr(C)]
+struct ldiv_t {
+        quot: c_long,
+        rem: c_long,
+}
+
+#[repr(C)]
+struct lldiv_t {
+        quot: c_longlong,
+        rem: c_longlong,
+}
+
+#[no_mangle]
+unsafe extern "C" fn div(numerator: c_int, denominator: c_int) -> div_t {
+    //libc!(libc::div(numerator, denominator));
+
+    div_t {
+        quot: numerator / denominator,
+        rem: numerator % denominator,
+    }
+}
+
+#[no_mangle]
+unsafe extern "C" fn ldiv(numerator: c_long, denominator: c_long) -> ldiv_t {
+    //libc!(libc::ldiv(numerator, denominator));
+
+    ldiv_t {
+        quot: numerator / denominator,
+        rem: numerator % denominator,
+    }
+}
+
+#[no_mangle]
+unsafe extern "C" fn lldiv(numerator: c_longlong, denominator: c_longlong) -> lldiv_t {
+    //libc!(libc::lldiv(numerator, denominator));
+
+    lldiv_t {
+        quot: numerator / denominator,
+        rem: numerator % denominator,
+    }
+}

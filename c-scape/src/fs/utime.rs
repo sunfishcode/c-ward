@@ -170,3 +170,27 @@ unsafe extern "C" fn futimes(fd: c_int, times: *const libc::timeval) -> c_int {
         },
     )
 }
+
+#[no_mangle]
+unsafe extern "C" fn utime(filename: *const c_char, buf: *const libc::utimbuf) -> c_int {
+    libc!(libc::utime(filename, buf));
+
+    if buf.is_null() {
+        utimes(filename, ptr::null())
+    } else {
+        let buf = &*buf;
+
+        let tvp = [
+            libc::timeval {
+                tv_sec: buf.actime,
+                tv_usec: 0,
+            },
+            libc::timeval {
+                tv_sec: buf.modtime,
+                tv_usec: 0,
+            },
+        ];
+
+        utimes(filename, tvp.as_ptr())
+    }
+}

@@ -1746,10 +1746,6 @@ unsafe extern "C" fn settimeofday() {
     todo!("settimeofday")
 }
 #[no_mangle]
-unsafe extern "C" fn utime() {
-    todo!("utime")
-}
-#[no_mangle]
 unsafe extern "C" fn ulimit() {
     todo!("ulimit")
 }

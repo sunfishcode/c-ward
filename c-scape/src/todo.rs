@@ -530,18 +530,6 @@ unsafe extern "C" fn fetestexcept() {
     todo!("fetestexcept")
 }
 #[no_mangle]
-unsafe extern "C" fn ffs() {
-    todo!("ffs")
-}
-#[no_mangle]
-unsafe extern "C" fn ffsl() {
-    todo!("ffsl")
-}
-#[no_mangle]
-unsafe extern "C" fn ffsll() {
-    todo!("ffsll")
-}
-#[no_mangle]
 unsafe extern "C" fn fopencookie() {
     todo!("fopencookie")
 }
@@ -1054,10 +1042,6 @@ unsafe extern "C" fn pthread_mutex_timedlock() {
     todo!("pthread_mutex_timedlock")
 }
 #[no_mangle]
-unsafe extern "C" fn putenv() {
-    todo!("putenv")
-}
-#[no_mangle]
 unsafe extern "C" fn random() {
     todo!("random")
 }
@@ -1136,14 +1120,6 @@ unsafe extern "C" fn shmctl() {
 #[no_mangle]
 unsafe extern "C" fn srandom() {
     todo!("srandom")
-}
-#[no_mangle]
-unsafe extern "C" fn strlcat() {
-    todo!("strlcat")
-}
-#[no_mangle]
-unsafe extern "C" fn strlcpy() {
-    todo!("strlcpy")
 }
 #[no_mangle]
 unsafe extern "C" fn strptime() {

@@ -84,6 +84,7 @@ mod exec;
 #[cfg(feature = "take-charge")]
 mod exit;
 mod glibc_versioning;
+mod int;
 mod locale;
 mod nss;
 mod posix_spawn;

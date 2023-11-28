@@ -114,6 +114,7 @@ unsafe extern "C" fn setenv(key: *const c_char, value: *const c_char, overwrite:
     environ_vecs.ptrs.push(owned.as_ptr().cast_mut());
     environ_vecs.ptrs.push(null_mut());
     environ_vecs.allocs.push(owned);
+
     environ = environ_vecs.ptrs.as_mut_ptr();
 
     0
@@ -165,6 +166,52 @@ unsafe extern "C" fn unsetenv(key: *const c_char) -> c_int {
         }
         ptr = ptr.add(1);
     }
+
+    0
+}
+
+#[no_mangle]
+unsafe extern "C" fn putenv(key_value: *mut c_char) -> c_int {
+    libc!(libc::putenv(key_value));
+
+    let key_value_cstr = CStr::from_ptr(key_value);
+    let key_value_bytes = key_value_cstr.to_bytes();
+
+    let eq = key_value_bytes.iter().position(|x| *x == b'=').unwrap();
+    let key_bytes = &key_value_bytes[..eq];
+
+    let environ_vecs = ENVIRON_VECS.get_mut();
+    sync_environ(environ_vecs);
+
+    // Search for the key.
+    let start = load_environ();
+    let mut ptr = start;
+    loop {
+        let env = *ptr;
+        if env.is_null() {
+            break;
+        }
+        let mut c = env;
+        while *c != (b'=' as c_char) {
+            c = c.add(1);
+        }
+        if key_bytes
+            == slice::from_raw_parts(env.cast::<u8>(), c.offset_from(env).try_into().unwrap())
+        {
+            // We found it.
+            let index = ptr.offset_from(start) as usize;
+            environ_vecs.ptrs[index] = key_value;
+            return 0;
+        }
+        ptr = ptr.add(1);
+    }
+
+    // We didn't find the key; append it.
+    environ_vecs.ptrs.pop();
+    environ_vecs.ptrs.push(key_value);
+    environ_vecs.ptrs.push(null_mut());
+
+    environ = environ_vecs.ptrs.as_mut_ptr();
 
     0
 }

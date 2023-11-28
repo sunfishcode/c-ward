@@ -80,9 +80,13 @@ unsafe fn _fcntl<FlockTy: Flock>(fd: c_int, cmd: c_int, mut args: VaList) -> c_i
                 }
             };
             // We currently only support whole-file locks.
-            assert_eq!(flock.l_whence(), libc::SEEK_SET as _);
-            assert_eq!(flock.l_start(), 0);
-            assert_eq!(flock.l_len(), 0);
+            assert_eq!(
+                flock.l_whence(),
+                libc::SEEK_SET as _,
+                "partial-file locks not yet implemented"
+            );
+            assert_eq!(flock.l_start(), 0, "partial-file locks not yet implemented");
+            assert_eq!(flock.l_len(), 0, "partial-file locks not yet implemented");
             match convert_res(rustix::fs::fcntl_lock(fd, op)) {
                 Some(()) => {
                     flock.l_pid(-1);

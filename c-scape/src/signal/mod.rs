@@ -318,7 +318,7 @@ unsafe extern "C" fn sigwaitinfo(set: *const sigset_t, info: *mut siginfo_t) -> 
             if !info.is_null() {
                 info.write(info_value);
             }
-            0
+            info_value.__bindgen_anon_1.__bindgen_anon_1.si_signo
         }
         None => -1,
     }
@@ -352,7 +352,7 @@ unsafe extern "C" fn sigtimedwait(
             if !info.is_null() {
                 info.write(info_value);
             }
-            0
+            info_value.__bindgen_anon_1.__bindgen_anon_1.si_signo
         }
         None => -1,
     }

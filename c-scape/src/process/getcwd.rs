@@ -20,7 +20,9 @@ unsafe extern "C" fn getcwd(buf: *mut c_char, len: usize) -> *mut c_char {
 
             let len = if len != 0 { len } else { path.len() + 1 };
 
-            if path.len() + 1 <= len {
+            // Test whether we have enough room to store `path` plus a trailing
+            // NUL in `buf` which has length `len`.
+            if path.len() < len {
                 let mut buf = buf;
                 if buf.is_null() {
                     buf = libc::malloc(len).cast::<c_char>();

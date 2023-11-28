@@ -1270,10 +1270,6 @@ unsafe extern "C" fn l64a() {
     todo!("l64a")
 }
 #[no_mangle]
-unsafe extern "C" fn lldiv() {
-    todo!("lldiv")
-}
-#[no_mangle]
 unsafe extern "C" fn opterr() {
     todo!("opterr")
 }

@@ -62,26 +62,6 @@ unsafe extern "C" fn initgroups() {
     todo!("initgroups")
 }
 #[no_mangle]
-unsafe extern "C" fn fopen() {
-    todo!("fopen")
-}
-#[no_mangle]
-unsafe extern "C" fn fopen64() {
-    todo!("fopen64")
-}
-#[no_mangle]
-unsafe extern "C" fn fread() {
-    todo!("fread")
-}
-#[no_mangle]
-unsafe extern "C" fn ftell() {
-    todo!("ftell")
-}
-#[no_mangle]
-unsafe extern "C" fn ferror() {
-    todo!("ferror")
-}
-#[no_mangle]
 unsafe extern "C" fn strftime() {
     todo!("strftime")
 }
@@ -254,88 +234,12 @@ unsafe extern "C" fn personality() {
     todo!("personality")
 }
 #[no_mangle]
-unsafe extern "C" fn clearerr() {
-    todo!("clearerr")
-}
-#[no_mangle]
 unsafe extern "C" fn ctermid() {
     todo!("ctermid")
 }
 #[no_mangle]
 unsafe extern "C" fn cuserid() {
     todo!("cuserid")
-}
-#[no_mangle]
-unsafe extern "C" fn fclose() {
-    todo!("fclose")
-}
-#[no_mangle]
-unsafe extern "C" fn fdopen() {
-    todo!("fdopen")
-}
-#[no_mangle]
-unsafe extern "C" fn feof() {
-    todo!("feof")
-}
-#[no_mangle]
-unsafe extern "C" fn fgetc() {
-    todo!("fgetc")
-}
-#[no_mangle]
-unsafe extern "C" fn fgetpos() {
-    todo!("fgetpos")
-}
-#[no_mangle]
-unsafe extern "C" fn flockfile() {
-    todo!("flockfile")
-}
-#[no_mangle]
-unsafe extern "C" fn __fpurge() {
-    todo!("__fpurge")
-}
-#[no_mangle]
-unsafe extern "C" fn freopen() {
-    todo!("freopen")
-}
-#[no_mangle]
-unsafe extern "C" fn fseeko() {
-    todo!("fseeko")
-}
-#[no_mangle]
-unsafe extern "C" fn fsetpos() {
-    todo!("fsetpos")
-}
-#[no_mangle]
-unsafe extern "C" fn ftell_locked() {
-    todo!("ftell_locked")
-}
-#[no_mangle]
-unsafe extern "C" fn ftello() {
-    todo!("ftello")
-}
-#[no_mangle]
-unsafe extern "C" fn ftrylockfile() {
-    todo!("ftrylockfile")
-}
-#[no_mangle]
-unsafe extern "C" fn funlockfile() {
-    todo!("funlockfile")
-}
-#[no_mangle]
-unsafe extern "C" fn getc() {
-    todo!("getc")
-}
-#[no_mangle]
-unsafe extern "C" fn getchar() {
-    todo!("getchar")
-}
-#[no_mangle]
-unsafe extern "C" fn getchar_unlocked() {
-    todo!("getchar_unlocked")
-}
-#[no_mangle]
-unsafe extern "C" fn getc_unlocked() {
-    todo!("getc_unlocked")
 }
 #[no_mangle]
 unsafe extern "C" fn __getdelim() {
@@ -404,10 +308,6 @@ unsafe extern "C" fn popen() {
 #[no_mangle]
 unsafe extern "C" fn putw() {
     todo!("putw")
-}
-#[no_mangle]
-unsafe extern "C" fn rewind() {
-    todo!("rewind")
 }
 #[no_mangle]
 unsafe extern "C" fn setbuf() {

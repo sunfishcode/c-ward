@@ -46,10 +46,6 @@ unsafe extern "C" fn process_vm_readv() {
     todo!("process_vm_readv")
 }
 #[no_mangle]
-unsafe extern "C" fn waitid() {
-    todo!("waitid")
-}
-#[no_mangle]
 unsafe extern "C" fn signalfd() {
     todo!("signalfd")
 }

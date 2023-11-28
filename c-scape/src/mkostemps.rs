@@ -1,8 +1,12 @@
+use crate::convert_res;
 use core::ptr::null_mut;
 use errno::{set_errno, Errno};
 use libc::{c_char, c_int};
 use rand::Rng;
 use rand_core::OsRng;
+use rustix::cstr;
+use rustix::fd::IntoRawFd;
+use rustix::fs::MemfdFlags;
 
 #[no_mangle]
 unsafe extern "C" fn mkstemp(template: *mut c_char) -> c_int {
@@ -37,6 +41,21 @@ unsafe extern "C" fn mktemp(template: *mut c_char) -> *mut c_char {
     libc::close(fd);
     libc::unlink(template);
     template
+}
+
+#[no_mangle]
+unsafe extern "C" fn tmpfile() -> *mut libc::FILE {
+    libc!(libc::tmpfile());
+
+    let fd = match convert_res(rustix::fs::memfd_create(
+        cstr!("libc::tmpfile"),
+        MemfdFlags::empty(),
+    )) {
+        Some(fd) => fd,
+        None => return null_mut(),
+    };
+    let fd = fd.into_raw_fd();
+    libc::fdopen(fd, cstr!("w+").as_ptr())
 }
 
 #[no_mangle]

@@ -326,10 +326,6 @@ unsafe extern "C" fn tempnam() {
     todo!("tempnam")
 }
 #[no_mangle]
-unsafe extern "C" fn tmpfile() {
-    todo!("tmpfile")
-}
-#[no_mangle]
 unsafe extern "C" fn tmpnam() {
     todo!("tmpnam")
 }

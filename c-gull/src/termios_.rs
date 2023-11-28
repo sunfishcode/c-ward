@@ -1,12 +1,12 @@
 //! Termios APIs
 
 use crate::convert_res;
+use alloc::ffi::CString;
+use alloc::vec::Vec;
 use core::cell::SyncUnsafeCell;
 use core::ptr::{copy_nonoverlapping, null_mut};
 use libc::{c_char, c_int, size_t};
 use rustix::fd::BorrowedFd;
-use std::ffi::CString;
-use std::vec::Vec;
 
 #[no_mangle]
 unsafe extern "C" fn ttyname(fd: c_int) -> *mut c_char {

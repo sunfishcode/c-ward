@@ -5,6 +5,8 @@
 #![deny(fuzzy_provenance_casts, lossy_provenance_casts)]
 #![cfg_attr(not(feature = "std"), no_std)]
 
+#[cfg(feature = "std")]
+extern crate alloc;
 extern crate c_scape;
 
 // Re-export the c_scape crate's API, which includes the libc API. This allows

@@ -10,14 +10,14 @@
 //!
 //! [has differences with glibc]: https://docs.rs/printf-compat/0.1.1/printf_compat/output/fn.fmt_write.html#differences
 
+use core::cmp::min;
+use core::ffi::{CStr, VaList};
+use core::ptr::{copy_nonoverlapping, null_mut};
 use errno::{set_errno, Errno};
 use libc::{c_char, c_int, c_long, c_uchar, c_void, size_t};
 use printf_compat::{format, output};
 use rustix::fd::{FromRawFd, IntoRawFd};
-use std::cmp::min;
-use std::ffi::{CStr, VaList};
 use std::io::{stderr as rust_stderr, stdin as rust_stdin, stdout as rust_stdout, Read, Write};
-use std::ptr::{copy_nonoverlapping, null_mut};
 
 #[no_mangle]
 unsafe extern "C" fn printf(fmt: *const c_char, mut args: ...) -> c_int {

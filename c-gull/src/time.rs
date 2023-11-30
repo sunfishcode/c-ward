@@ -388,7 +388,7 @@ fn time_zone() -> Result<TimeZone, TzError> {
 }
 
 unsafe fn set_timezone(
-    guard: &mut MutexGuard<(Option<CString>, Option<CString>)>,
+    guard: &mut MutexGuard<'_, (Option<CString>, Option<CString>)>,
     std: &LocalTimeType,
     dst: Option<&LocalTimeType>,
 ) {
@@ -412,7 +412,7 @@ unsafe fn set_timezone(
     timezone = -c_long::from(ut_offset);
 }
 
-unsafe fn clear_timezone(guard: &mut MutexGuard<(Option<CString>, Option<CString>)>) {
+unsafe fn clear_timezone(guard: &mut MutexGuard<'_, (Option<CString>, Option<CString>)>) {
     guard.0 = None;
     guard.1 = None;
     tzname.0[0] = null_mut();

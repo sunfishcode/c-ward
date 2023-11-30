@@ -653,6 +653,7 @@ unsafe extern "C" fn sigset() {
 unsafe extern "C" fn __xpg_sigpause() {
     todo!("__xpg_sigpause")
 }
+#[cfg(not(feature = "std"))]
 #[no_mangle]
 unsafe extern "C" fn system() {
     todo!("system")

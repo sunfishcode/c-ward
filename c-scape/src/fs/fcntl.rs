@@ -19,7 +19,7 @@ unsafe extern "C" fn fcntl64(fd: c_int, cmd: c_int, mut args: ...) -> c_int {
     _fcntl::<libc::flock64>(fd, cmd, args)
 }
 
-unsafe fn _fcntl<FlockTy: Flock>(fd: c_int, cmd: c_int, mut args: VaList) -> c_int {
+unsafe fn _fcntl<FlockTy: Flock>(fd: c_int, cmd: c_int, mut args: VaList<'_, '_>) -> c_int {
     match cmd {
         libc::F_GETFL => {
             libc!(libc::fcntl(fd, libc::F_GETFL));

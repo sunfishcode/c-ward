@@ -47,7 +47,7 @@ unsafe extern "C" fn readv(fd: c_int, iov: *const iovec, iovcnt: c_int) -> isize
         return -1;
     }
 
-    let iov: *const IoSliceMut = checked_cast!(iov);
+    let iov: *const IoSliceMut<'_> = checked_cast!(iov);
 
     // Note that rustix's `readv` takes a `&mut`, however it doesn't
     // mutate the `IoSliceMut` instances themselves, so it's safe to
@@ -112,7 +112,7 @@ unsafe extern "C" fn preadv64(
         return -1;
     }
 
-    let iov: *const IoSliceMut = checked_cast!(iov);
+    let iov: *const IoSliceMut<'_> = checked_cast!(iov);
 
     // Note that rustix's `readv` takes a `&mut`, however it doesn't
     // mutate the `IoSliceMut` instances themselves, so it's safe to

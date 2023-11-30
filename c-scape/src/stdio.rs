@@ -702,7 +702,7 @@ unsafe extern "C" fn printf(fmt: *const c_char, mut args: ...) -> c_int {
 }
 
 #[no_mangle]
-unsafe extern "C" fn vprintf(fmt: *const c_char, va_list: VaList) -> c_int {
+unsafe extern "C" fn vprintf(fmt: *const c_char, va_list: VaList<'_, '_>) -> c_int {
     //libc!(libc::vprintf(fmt, va_list));
 
     vfprintf(stdout, fmt, va_list)
@@ -715,7 +715,11 @@ unsafe extern "C" fn sprintf(ptr: *mut c_char, fmt: *const c_char, mut args: ...
 }
 
 #[no_mangle]
-unsafe extern "C" fn vsprintf(ptr: *mut c_char, fmt: *const c_char, va_list: VaList) -> c_int {
+unsafe extern "C" fn vsprintf(
+    ptr: *mut c_char,
+    fmt: *const c_char,
+    va_list: VaList<'_, '_>,
+) -> c_int {
     //libc!(libc::vsprintf(ptr, fmt, va_list));
 
     let mut out = String::new();
@@ -742,7 +746,7 @@ unsafe extern "C" fn vsnprintf(
     ptr: *mut c_char,
     len: usize,
     fmt: *const c_char,
-    va_list: VaList,
+    va_list: VaList<'_, '_>,
 ) -> c_int {
     //libc!(libc::vsnprintf(ptr, len, fmt, va_list));
 
@@ -765,7 +769,7 @@ unsafe extern "C" fn dprintf(fd: c_int, fmt: *const c_char, mut args: ...) -> c_
 }
 
 #[no_mangle]
-unsafe extern "C" fn vdprintf(fd: c_int, fmt: *const c_char, va_list: VaList) -> c_int {
+unsafe extern "C" fn vdprintf(fd: c_int, fmt: *const c_char, va_list: VaList<'_, '_>) -> c_int {
     //libc!(libc::vdprintf(fd, fmt, va_list));
 
     let mut out = String::new();
@@ -797,7 +801,11 @@ unsafe extern "C" fn fprintf(file: *mut libc::FILE, fmt: *const c_char, mut args
 }
 
 #[no_mangle]
-unsafe extern "C" fn vfprintf(file: *mut libc::FILE, fmt: *const c_char, va_list: VaList) -> c_int {
+unsafe extern "C" fn vfprintf(
+    file: *mut libc::FILE,
+    fmt: *const c_char,
+    va_list: VaList<'_, '_>,
+) -> c_int {
     //libc!(libc::vfprintf(file, fmt, va_list));
 
     let mut file = (*file.cast::<FILE>()).locked.lock();
@@ -848,7 +856,7 @@ unsafe extern "C" fn __vsnprintf_chk(
     flag: c_int,
     slen: size_t,
     fmt: *const c_char,
-    va_list: VaList,
+    va_list: VaList<'_, '_>,
 ) -> c_int {
     if slen < len {
         __chk_fail();
@@ -912,7 +920,7 @@ unsafe extern "C" fn __vfprintf_chk(
     file: *mut libc::FILE,
     flag: c_int,
     fmt: *const c_char,
-    va_list: VaList,
+    va_list: VaList<'_, '_>,
 ) -> c_int {
     if flag > 0 {
         unimplemented!("__USE_FORTIFY_LEVEL > 0");

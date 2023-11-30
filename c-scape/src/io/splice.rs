@@ -43,7 +43,7 @@ unsafe extern "C" fn vmsplice(
 ) -> libc::ssize_t {
     libc!(libc::vmsplice(fd, iov, nr_segs, flags));
 
-    let bufs = core::slice::from_raw_parts(iov.cast::<rustix::pipe::IoSliceRaw>(), nr_segs);
+    let bufs = core::slice::from_raw_parts(iov.cast::<rustix::pipe::IoSliceRaw<'_>>(), nr_segs);
     let flags = SpliceFlags::from_bits(flags).unwrap();
     match convert_res(rustix::pipe::vmsplice(
         BorrowedFd::borrow_raw(fd),

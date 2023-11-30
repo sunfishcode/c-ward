@@ -7,6 +7,7 @@
 
 #[cfg(feature = "std")]
 extern crate alloc;
+#[allow(unused_extern_crates)]
 extern crate c_scape;
 
 // Re-export the c_scape crate's API, which includes the libc API. This allows

@@ -22,7 +22,7 @@ unsafe extern "C" fn getrandom(buf: *mut c_void, buflen: usize, flags: u32) -> i
         flags,
     )) {
         Some(num) => {
-            core::ptr::copy_nonoverlapping(READ_BUFFER.as_ptr(), buf.cast::<u8>(), buflen);
+            core::ptr::copy_nonoverlapping(READ_BUFFER.as_ptr(), buf.cast::<u8>(), num);
             num as isize
         }
         None => -1,

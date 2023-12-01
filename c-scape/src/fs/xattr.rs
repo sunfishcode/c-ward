@@ -29,9 +29,9 @@ unsafe extern "C" fn getxattr(
         &mut READ_BUFFER[..min(len, READ_BUFFER.len())],
     )) {
         Some(size) => {
-            // If `len` is 0, `value` could be null.
-            if len != 0 {
-                copy_nonoverlapping(READ_BUFFER.as_ptr(), value.cast(), len);
+            // If `size` is 0, `value` could be null.
+            if size != 0 {
+                copy_nonoverlapping(READ_BUFFER.as_ptr(), value.cast(), size);
             }
             size as ssize_t
         }
@@ -59,9 +59,9 @@ unsafe extern "C" fn lgetxattr(
         &mut READ_BUFFER[..min(len, READ_BUFFER.len())],
     )) {
         Some(size) => {
-            // If `len` is 0, `value` could be null.
-            if len != 0 {
-                copy_nonoverlapping(READ_BUFFER.as_ptr(), value.cast(), len);
+            // If `size` is 0, `value` could be null.
+            if size != 0 {
+                copy_nonoverlapping(READ_BUFFER.as_ptr(), value.cast(), size);
             }
             size as ssize_t
         }
@@ -89,9 +89,9 @@ unsafe extern "C" fn fgetxattr(
         &mut READ_BUFFER[..min(len, READ_BUFFER.len())],
     )) {
         Some(size) => {
-            // If `len` is 0, `value` could be null.
-            if len != 0 {
-                copy_nonoverlapping(READ_BUFFER.as_ptr(), value.cast(), len);
+            // If `size` is 0, `value` could be null.
+            if size != 0 {
+                copy_nonoverlapping(READ_BUFFER.as_ptr(), value.cast(), size);
             }
             size as ssize_t
         }
@@ -172,9 +172,9 @@ unsafe extern "C" fn listxattr(path: *const c_char, list: *mut c_char, len: size
         &mut READ_BUFFER[..min(len, READ_BUFFER.len())],
     )) {
         Some(size) => {
-            // If `len` is 0, `value` could be null.
-            if len != 0 {
-                copy_nonoverlapping(READ_BUFFER.as_ptr(), list.cast(), len);
+            // If `size` is 0, `value` could be null.
+            if size != 0 {
+                copy_nonoverlapping(READ_BUFFER.as_ptr(), list.cast(), size);
             }
             size as ssize_t
         }
@@ -195,9 +195,9 @@ unsafe extern "C" fn llistxattr(path: *const c_char, list: *mut c_char, len: siz
         &mut READ_BUFFER[..min(len, READ_BUFFER.len())],
     )) {
         Some(size) => {
-            // If `len` is 0, `value` could be null.
-            if len != 0 {
-                copy_nonoverlapping(READ_BUFFER.as_ptr(), list.cast(), len);
+            // If `size` is 0, `value` could be null.
+            if size != 0 {
+                copy_nonoverlapping(READ_BUFFER.as_ptr(), list.cast(), size);
             }
             size as ssize_t
         }
@@ -218,9 +218,9 @@ unsafe extern "C" fn flistxattr(fd: c_int, list: *mut c_char, len: size_t) -> ss
         &mut READ_BUFFER[..min(len, READ_BUFFER.len())],
     )) {
         Some(size) => {
-            // If `len` is 0, `value` could be null.
-            if len != 0 {
-                copy_nonoverlapping(READ_BUFFER.as_ptr(), list.cast(), len);
+            // If `size` is 0, `value` could be null.
+            if size != 0 {
+                copy_nonoverlapping(READ_BUFFER.as_ptr(), list.cast(), size);
             }
             size as ssize_t
         }

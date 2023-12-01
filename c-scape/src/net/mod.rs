@@ -715,7 +715,7 @@ unsafe extern "C" fn recv(fd: c_int, ptr: *mut c_void, len: usize, flags: c_int)
         flags,
     )) {
         Some(nread) => {
-            copy_nonoverlapping(READ_BUFFER.as_ptr(), ptr.cast::<u8>(), len);
+            copy_nonoverlapping(READ_BUFFER.as_ptr(), ptr.cast::<u8>(), nread);
             nread as isize
         }
         None => -1,
@@ -746,7 +746,7 @@ unsafe extern "C" fn recvfrom(
         flags,
     )) {
         Some((nread, addr)) => {
-            copy_nonoverlapping(READ_BUFFER.as_ptr(), buf.cast::<u8>(), len);
+            copy_nonoverlapping(READ_BUFFER.as_ptr(), buf.cast::<u8>(), nread);
             if let Some(addr) = addr {
                 let encoded_len = addr.write(from);
                 *from_len = encoded_len.try_into().unwrap();

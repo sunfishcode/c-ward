@@ -171,6 +171,18 @@ unsafe extern "C" fn sigpending(set: *mut sigset_t) -> c_int {
 }
 
 #[no_mangle]
+unsafe extern "C" fn sigsuspend(set: *const sigset_t) -> c_int {
+    libc!(libc::sigsuspend(set));
+
+    let set: *const Sigset = set.cast();
+
+    match convert_res(rustix::runtime::sigsuspend(&*set)) {
+        Some(()) => 0,
+        None => -1,
+    }
+}
+
+#[no_mangle]
 unsafe extern "C" fn sigaltstack(new: *const stack_t, old: *mut stack_t) -> c_int {
     libc!(libc::sigaltstack(new, old));
 

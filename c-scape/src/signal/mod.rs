@@ -160,6 +160,17 @@ unsafe extern "C" fn sigprocmask(how: c_int, set: *const sigset_t, oldset: *mut 
 }
 
 #[no_mangle]
+unsafe extern "C" fn sigpending(set: *mut sigset_t) -> c_int {
+    libc!(libc::sigpending(set));
+
+    let set: *mut Sigset = set.cast();
+
+    let pending = rustix::runtime::sigpending();
+    set.write(pending);
+    0
+}
+
+#[no_mangle]
 unsafe extern "C" fn sigaltstack(new: *const stack_t, old: *mut stack_t) -> c_int {
     libc!(libc::sigaltstack(new, old));
 

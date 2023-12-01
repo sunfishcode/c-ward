@@ -621,10 +621,6 @@ unsafe extern "C" fn regfree() {
 unsafe extern "C" fn setgrent() {
     todo!("setgrent")
 }
-#[no_mangle]
-unsafe extern "C" fn sigsuspend() {
-    todo!("sigsuspend")
-}
 #[deprecated]
 #[no_mangle]
 unsafe extern "C" fn sighold() {

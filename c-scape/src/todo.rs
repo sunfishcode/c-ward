@@ -1295,10 +1295,6 @@ unsafe extern "C" fn sched_setscheduler() {
     todo!("sched_setscheduler")
 }
 #[no_mangle]
-unsafe extern "C" fn sigpending() {
-    todo!("sigpending")
-}
-#[no_mangle]
 unsafe extern "C" fn sigqueue() {
     todo!("sigqueue")
 }

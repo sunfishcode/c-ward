@@ -1,6 +1,6 @@
 [package]
 name = "c-gull"
-version = "0.15.28"
+version = "0.15.29"
 authors = [
     "Dan Gohman <dev@sunfishcode.online>",
 ]
@@ -15,7 +15,7 @@ keywords = ["linux", "libc"]
 # We use the libc crate for C ABI types and constants, but we don't depend on
 # the actual platform libc.
 libc = { version = "0.2.138", default-features = false }
-c-scape = { path = "../c-scape", version = "0.15.28", default-features = false }
+c-scape = { path = "../c-scape", version = "0.15.29", default-features = false }
 errno = { version = "0.3.3", default-features = false, optional = true }
 tz-rs = { version = "0.6.11", default-features = false, optional = true }
 rustix = { version = "0.38.23", default-features = false, optional = true, features = ["fs", "itoa", "net", "param", "process", "procfs", "rand", "termios", "thread", "time"] }

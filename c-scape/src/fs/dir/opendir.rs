@@ -1,6 +1,6 @@
 use alloc::boxed::Box;
 use core::ffi::CStr;
-use rustix::fd::{BorrowedFd, FromRawFd, IntoRawFd, OwnedFd};
+use rustix::fd::{FromRawFd, IntoRawFd, OwnedFd};
 use rustix::fs::{Mode, OFlags, CWD};
 
 use core::mem::zeroed;
@@ -29,11 +29,15 @@ unsafe extern "C" fn opendir(pathname: *const c_char) -> *mut c_void {
 unsafe extern "C" fn fdopendir(fd: c_int) -> *mut c_void {
     libc!(libc::fdopendir(fd).cast());
 
-    match convert_res(rustix::fs::Dir::read_from(BorrowedFd::borrow_raw(fd))) {
+    // Use the unsafe `Dir::new` API, because that avoids opening ".",
+    // which requires additional permissions that we may not have. It's
+    // up to users of `fdopendir` to ensure that the fd isn't otherwise
+    // used.
+    match convert_res(rustix::fs::Dir::new(OwnedFd::from_raw_fd(fd))) {
         Some(dir) => Box::into_raw(Box::new(CScapeDir {
             dir,
             storage: zeroed(),
-            fd: OwnedFd::from_raw_fd(fd),
+            fd,
         }))
         .cast(),
         None => null_mut(),

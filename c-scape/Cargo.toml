@@ -1,6 +1,6 @@
 [package]
 name = "c-scape"
-version = "0.15.27"
+version = "0.15.28"
 authors = [
     "Dan Gohman <dev@sunfishcode.online>",
 ]

@@ -166,10 +166,6 @@ unsafe extern "C" fn if_nametoindex() {
     todo!("if_nametoindex")
 }
 #[no_mangle]
-unsafe extern "C" fn pause() {
-    todo!("pause")
-}
-#[no_mangle]
 unsafe extern "C" fn ppoll() {
     todo!("ppoll")
 }
@@ -837,10 +833,6 @@ unsafe extern "C" fn iswxdigit() {
 #[no_mangle]
 unsafe extern "C" fn lfind() {
     todo!("lfind")
-}
-#[no_mangle]
-unsafe extern "C" fn __libc_current_sigrtmin() {
-    todo!("__libc_current_sigrtmin")
 }
 #[no_mangle]
 unsafe extern "C" fn lrint() {

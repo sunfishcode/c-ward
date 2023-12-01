@@ -11,6 +11,11 @@ use rustix::runtime::{How, Sigaction, Siginfo, Sigset, Stack};
 unsafe extern "C" fn signal(signal: c_int, handler: sighandler_t) -> sighandler_t {
     libc!(libc::signal(signal, handler));
 
+    if (rustix::runtime::SIGRTMIN as i32..__libc_current_sigrtmin()).contains(&signal) {
+        set_errno(Errno(libc::EINVAL));
+        return SIG_ERR;
+    }
+
     let signal = match Signal::from_raw(signal) {
         Some(signal) => signal,
         None => {
@@ -50,6 +55,11 @@ unsafe extern "C" fn bsd_signal(signal: c_int, handler: sighandler_t) -> sighand
 #[no_mangle]
 unsafe extern "C" fn sigaction(signal: c_int, new: *const sigaction, old: *mut sigaction) -> c_int {
     libc!(libc::sigaction(signal, new, old));
+
+    if (rustix::runtime::SIGRTMIN as i32..__libc_current_sigrtmin()).contains(&signal) {
+        set_errno(Errno(libc::EINVAL));
+        return -1;
+    }
 
     let signal = match Signal::from_raw(signal) {
         Some(signal) => signal,
@@ -132,8 +142,15 @@ unsafe extern "C" fn sigprocmask(how: c_int, set: *const sigset_t, oldset: *mut 
     let set = if set.is_null() { None } else { Some(&*set) };
 
     match convert_res(rustix::runtime::sigprocmask(how, set)) {
-        Some(old) => {
+        Some(mut old) => {
             if !oldset.is_null() {
+                // Clear out the signals reserved for libc.
+                for sig in rustix::runtime::SIGRTMIN as i32..__libc_current_sigrtmin() {
+                    let elem: &mut c_ulong =
+                        &mut old.sig[(sig - 1) as usize / c_ulong::BITS as usize];
+                    *elem &= !(1 << ((sig - 1) as u32 % c_ulong::BITS));
+                }
+
                 oldset.write(old);
             }
             0
@@ -213,7 +230,10 @@ unsafe extern "C" fn abort() {
 unsafe extern "C" fn sigaddset(sigset: *mut sigset_t, signum: c_int) -> c_int {
     libc!(libc::sigaddset(sigset, signum));
 
-    if signum == 0 || signum as usize - 1 >= size_of::<sigset_t>() * 8 {
+    if signum == 0
+        || signum as usize - 1 >= size_of::<sigset_t>() * 8
+        || (rustix::runtime::SIGRTMIN as i32..__libc_current_sigrtmin()).contains(&signum)
+    {
         set_errno(Errno(EINVAL));
         return -1;
     }
@@ -235,7 +255,10 @@ unsafe extern "C" fn sigaddset(sigset: *mut sigset_t, signum: c_int) -> c_int {
 unsafe extern "C" fn sigdelset(sigset: *mut sigset_t, signum: c_int) -> c_int {
     libc!(libc::sigdelset(sigset, signum));
 
-    if signum == 0 || signum as usize - 1 >= size_of::<sigset_t>() * 8 {
+    if signum == 0
+        || signum as usize - 1 >= size_of::<sigset_t>() * 8
+        || (rustix::runtime::SIGRTMIN as i32..__libc_current_sigrtmin()).contains(&signum)
+    {
         set_errno(Errno(EINVAL));
         return -1;
     }
@@ -400,4 +423,27 @@ unsafe extern "C" fn strsignal(sig: c_int) -> *mut c_char {
         Signal::Winch => cstr!("Window resize signal").as_ptr() as _,
         Signal::Power => cstr!("Power failure").as_ptr() as _,
     }
+}
+
+/// This function conforms to the [LSB `__libc_current_sigrtmin`] ABI.
+///
+/// [LSB `__libc_current_sigrtmin`]: https://refspecs.linuxbase.org/LSB_5.0.0/LSB-Core-generic/LSB-Core-generic/baselib---libc-current-sigrtmin-1.html
+#[no_mangle]
+unsafe extern "C" fn __libc_current_sigrtmin() -> i32 {
+    libc!(libc::__libc_current_sigrtmin());
+
+    // Reserve 3 RT signals for ourselves. We don't currently implement
+    // anything that uses these signals, but we might as well reserve some
+    // for when we do.
+    (rustix::runtime::SIGRTMIN + 3) as i32
+}
+
+/// This function conforms to the [LSB `__libc_current_sigrtmax`] ABI.
+///
+/// [LSB `__libc_current_sigrtmax`]: https://refspecs.linuxbase.org/LSB_5.0.0/LSB-Core-generic/LSB-Core-generic/baselib---libc-current-sigrtmax-1.html
+#[no_mangle]
+unsafe extern "C" fn __libc_current_sigrtmax() -> i32 {
+    libc!(libc::__libc_current_sigrtmax());
+
+    rustix::runtime::SIGRTMAX as i32
 }

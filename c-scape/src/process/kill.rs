@@ -56,19 +56,3 @@ unsafe extern "C" fn killpg(pgid: pid_t, sig: c_int) -> c_int {
 
     kill(-pgid, sig)
 }
-
-/// This function conforms to the [LSB `__libc_current_sigrtmax`] ABI.
-///
-/// [LSB `__libc_current_sigrtmax`]: https://refspecs.linuxbase.org/LSB_5.0.0/LSB-Core-generic/LSB-Core-generic/baselib---libc-current-sigrtmax-1.html
-#[no_mangle]
-unsafe extern "C" fn __libc_current_sigrtmax() -> c_int {
-    libc!(libc::__libc_current_sigrtmax());
-
-    // TODO: Upstream `NSIG` into the libc crate.
-    #[cfg(not(any(target_arch = "mips", target_arch = "mips64")))]
-    let nsig = 65;
-    #[cfg(any(target_arch = "mips", target_arch = "mips64"))]
-    let nsig = 128;
-
-    nsig - 1
-}

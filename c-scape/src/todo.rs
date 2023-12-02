@@ -1387,10 +1387,6 @@ unsafe extern "C" fn __asprintf_chk() {
     todo!("__asprintf_chk")
 }
 #[no_mangle]
-unsafe extern "C" fn __read_chk() {
-    todo!("__read_chk")
-}
-#[no_mangle]
 unsafe extern "C" fn __strncat_chk() {
     todo!("__strncat_chk")
 }
@@ -1669,14 +1665,6 @@ unsafe extern "C" fn __ppoll_chk() {
 #[no_mangle]
 unsafe extern "C" fn wait4() {
     todo!("wait4")
-}
-#[no_mangle]
-unsafe extern "C" fn __pread_chk() {
-    todo!("__pread_chk")
-}
-#[no_mangle]
-unsafe extern "C" fn __pread64_chk() {
-    todo!("__pread64_chk")
 }
 #[no_mangle]
 unsafe extern "C" fn preadv2() {

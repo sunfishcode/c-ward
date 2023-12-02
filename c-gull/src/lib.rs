@@ -37,6 +37,7 @@ mod time;
 mod utmp;
 
 #[cfg(feature = "std")]
+#[cold]
 #[no_mangle]
 unsafe extern "C" fn __assert_fail(
     expr: *const c_char,

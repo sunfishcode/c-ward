@@ -60,12 +60,23 @@ unsafe extern "C" fn _Exit(status: c_int) -> ! {
 ///
 /// Just exit the process.
 #[no_mangle]
-unsafe extern "C" fn _exit(status: c_int) {
+unsafe extern "C" fn _exit(status: c_int) -> ! {
     libc!(libc::_exit(status));
     _Exit(status)
 }
 
+#[cold]
 #[no_mangle]
-unsafe extern "C" fn __stack_chk_fail() {
-    unimplemented!("__stack_chk_fail")
+unsafe extern "C" fn __stack_chk_fail() -> ! {
+    let message = b"*** stack smashing detected ***";
+    let _ = libc::write(libc::STDERR_FILENO, message.as_ptr().cast(), message.len());
+    libc::abort()
+}
+
+// If we were building a dynamic library, this function could have a
+// restricted visibiltiy.
+#[cold]
+#[no_mangle]
+unsafe extern "C" fn __stack_chk_fail_local() -> ! {
+    __stack_chk_fail()
 }

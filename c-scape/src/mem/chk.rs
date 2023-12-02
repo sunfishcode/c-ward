@@ -3,6 +3,7 @@
 use libc::{c_char, c_int, c_void, size_t};
 
 // <https://refspecs.linuxbase.org/LSB_5.0.0/LSB-Core-generic/LSB-Core-generic/baselib---chk-fail-1.html>
+#[cold]
 #[no_mangle]
 unsafe extern "C" fn __chk_fail() -> ! {
     rustix::io::write(

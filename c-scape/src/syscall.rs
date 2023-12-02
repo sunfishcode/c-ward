@@ -141,7 +141,10 @@ unsafe extern "C" fn syscall(number: c_long, mut args: ...) -> *mut c_void {
             libc::sync();
             invalid_mut(0)
         }
-        _ => unimplemented!("syscall({:?})", number),
+        _ => unimplemented!(
+            "syscall({:?}); maybe try enabling the \"extra-syscalls\" feature",
+            number
+        ),
     }
 }
 

@@ -1,4 +1,5 @@
-/// Integer math.
+//! Integer math.
+
 use libc::{c_int, c_long, c_longlong, intmax_t};
 
 #[no_mangle]
@@ -13,24 +14,24 @@ unsafe extern "C" fn ffs(i: c_int) -> c_int {
 }
 
 #[no_mangle]
-unsafe extern "C" fn ffsl(i: c_long) -> c_long {
+unsafe extern "C" fn ffsl(i: c_long) -> c_int {
     //libc!(libc::ffsl(i));
 
     if i == 0 {
         0
     } else {
-        i.trailing_zeros() as c_long + 1
+        i.trailing_zeros() as c_int + 1
     }
 }
 
 #[no_mangle]
-unsafe extern "C" fn ffsll(i: c_longlong) -> c_longlong {
+unsafe extern "C" fn ffsll(i: c_longlong) -> c_int {
     //libc!(libc::ffsll(i));
 
     if i == 0 {
         0
     } else {
-        i.trailing_zeros() as c_longlong + 1
+        i.trailing_zeros() as c_int + 1
     }
 }
 
@@ -109,4 +110,32 @@ unsafe extern "C" fn lldiv(numerator: c_longlong, denominator: c_longlong) -> ll
         quot: numerator / denominator,
         rem: numerator % denominator,
     }
+}
+
+#[no_mangle]
+unsafe extern "C" fn __ffsdi2(i: c_long) -> c_int {
+    //libc!(libc::__ffsdi2(i));
+
+    ffsl(i)
+}
+
+#[no_mangle]
+unsafe extern "C" fn __clzdi2(i: c_long) -> c_int {
+    //libc!(libc::__clzdi2(i));
+
+    i.leading_zeros() as c_int
+}
+
+#[no_mangle]
+unsafe extern "C" fn __ctzdi2(i: c_long) -> c_int {
+    //libc!(libc::__ctzdi2(i));
+
+    i.trailing_zeros() as c_int
+}
+
+#[no_mangle]
+unsafe extern "C" fn __popcountdi2(i: c_long) -> c_int {
+    //libc!(libc::__popcountdi2(i));
+
+    i.count_ones() as c_int
 }

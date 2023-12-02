@@ -823,7 +823,8 @@ unsafe extern "C" fn vfprintf(
 // C functions not in the libc crate, due to `VaList` being unstable.
 
 extern "C" {
-    fn __chk_fail();
+    #[cold]
+    fn __chk_fail() -> !;
 }
 
 // <https://refspecs.linuxbase.org/LSB_5.0.0/LSB-Core-generic/LSB-Core-generic/baselib---snprintf-chk-1.html>

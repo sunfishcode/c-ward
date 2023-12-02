@@ -3,7 +3,7 @@ use core::cmp::min;
 use core::ptr::copy_nonoverlapping;
 use core::slice;
 use errno::{set_errno, Errno};
-use libc::{c_int, c_void, iovec, off64_t, off_t};
+use libc::{c_int, c_void, iovec, off64_t, off_t, size_t, ssize_t};
 use rustix::fd::BorrowedFd;
 use rustix::io::IoSliceMut;
 
@@ -125,4 +125,65 @@ unsafe extern "C" fn preadv64(
         Some(nwritten) => nwritten as isize,
         None => -1,
     }
+}
+
+// `__*_chk` functions that have to live in c-gull because they depend on
+// C functions not in the libc crate, due to `VaList` being unstable.
+
+extern "C" {
+    #[cold]
+    fn __chk_fail() -> !;
+}
+
+// <https://refspecs.linuxbase.org/LSB_5.0.0/LSB-Core-generic/LSB-Core-generic/baselib---pread-chk-1.html>
+#[no_mangle]
+unsafe extern "C" fn __pread_chk(
+    fd: c_int,
+    buf: *mut c_void,
+    nbytes: size_t,
+    offset: off_t,
+    buflen: size_t,
+) -> ssize_t {
+    //libc!(libc::__pread_chk(fd, buf, nbytes, offset, buflen));
+
+    if nbytes > buflen {
+        __chk_fail();
+    }
+
+    pread(fd, buf, nbytes, offset)
+}
+
+// <https://refspecs.linuxbase.org/LSB_5.0.0/LSB-Core-generic/LSB-Core-generic/baselib---pread64-chk-1.html>
+#[no_mangle]
+unsafe extern "C" fn __pread64_chk(
+    fd: c_int,
+    buf: *mut c_void,
+    nbytes: size_t,
+    offset: off64_t,
+    buflen: size_t,
+) -> ssize_t {
+    //libc!(libc::__pread64_chk(fd, buf, nbytes, offset, buflen));
+
+    if nbytes > buflen {
+        __chk_fail();
+    }
+
+    pread64(fd, buf, nbytes, offset)
+}
+
+// <https://refspecs.linuxbase.org/LSB_5.0.0/LSB-Core-generic/LSB-Core-generic/baselib---read-chk-1.html>
+#[no_mangle]
+unsafe extern "C" fn __read_chk(
+    fd: c_int,
+    buf: *mut c_void,
+    nbytes: size_t,
+    buflen: size_t,
+) -> ssize_t {
+    //libc!(libc::__read_chk(fd, buf, nbytes, buflen));
+
+    if nbytes > buflen {
+        __chk_fail();
+    }
+
+    read(fd, buf, nbytes)
 }

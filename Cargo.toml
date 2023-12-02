@@ -1,6 +1,6 @@
 [package]
 name = "c-ward"
-version = "0.15.29"
+version = "0.15.30"
 authors = [
     "Dan Gohman <dev@sunfishcode.online>",
 ]

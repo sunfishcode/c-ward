@@ -121,7 +121,7 @@ libc_type!(PthreadRwlockattrT, pthread_rwlockattr_t);
 #[no_mangle]
 unsafe extern "C" fn pthread_self() -> PthreadT {
     libc!(ptr::from_exposed_addr_mut(libc::pthread_self() as _));
-    origin::thread::current_thread().to_raw().cast()
+    origin::thread::current().to_raw().cast()
 }
 
 #[no_mangle]
@@ -131,7 +131,7 @@ unsafe extern "C" fn pthread_getattr_np(thread: PthreadT, attr: *mut PthreadAttr
         checked_cast!(attr)
     ));
     let (stack_addr, stack_size, guard_size) =
-        origin::thread::thread_stack(Thread::from_raw(thread.cast()));
+        origin::thread::stack(Thread::from_raw(thread.cast()));
     ptr::write(
         attr,
         PthreadAttrT {
@@ -704,7 +704,7 @@ unsafe extern "C" fn pthread_create(
     }
 
     // Create the thread.
-    let thread = match origin::thread::create_thread(call, &args, stack_size, guard_size) {
+    let thread = match origin::thread::create(call, &args, stack_size, guard_size) {
         Ok(thread) => thread,
         Err(e) => return e.raw_os_error(),
     };
@@ -713,7 +713,7 @@ unsafe extern "C" fn pthread_create(
     // `create_thread` to initialize the thread in the detached state,
     // however this seems adequate for now.
     if flags.contains(PthreadAttrFlags::DETACHSTATE) {
-        origin::thread::detach_thread(thread);
+        origin::thread::detach(thread);
     }
 
     pthread.write(thread.to_raw().cast());
@@ -723,7 +723,7 @@ unsafe extern "C" fn pthread_create(
 #[no_mangle]
 unsafe extern "C" fn pthread_detach(pthread: PthreadT) -> c_int {
     libc!(libc::pthread_detach(pthread.expose_addr() as _));
-    origin::thread::detach_thread(Thread::from_raw(pthread.cast()));
+    origin::thread::detach(Thread::from_raw(pthread.cast()));
     0
 }
 
@@ -731,7 +731,7 @@ unsafe extern "C" fn pthread_detach(pthread: PthreadT) -> c_int {
 unsafe extern "C" fn pthread_join(pthread: PthreadT, retval: *mut *mut c_void) -> c_int {
     libc!(libc::pthread_join(pthread.expose_addr() as _, retval));
 
-    let return_value = origin::thread::join_thread(Thread::from_raw(pthread.cast()));
+    let return_value = origin::thread::join(Thread::from_raw(pthread.cast()));
 
     if !retval.is_null() {
         *retval = match return_value {
@@ -913,7 +913,7 @@ unsafe extern "C" fn __cxa_thread_atexit_impl(
     _dso_symbol: *mut c_void,
 ) -> c_int {
     // TODO: libc!(libc::__cxa_thread_atexit_impl(func, obj, _dso_symbol));
-    origin::thread::at_thread_exit(Box::new(move || func(obj)));
+    origin::thread::at_exit(Box::new(move || func(obj)));
     0
 }
 
@@ -925,7 +925,7 @@ unsafe extern "C" fn __tls_get_addr(p: &[usize; 2]) -> *mut c_void {
     // Offset 0 is the generation field, and we don't support dynamic linking,
     // so we should only sever see 1 here.
     assert_eq!(module, 1);
-    origin::thread::current_thread_tls_addr(offset)
+    origin::thread::current_tls_addr(offset)
 }
 
 #[cfg(target_arch = "x86")]

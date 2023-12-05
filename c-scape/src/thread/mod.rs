@@ -647,8 +647,6 @@ unsafe extern "C" fn pthread_rwlockattr_destroy(_attr: *mut PthreadRwlockattrT) 
     0
 }
 
-// TODO: signals, create thread-local storage, arrange for thread-local storage
-// destructors to run.
 #[no_mangle]
 unsafe extern "C" fn pthread_create(
     pthread: *mut PthreadT,

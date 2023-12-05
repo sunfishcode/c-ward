@@ -94,6 +94,7 @@ mod posix_spawn;
 mod process_;
 mod pty;
 mod rand_;
+mod regex;
 mod setjmp;
 mod sort;
 mod stdio;

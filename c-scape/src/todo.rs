@@ -606,18 +606,6 @@ unsafe extern "C" fn __pthread_unregister_cancel() {
     todo!("__pthread_unregister_cancel")
 }
 #[no_mangle]
-unsafe extern "C" fn regcomp() {
-    todo!("regcomp")
-}
-#[no_mangle]
-unsafe extern "C" fn regexec() {
-    todo!("regexec")
-}
-#[no_mangle]
-unsafe extern "C" fn regfree() {
-    todo!("regfree")
-}
-#[no_mangle]
 unsafe extern "C" fn setgrent() {
     todo!("setgrent")
 }
@@ -889,10 +877,6 @@ unsafe extern "C" fn pthread_mutex_timedlock() {
 #[no_mangle]
 unsafe extern "C" fn random() {
     todo!("random")
-}
-#[no_mangle]
-unsafe extern "C" fn regerror() {
-    todo!("regerror")
 }
 #[no_mangle]
 unsafe extern "C" fn remque() {

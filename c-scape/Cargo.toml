@@ -128,11 +128,6 @@ malloc-via-crates = ["rustix-dlmalloc/global"]
 # This makes `setenv` and friends thread-safe by leaking memory.
 threadsafe-setenv = []
 
-# This extends the `syscall` function with suppport for more syscalls. This is
-# not enabled by default because it increases the code size of `syscall` by
-# several kibibytes and isn't needed by most Rust programs.
-extra-syscalls = []
-
 # Special feature for use when c-scape is a dependency of std.
 rustc-dep-of-std = [
     "dep:core",
@@ -142,3 +137,39 @@ rustc-dep-of-std = [
 
 # Enable `todo!()` stubs for unimplemented functions.
 todo = []
+
+# This extends the `syscall` function with suppport for more syscalls. This is
+# not enabled by default because it increases the code size of `syscall` by
+# several kibibytes and isn't needed by most Rust programs.
+extra-syscalls = [
+    "syscall-read",
+    "syscall-write",
+    "syscall-open",
+    "syscall-openat",
+    "syscall-close",
+    "syscall-getpid",
+    "syscall-statx",
+    "syscall-epoll_create1",
+    "syscall-timerfd_create",
+    "syscall-timerfd_settime",
+    "syscall-utimensat",
+    "syscall-fdatasync",
+    "syscall-syncfs",
+    "syscall-sync",
+    "syscall-pipe2",
+]
+syscall-read = []
+syscall-write = []
+syscall-open = []
+syscall-openat = []
+syscall-close = []
+syscall-getpid = []
+syscall-statx = []
+syscall-epoll_create1 = []
+syscall-timerfd_create = []
+syscall-timerfd_settime = []
+syscall-utimensat = []
+syscall-fdatasync = []
+syscall-syncfs = []
+syscall-sync = []
+syscall-pipe2 = []

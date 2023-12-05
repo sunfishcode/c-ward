@@ -44,8 +44,8 @@ unsafe extern "C" fn mktemp(template: *mut c_char) -> *mut c_char {
 }
 
 #[no_mangle]
-unsafe extern "C" fn tmpfile() -> *mut libc::FILE {
-    libc!(libc::tmpfile());
+unsafe extern "C" fn tmpfile64() -> *mut libc::FILE {
+    libc!(libc::tmpfile64());
 
     let fd = match convert_res(rustix::fs::memfd_create(
         cstr!("libc::tmpfile"),
@@ -56,6 +56,13 @@ unsafe extern "C" fn tmpfile() -> *mut libc::FILE {
     };
     let fd = fd.into_raw_fd();
     libc::fdopen(fd, cstr!("w+").as_ptr())
+}
+
+#[no_mangle]
+unsafe extern "C" fn tmpfile() -> *mut libc::FILE {
+    libc!(libc::tmpfile());
+
+    tmpfile64()
 }
 
 #[no_mangle]

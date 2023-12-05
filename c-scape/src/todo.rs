@@ -855,6 +855,14 @@ unsafe extern "C" fn newlocale() {
     todo!("newlocale")
 }
 #[no_mangle]
+unsafe extern "C" fn freelocale() {
+    todo!("freelocale")
+}
+#[no_mangle]
+unsafe extern "C" fn uselocale() {
+    todo!("uselocale")
+}
+#[no_mangle]
 unsafe extern "C" fn nl_langinfo() {
     todo!("nl_langinfo")
 }
@@ -969,10 +977,6 @@ unsafe extern "C" fn tdelete() {
 #[no_mangle]
 unsafe extern "C" fn twalk() {
     todo!("twalk")
-}
-#[no_mangle]
-unsafe extern "C" fn uselocale() {
-    todo!("uselocale")
 }
 #[no_mangle]
 unsafe extern "C" fn wcrtomb() {
@@ -1969,4 +1973,52 @@ unsafe extern "C" fn getdate() {
 #[no_mangle]
 unsafe extern "C" fn getdate_err() {
     todo!("getdate_err")
+}
+#[no_mangle]
+unsafe extern "C" fn backtrace() {
+    todo!("backtrace")
+}
+#[no_mangle]
+unsafe extern "C" fn backtrace_symbols() {
+    todo!("backtrace_symbols")
+}
+#[no_mangle]
+unsafe extern "C" fn __mbrlen() {
+    todo!("__mbrlen")
+}
+#[no_mangle]
+unsafe extern "C" fn mbsnrtowcs() {
+    todo!("mbsnrtowcs")
+}
+#[no_mangle]
+unsafe extern "C" fn strftime_l() {
+    todo!("strftime_l")
+}
+#[no_mangle]
+unsafe extern "C" fn strtod_l() {
+    todo!("strtod_l")
+}
+#[no_mangle]
+unsafe extern "C" fn strtof_l() {
+    todo!("strtof_l")
+}
+#[no_mangle]
+unsafe extern "C" fn strtold_l() {
+    todo!("strtold_l")
+}
+#[no_mangle]
+unsafe extern "C" fn strtoll_l() {
+    todo!("strtoll_l")
+}
+#[no_mangle]
+unsafe extern "C" fn strtoull_l() {
+    todo!("strtoull_l")
+}
+#[no_mangle]
+unsafe extern "C" fn wcsnrtombs() {
+    todo!("wcsnrtombs")
+}
+#[no_mangle]
+unsafe extern "C" fn __timezone() {
+    todo!("__timezone")
 }

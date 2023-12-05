@@ -165,7 +165,7 @@ unsafe impl rustix_futex_sync::lock_api::GetThreadId for GetThreadId {
     const INIT: Self = Self;
 
     fn nonzero_thread_id(&self) -> core::num::NonZeroUsize {
-        origin::thread::current_thread_id()
+        origin::thread::current_id()
             .as_raw_nonzero()
             .try_into()
             .unwrap()

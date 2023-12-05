@@ -18,21 +18,21 @@ use libc::{c_long, c_void};
 #[no_mangle]
 unsafe extern "C" fn syscall(number: c_long, mut args: ...) -> *mut c_void {
     match number {
-        #[cfg(feature = "extra-syscalls")]
+        #[cfg(feature = "syscall-read")]
         libc::SYS_read => {
             let fd = args.arg::<c_int>();
             let buf = args.arg::<*mut c_void>();
             let count = args.arg::<size_t>();
             invalid_mut(libc::read(fd, buf, count) as _)
         }
-        #[cfg(feature = "extra-syscalls")]
+        #[cfg(feature = "syscall-write")]
         libc::SYS_write => {
             let fd = args.arg::<c_int>();
             let buf = args.arg::<*const c_void>();
             let count = args.arg::<size_t>();
             invalid_mut(libc::write(fd, buf, count) as _)
         }
-        #[cfg(feature = "extra-syscalls")]
+        #[cfg(feature = "syscall-open")]
         #[cfg(not(any(target_arch = "aarch64", target_arch = "riscv64")))]
         libc::SYS_open => {
             let path = args.arg::<*const c_char>();
@@ -47,7 +47,7 @@ unsafe extern "C" fn syscall(number: c_long, mut args: ...) -> *mut c_void {
             };
             invalid_mut(fd as _)
         }
-        #[cfg(feature = "extra-syscalls")]
+        #[cfg(feature = "syscall-openat")]
         libc::SYS_openat => {
             let dirfd = args.arg::<c_int>();
             let path = args.arg::<*const c_char>();
@@ -62,14 +62,14 @@ unsafe extern "C" fn syscall(number: c_long, mut args: ...) -> *mut c_void {
             };
             invalid_mut(fd as _)
         }
-        #[cfg(feature = "extra-syscalls")]
+        #[cfg(feature = "syscall-close")]
         libc::SYS_close => {
             let fd = args.arg::<c_int>();
             invalid_mut(libc::close(fd) as _)
         }
-        #[cfg(feature = "extra-syscalls")]
+        #[cfg(feature = "syscall-getpid")]
         libc::SYS_getpid => invalid_mut(rustix::process::getpid().as_raw_nonzero().get() as _),
-        #[cfg(feature = "extra-syscalls")]
+        #[cfg(feature = "syscall-statx")]
         libc::SYS_statx => {
             let dirfd = args.arg::<c_int>();
             let path = args.arg::<*const c_char>();
@@ -99,18 +99,18 @@ unsafe extern "C" fn syscall(number: c_long, mut args: ...) -> *mut c_void {
             set_errno(Errno(libc::ENOSYS));
             invalid_mut(!0)
         }
-        #[cfg(feature = "extra-syscalls")]
+        #[cfg(feature = "syscall-epoll_create1")]
         libc::SYS_epoll_create1 => {
             let flags = args.arg::<c_int>();
             invalid_mut(libc::epoll_create(flags) as isize as usize)
         }
-        #[cfg(feature = "extra-syscalls")]
+        #[cfg(feature = "syscall-timerfd_create")]
         libc::SYS_timerfd_create => {
             let clockid = args.arg::<c_int>();
             let flags = args.arg::<c_int>();
             invalid_mut(libc::timerfd_create(clockid, flags) as isize as usize)
         }
-        #[cfg(feature = "extra-syscalls")]
+        #[cfg(feature = "syscall-timerfd_settime")]
         libc::SYS_timerfd_settime => {
             let fd = args.arg::<c_int>();
             let flags = args.arg::<c_int>();
@@ -118,7 +118,7 @@ unsafe extern "C" fn syscall(number: c_long, mut args: ...) -> *mut c_void {
             let old_value = args.arg::<*mut libc::itimerspec>();
             invalid_mut(libc::timerfd_settime(fd, flags, new_value, old_value) as isize as usize)
         }
-        #[cfg(feature = "extra-syscalls")]
+        #[cfg(feature = "syscall-utimensat")]
         libc::SYS_utimensat => {
             let fd = args.arg::<c_int>();
             let path = args.arg::<*const c_char>();
@@ -126,20 +126,26 @@ unsafe extern "C" fn syscall(number: c_long, mut args: ...) -> *mut c_void {
             let flags = args.arg::<c_int>();
             invalid_mut(libc::utimensat(fd, path, times, flags) as isize as usize)
         }
-        #[cfg(feature = "extra-syscalls")]
+        #[cfg(feature = "syscall-fdatasync")]
         libc::SYS_fdatasync => {
             let fd = args.arg::<c_int>();
             invalid_mut(libc::fdatasync(fd) as isize as usize)
         }
-        #[cfg(feature = "extra-syscalls")]
+        #[cfg(feature = "syscall-syncfs")]
         libc::SYS_syncfs => {
             let fd = args.arg::<c_int>();
             invalid_mut(libc::syncfs(fd) as isize as usize)
         }
-        #[cfg(feature = "extra-syscalls")]
+        #[cfg(feature = "syscall-sync")]
         libc::SYS_sync => {
             libc::sync();
             invalid_mut(0)
+        }
+        #[cfg(feature = "syscall-pipe2")]
+        libc::SYS_pipe2 => {
+            let pipefd = args.arg::<*mut c_int>();
+            let flags = args.arg::<c_int>();
+            invalid_mut(libc::pipe2(pipefd, flags) as isize as usize)
         }
         _ => unimplemented!(
             "syscall({:?}); maybe try enabling the \"extra-syscalls\" feature",

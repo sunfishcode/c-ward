@@ -11,7 +11,7 @@ use core::sync::atomic::{AtomicBool, AtomicU32};
 use core::time::Duration;
 use origin::thread::Thread;
 use rustix_futex_sync::lock_api::{RawMutex as _, RawReentrantMutex, RawRwLock as _};
-use rustix_futex_sync::{RawCondvar, RawMutex, RawRwLock};
+use rustix_futex_sync::{Once, RawCondvar, RawMutex, RawRwLock};
 
 use libc::{c_char, c_int, size_t};
 
@@ -933,4 +933,27 @@ unsafe extern "C" fn __tls_get_addr(p: &[usize; 2]) -> *mut c_void {
 unsafe extern "C" fn ___tls_get_addr() {
     //libc!(libc::___tls_get_addr());
     todo!("___tls_get_addr")
+}
+
+#[no_mangle]
+unsafe extern "C" fn pthread_once(
+    once_control: *mut libc::pthread_once_t,
+    init_routine: extern "C" fn(),
+) -> c_int {
+    libc!(libc::pthread_once(once_control, init_routine));
+
+    // Assert that `PTHREAD_ONCE_INIT` is zero, just like
+    // `rustix_futex_sync::Once::new()` is documented to be.
+    debug_assert_eq!(libc::PTHREAD_ONCE_INIT, transmute(Once::new()));
+    debug_assert_eq!(size_of::<libc::pthread_once_t>(), size_of::<Once>());
+    debug_assert_eq!(align_of::<libc::pthread_once_t>(), align_of::<Once>());
+
+    // Cast the `*mut pthread_once_t` to `*mut Once`, which we can do since
+    // `rustix_futex_sync` is documented to be a `repr(transparent)` wrapper
+    // around `AtomicU32`.
+    (*once_control.cast::<Once>()).call_once(move || {
+        init_routine();
+    });
+
+    0
 }

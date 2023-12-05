@@ -74,10 +74,6 @@ unsafe extern "C" fn pthread_kill() {
     todo!("pthread_kill")
 }
 #[no_mangle]
-unsafe extern "C" fn pthread_once() {
-    todo!("pthread_once")
-}
-#[no_mangle]
 unsafe extern "C" fn getcontext() {
     todo!("getcontext")
 }

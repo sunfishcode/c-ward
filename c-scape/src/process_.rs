@@ -419,23 +419,3 @@ unsafe extern "C" fn prctl(
         _ => unimplemented!("unrecognized prctl op {}", option),
     }
 }
-
-#[cfg(target_os = "linux")]
-#[no_mangle]
-unsafe extern "C" fn pthread_setname_np(
-    thread: libc::pthread_t,
-    name: *const libc::c_char,
-) -> c_int {
-    libc!(libc::pthread_setname_np(thread, name));
-
-    let name = CStr::from_ptr(name);
-
-    if name.to_bytes_with_nul().len() > 16 {
-        return libc::ERANGE;
-    }
-
-    match rustix::thread::set_name(name) {
-        Ok(()) => 0,
-        Err(err) => err.raw_os_error(),
-    }
-}

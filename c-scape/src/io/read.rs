@@ -1,6 +1,4 @@
-use crate::READ_BUFFER;
-use core::cmp::min;
-use core::ptr::copy_nonoverlapping;
+use core::mem::MaybeUninit;
 use core::slice;
 use errno::{set_errno, Errno};
 use libc::{c_int, c_void, iovec, off64_t, off_t, size_t, ssize_t};
@@ -18,17 +16,10 @@ unsafe extern "C" fn read(fd: c_int, ptr: *mut c_void, len: usize) -> isize {
         return -1;
     }
 
-    // `slice::from_raw_parts_mut` assumes that the memory is initialized,
-    // which our C API here doesn't guarantee. Since rustix currently requires
-    // a slice, use a temporary copy.
-    match convert_res(rustix::io::read(
-        BorrowedFd::borrow_raw(fd),
-        &mut READ_BUFFER[..min(len, READ_BUFFER.len())],
-    )) {
-        Some(nread) => {
-            copy_nonoverlapping(READ_BUFFER.as_ptr(), ptr.cast::<u8>(), nread);
-            nread as isize
-        }
+    let buf = slice::from_raw_parts_mut(ptr.cast::<MaybeUninit<u8>>(), len);
+
+    match convert_res(rustix::io::read_uninit(BorrowedFd::borrow_raw(fd), buf)) {
+        Some((init, _uninit)) => init.len() as isize,
         None => -1,
     }
 }
@@ -76,18 +67,14 @@ unsafe extern "C" fn pread64(fd: c_int, ptr: *mut c_void, len: usize, offset: of
         return -1;
     }
 
-    // `slice::from_raw_parts_mut` assumes that the memory is initialized,
-    // which our C API here doesn't guarantee. Since rustix currently requires
-    // a slice, use a temporary copy.
-    match convert_res(rustix::io::pread(
+    let buf = slice::from_raw_parts_mut(ptr.cast::<MaybeUninit<u8>>(), len);
+
+    match convert_res(rustix::io::pread_uninit(
         BorrowedFd::borrow_raw(fd),
-        &mut READ_BUFFER[..min(len, READ_BUFFER.len())],
+        buf,
         offset as u64,
     )) {
-        Some(nread) => {
-            copy_nonoverlapping(READ_BUFFER.as_ptr(), ptr.cast::<u8>(), nread);
-            nread as isize
-        }
+        Some((init, _uninit)) => init.len() as isize,
         None => -1,
     }
 }

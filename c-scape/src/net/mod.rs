@@ -1,11 +1,11 @@
 mod inet;
 
-use crate::READ_BUFFER;
 use core::cmp::min;
 use core::convert::TryInto;
 use core::ffi::c_void;
 #[cfg(not(target_os = "wasi"))]
 use core::mem::size_of;
+use core::mem::MaybeUninit;
 use core::num::NonZeroU32;
 use core::ptr::{addr_of, copy_nonoverlapping};
 use core::slice;
@@ -403,7 +403,7 @@ unsafe extern "C" fn getsockopt(
             libc::TCP_QUICKACK => write_bool(sockopt::get_tcp_quickack(fd), optval, optlen),
             libc::TCP_CONGESTION => sockopt::get_tcp_congestion(fd).map(|name| {
                 let len = core::cmp::min(*optlen as usize, name.len());
-                core::ptr::copy_nonoverlapping(name.as_ptr(), optval.cast::<u8>(), len);
+                copy_nonoverlapping(name.as_ptr(), optval.cast::<u8>(), len);
                 *optlen = len as libc::socklen_t;
             }),
             libc::TCP_THIN_LINEAR_TIMEOUTS => {
@@ -705,19 +705,13 @@ unsafe extern "C" fn recv(fd: c_int, ptr: *mut c_void, len: usize, flags: c_int)
     libc!(libc::recv(fd, ptr, len, flags));
 
     let flags = RecvFlags::from_bits(flags as _).unwrap();
-
-    // `slice::from_raw_parts_mut` assumes that the memory is initialized,
-    // which our C API here doesn't guarantee. Since rustix currently requires
-    // a slice, use a temporary copy.
-    match convert_res(rustix::net::recv(
+    let buf = slice::from_raw_parts_mut(ptr.cast::<MaybeUninit<u8>>(), len);
+    match convert_res(rustix::net::recv_uninit(
         BorrowedFd::borrow_raw(fd),
-        &mut READ_BUFFER[..min(len, READ_BUFFER.len())],
+        buf,
         flags,
     )) {
-        Some(nread) => {
-            copy_nonoverlapping(READ_BUFFER.as_ptr(), ptr.cast::<u8>(), nread);
-            nread as isize
-        }
+        Some((init, _uninit)) => init.len() as isize,
         None => -1,
     }
 }
@@ -725,7 +719,7 @@ unsafe extern "C" fn recv(fd: c_int, ptr: *mut c_void, len: usize, flags: c_int)
 #[no_mangle]
 unsafe extern "C" fn recvfrom(
     fd: c_int,
-    buf: *mut c_void,
+    ptr: *mut c_void,
     len: usize,
     flags: c_int,
     from: *mut SocketAddrStorage,
@@ -733,25 +727,22 @@ unsafe extern "C" fn recvfrom(
 ) -> isize {
     // We don't use `checked_cast` here because libc uses `sockaddr` which
     // just represents the header of the struct, not the full storage.
-    libc!(libc::recvfrom(fd, buf, len, flags, from.cast(), from_len));
+    libc!(libc::recvfrom(fd, ptr, len, flags, from.cast(), from_len));
 
     let flags = RecvFlags::from_bits(flags as _).unwrap();
+    let buf = slice::from_raw_parts_mut(ptr.cast::<MaybeUninit<u8>>(), len);
 
-    // `slice::from_raw_parts_mut` assumes that the memory is initialized,
-    // which our C API here doesn't guarantee. Since rustix currently requires
-    // a slice, use a temporary copy.
-    match convert_res(rustix::net::recvfrom(
+    match convert_res(rustix::net::recvfrom_uninit(
         BorrowedFd::borrow_raw(fd),
-        &mut READ_BUFFER[..min(len, READ_BUFFER.len())],
+        buf,
         flags,
     )) {
-        Some((nread, addr)) => {
-            copy_nonoverlapping(READ_BUFFER.as_ptr(), buf.cast::<u8>(), nread);
+        Some((init, _uninit, addr)) => {
             if let Some(addr) = addr {
                 let encoded_len = addr.write(from);
                 *from_len = encoded_len.try_into().unwrap();
             }
-            nread as isize
+            init.len() as isize
         }
         None => -1,
     }

@@ -2,14 +2,17 @@ mod key;
 
 use crate::GetThreadId;
 use alloc::boxed::Box;
+use alloc::format;
 use core::convert::TryInto;
 use core::ffi::c_void;
-use core::mem::{align_of, size_of, transmute, zeroed, ManuallyDrop};
+use core::mem::{align_of, size_of, transmute, zeroed, ManuallyDrop, MaybeUninit};
 use core::ptr::{self, copy_nonoverlapping, null_mut, NonNull};
+use core::slice;
 use core::sync::atomic::Ordering::SeqCst;
 use core::sync::atomic::{AtomicBool, AtomicU32};
 use core::time::Duration;
-use origin::thread::Thread;
+use origin::thread::{self, Thread};
+use rustix::fs::{Mode, OFlags};
 use rustix_futex_sync::lock_api::{RawMutex as _, RawReentrantMutex, RawRwLock as _};
 use rustix_futex_sync::{Once, RawCondvar, RawMutex, RawRwLock};
 
@@ -55,8 +58,8 @@ impl Default for PthreadAttrT {
     fn default() -> Self {
         Self {
             stack_addr: null_mut(),
-            stack_size: origin::thread::default_stack_size(),
-            guard_size: origin::thread::default_guard_size(),
+            stack_size: thread::default_stack_size(),
+            guard_size: thread::default_guard_size(),
             flags: PthreadAttrFlags::empty(),
             pad0: 0,
             pad1: 0,
@@ -121,7 +124,7 @@ libc_type!(PthreadRwlockattrT, pthread_rwlockattr_t);
 #[no_mangle]
 unsafe extern "C" fn pthread_self() -> PthreadT {
     libc!(ptr::from_exposed_addr_mut(libc::pthread_self() as _));
-    origin::thread::current().to_raw().cast()
+    thread::current().to_raw().cast()
 }
 
 #[no_mangle]
@@ -130,8 +133,7 @@ unsafe extern "C" fn pthread_getattr_np(thread: PthreadT, attr: *mut PthreadAttr
         thread.expose_addr() as _,
         checked_cast!(attr)
     ));
-    let (stack_addr, stack_size, guard_size) =
-        origin::thread::stack(Thread::from_raw(thread.cast()));
+    let (stack_addr, stack_size, guard_size) = thread::stack(Thread::from_raw(thread.cast()));
     ptr::write(
         attr,
         PthreadAttrT {
@@ -702,7 +704,7 @@ unsafe extern "C" fn pthread_create(
     }
 
     // Create the thread.
-    let thread = match origin::thread::create(call, &args, stack_size, guard_size) {
+    let thread = match thread::create(call, &args, stack_size, guard_size) {
         Ok(thread) => thread,
         Err(e) => return e.raw_os_error(),
     };
@@ -711,7 +713,7 @@ unsafe extern "C" fn pthread_create(
     // `create_thread` to initialize the thread in the detached state,
     // however this seems adequate for now.
     if flags.contains(PthreadAttrFlags::DETACHSTATE) {
-        origin::thread::detach(thread);
+        thread::detach(thread);
     }
 
     pthread.write(thread.to_raw().cast());
@@ -721,7 +723,7 @@ unsafe extern "C" fn pthread_create(
 #[no_mangle]
 unsafe extern "C" fn pthread_detach(pthread: PthreadT) -> c_int {
     libc!(libc::pthread_detach(pthread.expose_addr() as _));
-    origin::thread::detach(Thread::from_raw(pthread.cast()));
+    thread::detach(Thread::from_raw(pthread.cast()));
     0
 }
 
@@ -729,7 +731,7 @@ unsafe extern "C" fn pthread_detach(pthread: PthreadT) -> c_int {
 unsafe extern "C" fn pthread_join(pthread: PthreadT, retval: *mut *mut c_void) -> c_int {
     libc!(libc::pthread_join(pthread.expose_addr() as _, retval));
 
-    let return_value = origin::thread::join(Thread::from_raw(pthread.cast()));
+    let return_value = thread::join(Thread::from_raw(pthread.cast()));
 
     if !retval.is_null() {
         *retval = match return_value {
@@ -889,17 +891,93 @@ unsafe extern "C" fn pthread_getname_np(
         return libc::ERANGE;
     }
 
-    let prctl_name = match rustix::thread::name() {
-        Ok(prctl_name) => prctl_name,
+    let origin_thread = Thread::from_raw(pthread.cast());
+
+    if origin_thread == thread::current() {
+        let prctl_name = match rustix::thread::name() {
+            Ok(prctl_name) => prctl_name,
+            Err(err) => return err.raw_os_error(),
+        };
+
+        let bytes = prctl_name.to_bytes_with_nul();
+
+        debug_assert!(bytes.len() <= len);
+
+        copy_nonoverlapping(bytes.as_ptr().cast(), name, bytes.len());
+        return 0;
+    }
+
+    let path = format!(
+        "/proc/self/task/{}/comm",
+        thread::id(origin_thread).unwrap().as_raw_nonzero()
+    );
+    let fd = match rustix::fs::open(
+        path,
+        OFlags::RDONLY | OFlags::CLOEXEC | OFlags::NOCTTY,
+        Mode::empty(),
+    ) {
+        Ok(fd) => fd,
         Err(err) => return err.raw_os_error(),
     };
 
-    let bytes = prctl_name.to_bytes_with_nul();
-
-    debug_assert!(bytes.len() <= len);
-
-    copy_nonoverlapping(bytes.as_ptr().cast(), name, bytes.len());
+    loop {
+        let buf = slice::from_raw_parts_mut(name.cast::<MaybeUninit<u8>>(), len);
+        match rustix::io::read_uninit(&fd, buf) {
+            Ok((init, _uninit)) if init.is_empty() => return libc::EIO,
+            Ok((init, _uninit)) if init.len() <= len => {
+                *name.add(init.len() - 1) = 0;
+                break;
+            }
+            Ok(_) => return libc::EIO,
+            Err(rustix::io::Errno::INTR) => continue,
+            Err(err) => return err.raw_os_error(),
+        }
+    }
     0
+}
+
+#[cfg(target_os = "linux")]
+#[no_mangle]
+unsafe extern "C" fn pthread_setname_np(pthread: PthreadT, name: *const libc::c_char) -> c_int {
+    libc!(libc::pthread_setname_np(pthread.expose_addr() as _, name));
+
+    let name = core::ffi::CStr::from_ptr(name);
+    let bytes = name.to_bytes();
+
+    if bytes.len() >= 16 {
+        return libc::ERANGE;
+    }
+
+    let origin_thread = Thread::from_raw(pthread.cast());
+
+    if origin_thread == thread::current() {
+        return match rustix::thread::set_name(name) {
+            Ok(()) => 0,
+            Err(err) => err.raw_os_error(),
+        };
+    }
+
+    let path = format!(
+        "/proc/self/task/{}/comm",
+        thread::id(origin_thread).unwrap().as_raw_nonzero()
+    );
+    let fd = match rustix::fs::open(
+        path,
+        OFlags::WRONLY | OFlags::CLOEXEC | OFlags::NOCTTY,
+        Mode::empty(),
+    ) {
+        Ok(fd) => fd,
+        Err(err) => return err.raw_os_error(),
+    };
+
+    loop {
+        match rustix::io::write(&fd, bytes) {
+            Ok(n) if n == bytes.len() => return 0,
+            Ok(_) => return libc::EIO,
+            Err(rustix::io::Errno::INTR) => continue,
+            Err(err) => return err.raw_os_error(),
+        }
+    }
 }
 
 // TODO: See comment on `pthread_clean_push` about the
@@ -911,7 +989,7 @@ unsafe extern "C" fn __cxa_thread_atexit_impl(
     _dso_symbol: *mut c_void,
 ) -> c_int {
     // TODO: libc!(libc::__cxa_thread_atexit_impl(func, obj, _dso_symbol));
-    origin::thread::at_exit(Box::new(move || func(obj)));
+    thread::at_exit(Box::new(move || func(obj)));
     0
 }
 
@@ -923,7 +1001,7 @@ unsafe extern "C" fn __tls_get_addr(p: &[usize; 2]) -> *mut c_void {
     // Offset 0 is the generation field, and we don't support dynamic linking,
     // so we should only sever see 1 here.
     assert_eq!(module, 1);
-    origin::thread::current_tls_addr(offset)
+    thread::current_tls_addr(offset)
 }
 
 #[cfg(target_arch = "x86")]

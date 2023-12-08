@@ -76,6 +76,13 @@ unsafe extern "C" fn openat64(
 unsafe extern "C" fn creat(name: *const c_char, mode: mode_t) -> c_int {
     libc!(libc::creat(name, mode));
 
+    creat64(name, mode)
+}
+
+#[no_mangle]
+unsafe extern "C" fn creat64(name: *const c_char, mode: mode_t) -> c_int {
+    libc!(libc::creat64(name, mode));
+
     open(name, libc::O_CREAT | libc::O_WRONLY | libc::O_TRUNC, mode)
 }
 

@@ -12,6 +12,13 @@ use rustix::fs::MemfdFlags;
 unsafe extern "C" fn mkstemp(template: *mut c_char) -> c_int {
     libc!(libc::mkstemp(template));
 
+    mkstemp64(template)
+}
+
+#[no_mangle]
+unsafe extern "C" fn mkstemp64(template: *mut c_char) -> c_int {
+    //libc!(libc::mkstemp64(template));
+
     mkostemps(template, 0, 0)
 }
 

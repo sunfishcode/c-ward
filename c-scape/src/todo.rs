@@ -895,18 +895,6 @@ unsafe extern "C" fn setreuid() {
     todo!("setreuid")
 }
 #[no_mangle]
-unsafe extern "C" fn strcasestr() {
-    todo!("strcasestr")
-}
-#[no_mangle]
-unsafe extern "C" fn strnlen_s() {
-    todo!("strnlen_s")
-}
-#[no_mangle]
-unsafe extern "C" fn swab() {
-    todo!("swab")
-}
-#[no_mangle]
 unsafe extern "C" fn times() {
     todo!("times")
 }
@@ -993,10 +981,6 @@ unsafe extern "C" fn sched_setscheduler() {
 #[no_mangle]
 unsafe extern "C" fn sigqueue() {
     todo!("sigqueue")
-}
-#[no_mangle]
-unsafe extern "C" fn setpgrp() {
-    todo!("setpgrp")
 }
 #[no_mangle]
 unsafe extern "C" fn __getgroups_chk() {
@@ -1217,10 +1201,6 @@ unsafe extern "C" fn getdents64() {
 #[no_mangle]
 unsafe extern "C" fn getdomainname() {
     todo!("getdomainname")
-}
-#[no_mangle]
-unsafe extern "C" fn sethostid() {
-    todo!("sethostid")
 }
 #[no_mangle]
 unsafe extern "C" fn ioperm() {

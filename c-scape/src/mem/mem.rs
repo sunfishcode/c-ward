@@ -1,5 +1,5 @@
 use core::ptr::null_mut;
-use libc::{c_int, c_void, size_t};
+use libc::{c_int, c_void, size_t, ssize_t};
 
 #[no_mangle]
 unsafe extern "C" fn memchr(s: *const c_void, c: c_int, len: size_t) -> *mut c_void {
@@ -255,4 +255,21 @@ unsafe extern "C" fn memccpy(
     }
 
     null_mut()
+}
+
+#[no_mangle]
+unsafe extern "C" fn swab(from: *const c_void, to: *mut c_void, n: ssize_t) {
+    //libc!(libc::swab(from, to, n));
+
+    if n <= 0 {
+        return;
+    }
+
+    let n = n as usize;
+    let from = from.cast::<u16>();
+    let to = to.cast::<u16>();
+    for i in 0..(n / 2) {
+        to.add(i)
+            .write_unaligned(from.add(i).read_unaligned().swap_bytes());
+    }
 }

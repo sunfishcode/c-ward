@@ -124,3 +124,16 @@ unsafe extern "C" fn gethostid() -> c_long {
     // 32 bits isn't enough to uniquely identify a "host".
     0
 }
+
+#[deprecated]
+#[no_mangle]
+unsafe extern "C" fn sethostid(id: c_long) -> c_int {
+    libc!(libc::sethostid(id));
+
+    if id == 0 {
+        0
+    } else {
+        set_errno(Errno(libc::EACCES));
+        -1
+    }
+}

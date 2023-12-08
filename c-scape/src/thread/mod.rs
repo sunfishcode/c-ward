@@ -742,8 +742,9 @@ unsafe extern "C" fn pthread_join(pthread: PthreadT, retval: *mut *mut c_void) -
 }
 
 #[no_mangle]
-unsafe extern "C" fn pthread_equal(a: PthreadT, b: PthreadT) -> c_int {
+unsafe extern "C" fn pthread_equal(a: libc::pthread_t, b: libc::pthread_t) -> c_int {
     //libc!(libc::pthread_equal(a, b));
+
     i32::from(a == b)
 }
 

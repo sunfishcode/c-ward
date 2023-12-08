@@ -166,10 +166,11 @@ pub(crate) struct GetThreadId;
 unsafe impl rustix_futex_sync::lock_api::GetThreadId for GetThreadId {
     const INIT: Self = Self;
 
+    #[inline]
     fn nonzero_thread_id(&self) -> core::num::NonZeroUsize {
-        origin::thread::current_id()
-            .as_raw_nonzero()
-            .try_into()
-            .unwrap()
+        // Use the current thread "raw" value, which origin guarantees uniquely
+        // identifies a thread. `thread::current_id` would also work, but would
+        // be slightly slower on some architectures.
+        origin::thread::current().to_raw_non_null().addr()
     }
 }

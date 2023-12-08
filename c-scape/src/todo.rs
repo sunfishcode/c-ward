@@ -667,18 +667,6 @@ unsafe extern "C" fn crypt() {
     todo!("crypt")
 }
 #[no_mangle]
-unsafe extern "C" fn basename() {
-    todo!("basename")
-}
-#[no_mangle]
-unsafe extern "C" fn __xpg_basename() {
-    todo!("__xpg_basename")
-}
-#[no_mangle]
-unsafe extern "C" fn dirname() {
-    todo!("dirname")
-}
-#[no_mangle]
 unsafe extern "C" fn dn_expand() {
     todo!("dn_expand")
 }

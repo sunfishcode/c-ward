@@ -89,6 +89,7 @@ mod int;
 mod locale;
 mod mkostemps;
 mod nss;
+mod path;
 mod pause;
 mod posix_spawn;
 mod process_;

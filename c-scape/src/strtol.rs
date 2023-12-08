@@ -2,25 +2,21 @@ use errno::{set_errno, Errno};
 use libc::{c_char, c_int, c_long, c_longlong, c_ulong, c_ulonglong, intmax_t, uintmax_t};
 
 #[no_mangle]
-pub unsafe extern "C" fn strtoul(
-    s: *const c_char,
-    endptr: *mut *mut c_char,
-    base: c_int,
-) -> c_ulong {
+unsafe extern "C" fn strtoul(s: *const c_char, endptr: *mut *mut c_char, base: c_int) -> c_ulong {
     libc!(libc::strtoul(s, endptr, base));
 
     strto(s, endptr, base, 0, c_ulong::MAX as _) as _
 }
 
 #[no_mangle]
-pub unsafe extern "C" fn strtol(s: *const c_char, endptr: *mut *mut c_char, base: c_int) -> c_long {
+unsafe extern "C" fn strtol(s: *const c_char, endptr: *mut *mut c_char, base: c_int) -> c_long {
     libc!(libc::strtol(s, endptr, base));
 
     strto(s, endptr, base, c_long::MIN as _, c_long::MAX as _) as _
 }
 
 #[no_mangle]
-pub unsafe extern "C" fn strtoull(
+unsafe extern "C" fn strtoull(
     s: *const c_char,
     endptr: *mut *mut c_char,
     base: c_int,
@@ -31,7 +27,7 @@ pub unsafe extern "C" fn strtoull(
 }
 
 #[no_mangle]
-pub unsafe extern "C" fn strtoll(
+unsafe extern "C" fn strtoll(
     s: *const c_char,
     endptr: *mut *mut c_char,
     base: c_int,
@@ -42,7 +38,7 @@ pub unsafe extern "C" fn strtoll(
 }
 
 #[no_mangle]
-pub unsafe extern "C" fn strtoumax(
+unsafe extern "C" fn strtoumax(
     s: *const c_char,
     endptr: *mut *mut c_char,
     base: c_int,
@@ -53,7 +49,7 @@ pub unsafe extern "C" fn strtoumax(
 }
 
 #[no_mangle]
-pub unsafe extern "C" fn strtoimax(
+unsafe extern "C" fn strtoimax(
     s: *const c_char,
     endptr: *mut *mut c_char,
     base: c_int,

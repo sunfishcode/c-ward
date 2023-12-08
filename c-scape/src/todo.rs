@@ -306,14 +306,6 @@ unsafe extern "C" fn setvbuf() {
     todo!("setvbuf")
 }
 #[no_mangle]
-unsafe extern "C" fn strtoimax() {
-    todo!("strtoimax")
-}
-#[no_mangle]
-unsafe extern "C" fn strtoumax() {
-    todo!("strtoumax")
-}
-#[no_mangle]
 unsafe extern "C" fn tempnam() {
     todo!("tempnam")
 }

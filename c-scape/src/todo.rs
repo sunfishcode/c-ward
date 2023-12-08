@@ -346,6 +346,10 @@ unsafe extern "C" fn truncate() {
     todo!("truncate")
 }
 #[no_mangle]
+unsafe extern "C" fn truncate64() {
+    todo!("truncate64")
+}
+#[no_mangle]
 unsafe extern "C" fn personality() {
     todo!("personality")
 }
@@ -1167,10 +1171,6 @@ unsafe extern "C" fn execveat() {
     todo!("execveat")
 }
 #[no_mangle]
-unsafe extern "C" fn posix_fadvise64() {
-    todo!("posix_fadvise64")
-}
-#[no_mangle]
 unsafe extern "C" fn fanotify_init() {
     todo!("fanotify_init")
 }
@@ -1183,20 +1183,8 @@ unsafe extern "C" fn name_to_handle_at() {
     todo!("name_to_handle_at")
 }
 #[no_mangle]
-unsafe extern "C" fn creat64() {
-    todo!("creat64")
-}
-#[no_mangle]
-unsafe extern "C" fn mkstemp64() {
-    todo!("mkstemp64")
-}
-#[no_mangle]
 unsafe extern "C" fn mkdtemp() {
     todo!("mkdtemp")
-}
-#[no_mangle]
-unsafe extern "C" fn truncate64() {
-    todo!("truncate64")
 }
 #[no_mangle]
 unsafe extern "C" fn addseverity() {

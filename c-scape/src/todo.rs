@@ -1,13 +1,61 @@
 //! Unimplemented stub functions. These may help porting programs which
 //! need these functions to link but don't (always) call them at runtime.
 
+mod aio;
+mod cat;
+mod fenv;
+mod locale;
+mod long_double;
+mod sysv;
+mod wchar;
+
 #[no_mangle]
-unsafe extern "C" fn freeifaddrs() {
-    todo!("freeifaddrs")
+unsafe extern "C" fn setnetent() {
+    todo!("setnetent")
 }
 #[no_mangle]
-unsafe extern "C" fn getifaddrs() {
-    todo!("getifaddrs")
+unsafe extern "C" fn getnetent() {
+    todo!("getnetent")
+}
+#[no_mangle]
+unsafe extern "C" fn endnetent() {
+    todo!("endnetent")
+}
+#[no_mangle]
+unsafe extern "C" fn setprotoent() {
+    todo!("setprotoent")
+}
+#[no_mangle]
+unsafe extern "C" fn getprotoent() {
+    todo!("getprotoent")
+}
+#[no_mangle]
+unsafe extern "C" fn endprotoent() {
+    todo!("endprotoent")
+}
+#[no_mangle]
+unsafe extern "C" fn setservent() {
+    todo!("setservent")
+}
+#[no_mangle]
+unsafe extern "C" fn getservent() {
+    todo!("getservent")
+}
+#[no_mangle]
+unsafe extern "C" fn endservent() {
+    todo!("endservent")
+}
+#[no_mangle]
+unsafe extern "C" fn sethostent() {
+    todo!("sethostent")
+}
+#[no_mangle]
+unsafe extern "C" fn gethostent() {
+    todo!("gethostent")
+}
+#[no_mangle]
+unsafe extern "C" fn endhostent() {
+    todo!("endhostent")
 }
 #[no_mangle]
 unsafe extern "C" fn setpwent() {
@@ -20,6 +68,94 @@ unsafe extern "C" fn getpwent() {
 #[no_mangle]
 unsafe extern "C" fn endpwent() {
     todo!("endpwent")
+}
+#[no_mangle]
+unsafe extern "C" fn setmntent() {
+    todo!("setmntent")
+}
+#[no_mangle]
+unsafe extern "C" fn getmntent() {
+    todo!("getmntent")
+}
+#[no_mangle]
+unsafe extern "C" fn endmntent() {
+    todo!("endmntent")
+}
+#[no_mangle]
+unsafe extern "C" fn hasmntopt() {
+    todo!("hasmntopt")
+}
+#[no_mangle]
+unsafe extern "C" fn setgrent() {
+    todo!("setgrent")
+}
+#[no_mangle]
+unsafe extern "C" fn getgrent() {
+    todo!("getgrent")
+}
+#[no_mangle]
+unsafe extern "C" fn endgrent() {
+    todo!("endgrent")
+}
+#[no_mangle]
+unsafe extern "C" fn gethostbyaddr() {
+    todo!("gethostbyaddr")
+}
+#[no_mangle]
+unsafe extern "C" fn getnetbyname() {
+    todo!("getnetbyname")
+}
+#[no_mangle]
+unsafe extern "C" fn getprotobyname() {
+    todo!("getprotobyname")
+}
+#[no_mangle]
+unsafe extern "C" fn getprotobynumber() {
+    todo!("getprotobynumber")
+}
+#[no_mangle]
+unsafe extern "C" fn getifaddrs() {
+    todo!("getifaddrs")
+}
+#[no_mangle]
+unsafe extern "C" fn freeifaddrs() {
+    todo!("freeifaddrs")
+}
+#[no_mangle]
+unsafe extern "C" fn getnameinfo() {
+    todo!("getnameinfo")
+}
+#[no_mangle]
+unsafe extern "C" fn gethostbyname() {
+    todo!("gethostbyname")
+}
+#[no_mangle]
+unsafe extern "C" fn getservbyname() {
+    todo!("getservbyname")
+}
+#[no_mangle]
+unsafe extern "C" fn getservbyport() {
+    todo!("getservbyport")
+}
+#[no_mangle]
+unsafe extern "C" fn if_indextoname() {
+    todo!("if_indextoname")
+}
+#[no_mangle]
+unsafe extern "C" fn getgrent_r() {
+    todo!("getgrent_r")
+}
+#[no_mangle]
+unsafe extern "C" fn getpwent_r() {
+    todo!("getpwent_r")
+}
+#[no_mangle]
+unsafe extern "C" fn getspent_r() {
+    todo!("getspent_r")
+}
+#[no_mangle]
+unsafe extern "C" fn gethostbyname_r() {
+    todo!("gethostbyname_r")
 }
 #[no_mangle]
 unsafe extern "C" fn alarm() {
@@ -90,18 +226,6 @@ unsafe extern "C" fn swapcontext() {
     todo!("swapcontext")
 }
 #[no_mangle]
-unsafe extern "C" fn shmat() {
-    todo!("shmat")
-}
-#[no_mangle]
-unsafe extern "C" fn shmget() {
-    todo!("shmget")
-}
-#[no_mangle]
-unsafe extern "C" fn shmdt() {
-    todo!("shmdt")
-}
-#[no_mangle]
 unsafe extern "C" fn __fdelt_chk() {
     todo!("__fdelt_chk")
 }
@@ -114,16 +238,8 @@ unsafe extern "C" fn _longjmp() {
     todo!("_longjmp")
 }
 #[no_mangle]
-unsafe extern "C" fn getnameinfo() {
-    todo!("getnameinfo")
-}
-#[no_mangle]
-unsafe extern "C" fn gethostbyname() {
-    todo!("gethostbyname")
-}
-#[no_mangle]
-unsafe extern "C" fn getmntent() {
-    todo!("getmntent")
+unsafe extern "C" fn __longjmp_chk() {
+    todo!("__longjmp_chk")
 }
 #[no_mangle]
 unsafe extern "C" fn acct() {
@@ -142,14 +258,6 @@ unsafe extern "C" fn fchownat() {
     todo!("fchownat")
 }
 #[no_mangle]
-unsafe extern "C" fn forkpty() {
-    todo!("forkpty")
-}
-#[no_mangle]
-unsafe extern "C" fn fstatfs64() {
-    todo!("fstatfs64")
-}
-#[no_mangle]
 unsafe extern "C" fn getresgid() {
     todo!("getresgid")
 }
@@ -166,8 +274,20 @@ unsafe extern "C" fn ppoll() {
     todo!("ppoll")
 }
 #[no_mangle]
+unsafe extern "C" fn __ppoll_chk() {
+    todo!("__ppoll_chk")
+}
+#[no_mangle]
 unsafe extern "C" fn pselect() {
     todo!("pselect")
+}
+#[no_mangle]
+unsafe extern "C" fn epoll_pwait() {
+    todo!("epoll_pwait")
+}
+#[no_mangle]
+unsafe extern "C" fn epoll_pwait2() {
+    todo!("epoll_pwait2")
 }
 #[no_mangle]
 unsafe extern "C" fn ptrace() {
@@ -182,16 +302,20 @@ unsafe extern "C" fn ptsname_r() {
     todo!("ptsname_r")
 }
 #[no_mangle]
+unsafe extern "C" fn forkpty() {
+    todo!("forkpty")
+}
+#[no_mangle]
 unsafe extern "C" fn recvmmsg() {
     todo!("recvmmsg")
 }
 #[no_mangle]
-unsafe extern "C" fn renameat2() {
-    todo!("renameat2")
-}
-#[no_mangle]
 unsafe extern "C" fn sendmmsg() {
     todo!("sendmmsg")
+}
+#[no_mangle]
+unsafe extern "C" fn renameat2() {
+    todo!("renameat2")
 }
 #[no_mangle]
 unsafe extern "C" fn timer_create() {
@@ -202,16 +326,20 @@ unsafe extern "C" fn timer_delete() {
     todo!("timer_delete")
 }
 #[no_mangle]
-unsafe extern "C" fn timerfd_gettime() {
-    todo!("timerfd_gettime")
-}
-#[no_mangle]
 unsafe extern "C" fn timer_gettime() {
     todo!("timer_gettime")
 }
 #[no_mangle]
 unsafe extern "C" fn timer_settime() {
     todo!("timer_settime")
+}
+#[no_mangle]
+unsafe extern "C" fn timer_getoverrun() {
+    todo!("timer_getoverrun")
+}
+#[no_mangle]
+unsafe extern "C" fn timerfd_gettime() {
+    todo!("timerfd_gettime")
 }
 #[no_mangle]
 unsafe extern "C" fn truncate() {
@@ -240,14 +368,6 @@ unsafe extern "C" fn __getline() {
 #[no_mangle]
 unsafe extern "C" fn getrusage() {
     todo!("getrusage")
-}
-#[no_mangle]
-unsafe extern "C" fn gets() {
-    unimplemented!("gets")
-}
-#[no_mangle]
-unsafe extern "C" fn getw() {
-    todo!("getw")
 }
 #[no_mangle]
 unsafe extern "C" fn inet_addr() {
@@ -294,16 +414,20 @@ unsafe extern "C" fn popen() {
     todo!("popen")
 }
 #[no_mangle]
-unsafe extern "C" fn putw() {
-    todo!("putw")
-}
-#[no_mangle]
 unsafe extern "C" fn setbuf() {
     todo!("setbuf")
 }
 #[no_mangle]
 unsafe extern "C" fn setvbuf() {
     todo!("setvbuf")
+}
+#[no_mangle]
+unsafe extern "C" fn setbuffer() {
+    todo!("setbuffer")
+}
+#[no_mangle]
+unsafe extern "C" fn setlinebuf() {
+    todo!("setlinebuf")
 }
 #[no_mangle]
 unsafe extern "C" fn tempnam() {
@@ -334,14 +458,6 @@ unsafe extern "C" fn vsscanf() {
     todo!("vsscanf")
 }
 #[no_mangle]
-unsafe extern "C" fn basename() {
-    todo!("basename")
-}
-#[no_mangle]
-unsafe extern "C" fn endgrent() {
-    todo!("endgrent")
-}
-#[no_mangle]
 unsafe extern "C" fn error() {
     todo!("error")
 }
@@ -350,44 +466,12 @@ unsafe extern "C" fn error_at_line() {
     todo!("error_at_line")
 }
 #[no_mangle]
-unsafe extern "C" fn feclearexcept() {
-    todo!("feclearexcept")
-}
-#[no_mangle]
-unsafe extern "C" fn fegetenv() {
-    todo!("fegetenv")
-}
-#[no_mangle]
-unsafe extern "C" fn fegetround() {
-    todo!("fegetround")
-}
-#[no_mangle]
-unsafe extern "C" fn feraiseexcept() {
-    todo!("feraiseexcept")
-}
-#[no_mangle]
-unsafe extern "C" fn fesetenv() {
-    todo!("fesetenv")
-}
-#[no_mangle]
-unsafe extern "C" fn fesetround() {
-    todo!("fesetround")
-}
-#[no_mangle]
-unsafe extern "C" fn fetestexcept() {
-    todo!("fetestexcept")
-}
-#[no_mangle]
 unsafe extern "C" fn fopencookie() {
     todo!("fopencookie")
 }
 #[no_mangle]
 unsafe extern "C" fn getdelim() {
     todo!("getdelim")
-}
-#[no_mangle]
-unsafe extern "C" fn getgrent() {
-    todo!("getgrent")
 }
 #[no_mangle]
 unsafe extern "C" fn getline() {
@@ -402,36 +486,8 @@ unsafe extern "C" fn getopt_long_only() {
     todo!("getopt_long_only")
 }
 #[no_mangle]
-unsafe extern "C" fn getservbyname() {
-    todo!("getservbyname")
-}
-#[no_mangle]
-unsafe extern "C" fn getservbyport() {
-    todo!("getservbyport")
-}
-#[no_mangle]
-unsafe extern "C" fn if_indextoname() {
-    todo!("if_indextoname")
-}
-#[no_mangle]
 unsafe extern "C" fn longjmp() {
     todo!("longjmp")
-}
-#[no_mangle]
-unsafe extern "C" fn mbrtoc32() {
-    todo!("mbrtoc32")
-}
-#[no_mangle]
-unsafe extern "C" fn mbrtowc() {
-    todo!("mbrtowc")
-}
-#[no_mangle]
-unsafe extern "C" fn mbstowcs() {
-    todo!("mbstowcs")
-}
-#[no_mangle]
-unsafe extern "C" fn mbtowc() {
-    todo!("mbtowc")
 }
 #[no_mangle]
 unsafe extern "C" fn ns_get16() {
@@ -464,6 +520,10 @@ unsafe extern "C" fn optind() {
 #[no_mangle]
 unsafe extern "C" fn optopt() {
     todo!("optopt")
+}
+#[no_mangle]
+unsafe extern "C" fn opterr() {
+    todo!("opterr")
 }
 #[no_mangle]
 unsafe extern "C" fn posix_spawn() {
@@ -593,98 +653,22 @@ unsafe extern "C" fn pthread_setschedparam() {
 unsafe extern "C" fn __pthread_unregister_cancel() {
     todo!("__pthread_unregister_cancel")
 }
-#[no_mangle]
-unsafe extern "C" fn setgrent() {
-    todo!("setgrent")
-}
-#[deprecated]
-#[no_mangle]
-unsafe extern "C" fn sighold() {
-    todo!("sighold")
-}
-#[deprecated]
-#[no_mangle]
-unsafe extern "C" fn sigignore() {
-    todo!("sigignore")
-}
-#[deprecated]
-#[no_mangle]
-unsafe extern "C" fn sigrelse() {
-    todo!("sigrelse")
-}
-#[deprecated]
-#[no_mangle]
-unsafe extern "C" fn sigset() {
-    todo!("sigset")
-}
-#[no_mangle]
-unsafe extern "C" fn __xpg_sigpause() {
-    todo!("__xpg_sigpause")
-}
 #[cfg(not(feature = "std"))]
 #[no_mangle]
 unsafe extern "C" fn system() {
     todo!("system")
 }
 #[no_mangle]
-unsafe extern "C" fn tfind() {
-    todo!("tfind")
+unsafe extern "C" fn crypt() {
+    todo!("crypt")
 }
 #[no_mangle]
-unsafe extern "C" fn tsearch() {
-    todo!("tsearch")
-}
-#[no_mangle]
-unsafe extern "C" fn wcsdup() {
-    todo!("wcsdup")
-}
-#[no_mangle]
-unsafe extern "C" fn wcslen() {
-    todo!("wcslen")
-}
-#[no_mangle]
-unsafe extern "C" fn wcsncasecmp() {
-    todo!("wcsncasecmp")
-}
-#[no_mangle]
-unsafe extern "C" fn wcsrtombs() {
-    todo!("wcsrtombs")
-}
-#[no_mangle]
-unsafe extern "C" fn wcstol() {
-    todo!("wcstol")
-}
-#[no_mangle]
-unsafe extern "C" fn wcstoll() {
-    todo!("wcstoll")
-}
-#[no_mangle]
-unsafe extern "C" fn wcstoul() {
-    todo!("wcstoul")
-}
-#[no_mangle]
-unsafe extern "C" fn wcstoull() {
-    todo!("wcstoull")
-}
-#[no_mangle]
-unsafe extern "C" fn wmemcmp() {
-    todo!("wmemcmp")
+unsafe extern "C" fn basename() {
+    todo!("basename")
 }
 #[no_mangle]
 unsafe extern "C" fn __xpg_basename() {
     todo!("__xpg_basename")
-}
-#[no_mangle]
-unsafe extern "C" fn btowc() {
-    todo!("btowc")
-}
-#[no_mangle]
-unsafe extern "C" fn copysignl() {
-    todo!("copysignl")
-}
-#[no_mangle]
-unsafe extern "C" fn crypt() {
-    todo!("crypt")
 }
 #[no_mangle]
 unsafe extern "C" fn dirname() {
@@ -695,20 +679,12 @@ unsafe extern "C" fn dn_expand() {
     todo!("dn_expand")
 }
 #[no_mangle]
-unsafe extern "C" fn fgetwc() {
-    todo!("fgetwc")
-}
-#[no_mangle]
 unsafe extern "C" fn fmemopen() {
     todo!("fmemopen")
 }
 #[no_mangle]
 unsafe extern "C" fn fnmatch() {
     todo!("fnmatch")
-}
-#[no_mangle]
-unsafe extern "C" fn ftok() {
-    todo!("ftok")
 }
 #[no_mangle]
 unsafe extern "C" fn getopt() {
@@ -743,64 +719,12 @@ unsafe extern "C" fn initstate() {
     todo!("initstate")
 }
 #[no_mangle]
-unsafe extern "C" fn insque() {
-    todo!("insque")
-}
-#[no_mangle]
 unsafe extern "C" fn __isoc99_fscanf() {
     todo!("__isoc99_fscanf")
 }
 #[no_mangle]
 unsafe extern "C" fn __isoc99_fwscanf() {
     todo!("__isoc99_fwscanf")
-}
-#[no_mangle]
-unsafe extern "C" fn iswalnum() {
-    todo!("iswalnum")
-}
-#[no_mangle]
-unsafe extern "C" fn iswalpha() {
-    todo!("iswalpha")
-}
-#[no_mangle]
-unsafe extern "C" fn iswblank() {
-    todo!("iswblank")
-}
-#[no_mangle]
-unsafe extern "C" fn iswcntrl() {
-    todo!("iswcntrl")
-}
-#[no_mangle]
-unsafe extern "C" fn iswdigit() {
-    todo!("iswdigit")
-}
-#[no_mangle]
-unsafe extern "C" fn iswgraph() {
-    todo!("iswgraph")
-}
-#[no_mangle]
-unsafe extern "C" fn iswlower() {
-    todo!("iswlower")
-}
-#[no_mangle]
-unsafe extern "C" fn iswprint() {
-    todo!("iswprint")
-}
-#[no_mangle]
-unsafe extern "C" fn iswpunct() {
-    todo!("iswpunct")
-}
-#[no_mangle]
-unsafe extern "C" fn iswspace() {
-    todo!("iswspace")
-}
-#[no_mangle]
-unsafe extern "C" fn iswupper() {
-    todo!("iswupper")
-}
-#[no_mangle]
-unsafe extern "C" fn iswxdigit() {
-    todo!("iswxdigit")
 }
 #[no_mangle]
 unsafe extern "C" fn lfind() {
@@ -819,44 +743,20 @@ unsafe extern "C" fn lsearch() {
     todo!("lsearch")
 }
 #[no_mangle]
-unsafe extern "C" fn mbsrtowcs() {
-    todo!("mbsrtowcs")
+unsafe extern "C" fn tsearch() {
+    todo!("tsearch")
 }
 #[no_mangle]
-unsafe extern "C" fn mkdtemp() {
-    todo!("mkdtemp")
+unsafe extern "C" fn tfind() {
+    todo!("tfind")
 }
 #[no_mangle]
-unsafe extern "C" fn msgctl() {
-    todo!("msgctl")
+unsafe extern "C" fn tdelete() {
+    todo!("tdelete")
 }
 #[no_mangle]
-unsafe extern "C" fn msgget() {
-    todo!("msgget")
-}
-#[no_mangle]
-unsafe extern "C" fn msgrcv() {
-    todo!("msgrcv")
-}
-#[no_mangle]
-unsafe extern "C" fn msgsnd() {
-    todo!("msgsnd")
-}
-#[no_mangle]
-unsafe extern "C" fn newlocale() {
-    todo!("newlocale")
-}
-#[no_mangle]
-unsafe extern "C" fn freelocale() {
-    todo!("freelocale")
-}
-#[no_mangle]
-unsafe extern "C" fn uselocale() {
-    todo!("uselocale")
-}
-#[no_mangle]
-unsafe extern "C" fn nl_langinfo() {
-    todo!("nl_langinfo")
+unsafe extern "C" fn twalk() {
+    todo!("twalk")
 }
 #[no_mangle]
 unsafe extern "C" fn posix_spawn_file_actions_addclose() {
@@ -871,32 +771,20 @@ unsafe extern "C" fn pthread_mutex_timedlock() {
     todo!("pthread_mutex_timedlock")
 }
 #[no_mangle]
-unsafe extern "C" fn random() {
-    todo!("random")
+unsafe extern "C" fn insque() {
+    todo!("insque")
 }
 #[no_mangle]
 unsafe extern "C" fn remque() {
     todo!("remque")
 }
 #[no_mangle]
-unsafe extern "C" fn scalbnl() {
-    todo!("scalbnl")
-}
-#[no_mangle]
 unsafe extern "C" fn sem_close() {
     todo!("sem_close")
 }
 #[no_mangle]
-unsafe extern "C" fn semctl() {
-    todo!("semctl")
-}
-#[no_mangle]
 unsafe extern "C" fn sem_destroy() {
     todo!("sem_destroy")
-}
-#[no_mangle]
-unsafe extern "C" fn semget() {
-    todo!("semget")
 }
 #[no_mangle]
 unsafe extern "C" fn sem_getvalue() {
@@ -905,10 +793,6 @@ unsafe extern "C" fn sem_getvalue() {
 #[no_mangle]
 unsafe extern "C" fn sem_init() {
     todo!("sem_init")
-}
-#[no_mangle]
-unsafe extern "C" fn semop() {
-    todo!("semop")
 }
 #[no_mangle]
 unsafe extern "C" fn sem_open() {
@@ -939,8 +823,8 @@ unsafe extern "C" fn setstate() {
     todo!("setstate")
 }
 #[no_mangle]
-unsafe extern "C" fn shmctl() {
-    todo!("shmctl")
+unsafe extern "C" fn random() {
+    todo!("random")
 }
 #[no_mangle]
 unsafe extern "C" fn srandom() {
@@ -951,56 +835,28 @@ unsafe extern "C" fn strptime() {
     todo!("strptime")
 }
 #[no_mangle]
-unsafe extern "C" fn strtold() {
-    todo!("strtold")
+unsafe extern "C" fn __stpcpy_chk() {
+    todo!("__stpcpy_chk")
 }
 #[no_mangle]
 unsafe extern "C" fn strverscmp() {
     todo!("strverscmp")
 }
 #[no_mangle]
-unsafe extern "C" fn swprintf() {
-    todo!("swprintf")
+unsafe extern "C" fn strtold() {
+    todo!("strtold")
 }
 #[no_mangle]
-unsafe extern "C" fn tdelete() {
-    todo!("tdelete")
-}
-#[no_mangle]
-unsafe extern "C" fn twalk() {
-    todo!("twalk")
-}
-#[no_mangle]
-unsafe extern "C" fn wcrtomb() {
-    todo!("wcrtomb")
-}
-#[no_mangle]
-unsafe extern "C" fn wcschr() {
-    todo!("wcschr")
-}
-#[no_mangle]
-unsafe extern "C" fn wcscmp() {
-    todo!("wcscmp")
-}
-#[no_mangle]
-unsafe extern "C" fn wcscpy() {
-    todo!("wcscpy")
-}
-#[no_mangle]
-unsafe extern "C" fn wcsncpy() {
-    todo!("wcsncpy")
-}
-#[no_mangle]
-unsafe extern "C" fn wcsstr() {
-    todo!("wcsstr")
-}
-#[no_mangle]
-unsafe extern "C" fn wctob() {
-    todo!("wctob")
+unsafe extern "C" fn atof() {
+    todo!("atof")
 }
 #[no_mangle]
 unsafe extern "C" fn a64l() {
     todo!("a64l")
+}
+#[no_mangle]
+unsafe extern "C" fn l64a() {
+    todo!("l64a")
 }
 #[no_mangle]
 unsafe extern "C" fn alphasort() {
@@ -1015,10 +871,6 @@ unsafe extern "C" fn asprintf() {
     todo!("asprintf")
 }
 #[no_mangle]
-unsafe extern "C" fn atof() {
-    todo!("atof")
-}
-#[no_mangle]
 unsafe extern "C" fn ctime() {
     todo!("ctime")
 }
@@ -1027,88 +879,8 @@ unsafe extern "C" fn ctime_r() {
     todo!("ctime_r")
 }
 #[no_mangle]
-unsafe extern "C" fn endhostent() {
-    todo!("endhostent")
-}
-#[no_mangle]
-unsafe extern "C" fn endprotoent() {
-    todo!("endprotoent")
-}
-#[no_mangle]
-unsafe extern "C" fn endservent() {
-    todo!("endservent")
-}
-#[no_mangle]
-unsafe extern "C" fn fputwc() {
-    todo!("fputwc")
-}
-#[no_mangle]
-unsafe extern "C" fn fputws() {
-    todo!("fputws")
-}
-#[no_mangle]
-unsafe extern "C" fn fwide() {
-    todo!("fwide")
-}
-#[no_mangle]
-unsafe extern "C" fn gethostbyaddr() {
-    todo!("gethostbyaddr")
-}
-#[no_mangle]
-unsafe extern "C" fn gethostent() {
-    todo!("gethostent")
-}
-#[no_mangle]
-unsafe extern "C" fn getnetbyname() {
-    todo!("getnetbyname")
-}
-#[no_mangle]
-unsafe extern "C" fn getnetent() {
-    todo!("getnetent")
-}
-#[no_mangle]
-unsafe extern "C" fn getprotobyname() {
-    todo!("getprotobyname")
-}
-#[no_mangle]
-unsafe extern "C" fn getprotobynumber() {
-    todo!("getprotobynumber")
-}
-#[no_mangle]
-unsafe extern "C" fn getprotoent() {
-    todo!("getprotoent")
-}
-#[no_mangle]
-unsafe extern "C" fn getservent() {
-    todo!("getservent")
-}
-#[no_mangle]
 unsafe extern "C" fn __isoc99_vsscanf() {
     todo!("__isoc99_vsscanf")
-}
-#[no_mangle]
-unsafe extern "C" fn l64a() {
-    todo!("l64a")
-}
-#[no_mangle]
-unsafe extern "C" fn opterr() {
-    todo!("opterr")
-}
-#[no_mangle]
-unsafe extern "C" fn putwchar() {
-    todo!("putwchar")
-}
-#[no_mangle]
-unsafe extern "C" fn sethostent() {
-    todo!("sethostent")
-}
-#[no_mangle]
-unsafe extern "C" fn setnetent() {
-    todo!("setnetent")
-}
-#[no_mangle]
-unsafe extern "C" fn setprotoent() {
-    todo!("setprotoent")
 }
 #[no_mangle]
 unsafe extern "C" fn setregid() {
@@ -1117,10 +889,6 @@ unsafe extern "C" fn setregid() {
 #[no_mangle]
 unsafe extern "C" fn setreuid() {
     todo!("setreuid")
-}
-#[no_mangle]
-unsafe extern "C" fn setservent() {
-    todo!("setservent")
 }
 #[no_mangle]
 unsafe extern "C" fn strcasestr() {
@@ -1137,54 +905,6 @@ unsafe extern "C" fn swab() {
 #[no_mangle]
 unsafe extern "C" fn times() {
     todo!("times")
-}
-#[no_mangle]
-unsafe extern "C" fn towctrans() {
-    todo!("towctrans")
-}
-#[no_mangle]
-unsafe extern "C" fn ungetwc() {
-    todo!("ungetwc")
-}
-#[no_mangle]
-unsafe extern "C" fn wcscasecmp() {
-    todo!("wcscasecmp")
-}
-#[no_mangle]
-unsafe extern "C" fn wcscspn() {
-    todo!("wcscspn")
-}
-#[no_mangle]
-unsafe extern "C" fn wcsrchr() {
-    todo!("wcsrchr")
-}
-#[no_mangle]
-unsafe extern "C" fn wcstod() {
-    todo!("wcstod")
-}
-#[no_mangle]
-unsafe extern "C" fn wcstoimax() {
-    todo!("wcstoimax")
-}
-#[no_mangle]
-unsafe extern "C" fn wcstok() {
-    todo!("wcstok")
-}
-#[no_mangle]
-unsafe extern "C" fn wcstoumax() {
-    todo!("wcstoumax")
-}
-#[no_mangle]
-unsafe extern "C" fn wcswidth() {
-    todo!("wcswidth")
-}
-#[no_mangle]
-unsafe extern "C" fn wctrans() {
-    todo!("wctrans")
-}
-#[no_mangle]
-unsafe extern "C" fn wprintf() {
-    todo!("wprintf")
 }
 #[no_mangle]
 unsafe extern "C" fn pthread_getcpuclockid() {
@@ -1271,32 +991,12 @@ unsafe extern "C" fn sigqueue() {
     todo!("sigqueue")
 }
 #[no_mangle]
-unsafe extern "C" fn timer_getoverrun() {
-    todo!("timer_getoverrun")
-}
-#[no_mangle]
-unsafe extern "C" fn __longjmp_chk() {
-    todo!("__longjmp_chk")
-}
-#[no_mangle]
 unsafe extern "C" fn setpgrp() {
     todo!("setpgrp")
 }
 #[no_mangle]
-unsafe extern "C" fn __dprintf_chk() {
-    todo!("__dprintf_chk")
-}
-#[no_mangle]
-unsafe extern "C" fn endmntent() {
-    todo!("endmntent")
-}
-#[no_mangle]
 unsafe extern "C" fn __getgroups_chk() {
     todo!("__getgroups_chk")
-}
-#[no_mangle]
-unsafe extern "C" fn hasmntopt() {
-    todo!("hasmntopt")
 }
 #[no_mangle]
 unsafe extern "C" fn __isoc99_vfscanf() {
@@ -1307,16 +1007,8 @@ unsafe extern "C" fn mincore() {
     todo!("mincore")
 }
 #[no_mangle]
-unsafe extern "C" fn mount() {
-    todo!("mount")
-}
-#[no_mangle]
 unsafe extern "C" fn __realpath_chk() {
     todo!("__realpath_chk")
-}
-#[no_mangle]
-unsafe extern "C" fn setmntent() {
-    todo!("setmntent")
 }
 #[no_mangle]
 unsafe extern "C" fn setns() {
@@ -1331,8 +1023,8 @@ unsafe extern "C" fn setresuid() {
     todo!("setresuid")
 }
 #[no_mangle]
-unsafe extern "C" fn __stpcpy_chk() {
-    todo!("__stpcpy_chk")
+unsafe extern "C" fn mount() {
+    todo!("mount")
 }
 #[no_mangle]
 unsafe extern "C" fn umount() {
@@ -1361,6 +1053,10 @@ unsafe extern "C" fn __vsprintf_chk() {
 #[no_mangle]
 unsafe extern "C" fn __asprintf_chk() {
     todo!("__asprintf_chk")
+}
+#[no_mangle]
+unsafe extern "C" fn __dprintf_chk() {
+    todo!("__dprintf_chk")
 }
 #[no_mangle]
 unsafe extern "C" fn __strncat_chk() {
@@ -1397,58 +1093,6 @@ unsafe extern "C" fn vwarn() {
 #[no_mangle]
 unsafe extern "C" fn vwarnx() {
     todo!("vwarnx")
-}
-#[no_mangle]
-unsafe extern "C" fn mallopt() {
-    todo!("mallopt")
-}
-#[no_mangle]
-unsafe extern "C" fn aio_cancel() {
-    todo!("aio_cancel")
-}
-#[no_mangle]
-unsafe extern "C" fn aio_error() {
-    todo!("aio_error")
-}
-#[no_mangle]
-unsafe extern "C" fn aio_fsync() {
-    todo!("aio_fsync")
-}
-#[no_mangle]
-unsafe extern "C" fn aio_read() {
-    todo!("aio_read")
-}
-#[no_mangle]
-unsafe extern "C" fn aio_return() {
-    todo!("aio_return")
-}
-#[no_mangle]
-unsafe extern "C" fn aio_suspend() {
-    todo!("aio_suspend")
-}
-#[no_mangle]
-unsafe extern "C" fn aio_write() {
-    todo!("aio_write")
-}
-#[no_mangle]
-unsafe extern "C" fn catclose() {
-    todo!("catclose")
-}
-#[no_mangle]
-unsafe extern "C" fn catgets() {
-    todo!("catgets")
-}
-#[no_mangle]
-unsafe extern "C" fn catopen() {
-    todo!("catopen")
-}
-#[no_mangle]
-unsafe extern "C" fn getitimer() {
-    todo!("getitimer")
-}
-#[no_mangle]
-unsafe extern "C" fn lio_listio() {
-    todo!("lio_listio")
 }
 #[no_mangle]
 unsafe extern "C" fn mq_close() {
@@ -1495,6 +1139,10 @@ unsafe extern "C" fn setitimer() {
     todo!("setitimer")
 }
 #[no_mangle]
+unsafe extern "C" fn getitimer() {
+    todo!("getitimer")
+}
+#[no_mangle]
 unsafe extern "C" fn adjtimex() {
     todo!("adjtimex")
 }
@@ -1513,14 +1161,6 @@ unsafe extern "C" fn confstr() {
 #[no_mangle]
 unsafe extern "C" fn getdtablesize() {
     todo!("getdtablesize")
-}
-#[no_mangle]
-unsafe extern "C" fn epoll_pwait() {
-    todo!("epoll_pwait")
-}
-#[no_mangle]
-unsafe extern "C" fn epoll_pwait2() {
-    todo!("epoll_pwait2")
 }
 #[no_mangle]
 unsafe extern "C" fn execveat() {
@@ -1551,6 +1191,10 @@ unsafe extern "C" fn mkstemp64() {
     todo!("mkstemp64")
 }
 #[no_mangle]
+unsafe extern "C" fn mkdtemp() {
+    todo!("mkdtemp")
+}
+#[no_mangle]
 unsafe extern "C" fn truncate64() {
     todo!("truncate64")
 }
@@ -1571,6 +1215,10 @@ unsafe extern "C" fn fstatfs() {
     todo!("fstatfs")
 }
 #[no_mangle]
+unsafe extern "C" fn fstatfs64() {
+    todo!("fstatfs64")
+}
+#[no_mangle]
 unsafe extern "C" fn getcpu() {
     todo!("getcpu")
 }
@@ -1581,10 +1229,6 @@ unsafe extern "C" fn getdents64() {
 #[no_mangle]
 unsafe extern "C" fn getdomainname() {
     todo!("getdomainname")
-}
-#[no_mangle]
-unsafe extern "C" fn gethostbyname_r() {
-    todo!("gethostbyname_r")
 }
 #[no_mangle]
 unsafe extern "C" fn sethostid() {
@@ -1601,6 +1245,14 @@ unsafe extern "C" fn iopl() {
 #[no_mangle]
 unsafe extern "C" fn get_current_dir_name() {
     todo!("get_current_dir_name")
+}
+#[no_mangle]
+unsafe extern "C" fn mallopt() {
+    todo!("mallopt")
+}
+#[no_mangle]
+unsafe extern "C" fn malloc_stats() {
+    todo!("malloc_stats")
 }
 #[no_mangle]
 unsafe extern "C" fn mallinfo() {
@@ -1633,10 +1285,6 @@ unsafe extern "C" fn pkey_free() {
 #[no_mangle]
 unsafe extern "C" fn pkey_alloc() {
     todo!("pkey_alloc")
-}
-#[no_mangle]
-unsafe extern "C" fn __ppoll_chk() {
-    todo!("__ppoll_chk")
 }
 #[no_mangle]
 unsafe extern "C" fn wait4() {
@@ -1715,10 +1363,6 @@ unsafe extern "C" fn __open_2() {
     todo!("__open_2")
 }
 #[no_mangle]
-unsafe extern "C" fn setlinebuf() {
-    todo!("setlinebuf")
-}
-#[no_mangle]
 unsafe extern "C" fn tcsendbreak() {
     todo!("tcsendbreak")
 }
@@ -1751,10 +1395,6 @@ unsafe extern "C" fn dladdr() {
     todo!("dladdr")
 }
 #[no_mangle]
-unsafe extern "C" fn wcwidth() {
-    todo!("wcwidth")
-}
-#[no_mangle]
 unsafe extern "C" fn wordexp() {
     todo!("wordexp")
 }
@@ -1767,20 +1407,8 @@ unsafe extern "C" fn ftw() {
     todo!("ftw")
 }
 #[no_mangle]
-unsafe extern "C" fn getgrent_r() {
-    todo!("getgrent_r")
-}
-#[no_mangle]
 unsafe extern "C" fn getpass() {
     todo!("getpass")
-}
-#[no_mangle]
-unsafe extern "C" fn getpwent_r() {
-    todo!("getpwent_r")
-}
-#[no_mangle]
-unsafe extern "C" fn getspent_r() {
-    todo!("getspent_r")
 }
 #[no_mangle]
 unsafe extern "C" fn getusershell() {
@@ -1789,42 +1417,6 @@ unsafe extern "C" fn getusershell() {
 #[no_mangle]
 unsafe extern "C" fn glob() {
     todo!("glob")
-}
-#[no_mangle]
-unsafe extern "C" fn __isoc99_swscanf() {
-    todo!("__isoc99_swscanf")
-}
-#[no_mangle]
-unsafe extern "C" fn iswctype() {
-    todo!("iswctype")
-}
-#[no_mangle]
-unsafe extern "C" fn malloc_stats() {
-    todo!("malloc_stats")
-}
-#[no_mangle]
-unsafe extern "C" fn __mbstowcs_chk() {
-    todo!("__mbstowcs_chk")
-}
-#[no_mangle]
-unsafe extern "C" fn setbuffer() {
-    todo!("setbuffer")
-}
-#[no_mangle]
-unsafe extern "C" fn wcscat() {
-    todo!("wcscat")
-}
-#[no_mangle]
-unsafe extern "C" fn wcstombs() {
-    todo!("wcstombs")
-}
-#[no_mangle]
-unsafe extern "C" fn wctype() {
-    todo!("wctype")
-}
-#[no_mangle]
-unsafe extern "C" fn wmemcpy() {
-    todo!("wmemcpy")
 }
 #[no_mangle]
 unsafe extern "C" fn on_exit() {
@@ -1841,22 +1433,6 @@ unsafe extern "C" fn printf_size_info() {
 #[no_mangle]
 unsafe extern "C" fn register_printf_function() {
     todo!("register_printf_function")
-}
-#[no_mangle]
-unsafe extern "C" fn vswprintf() {
-    todo!("vswprintf")
-}
-#[no_mangle]
-unsafe extern "C" fn wcsncat() {
-    todo!("wcsncat")
-}
-#[no_mangle]
-unsafe extern "C" fn wmemmove() {
-    todo!("wmemmove")
-}
-#[no_mangle]
-unsafe extern "C" fn wmemset() {
-    todo!("wmemset")
 }
 #[no_mangle]
 unsafe extern "C" fn adjtime() {
@@ -1935,10 +1511,6 @@ unsafe extern "C" fn strfromf() {
     todo!("strfromf")
 }
 #[no_mangle]
-unsafe extern "C" fn wctomb() {
-    todo!("wctomb")
-}
-#[no_mangle]
 unsafe extern "C" fn scalbln() {
     todo!("scalbln")
 }
@@ -1949,10 +1521,6 @@ unsafe extern "C" fn scalblnf() {
 #[no_mangle]
 unsafe extern "C" fn signgam() {
     todo!("signgam")
-}
-#[no_mangle]
-unsafe extern "C" fn endnetent() {
-    todo!("endnetent")
 }
 #[no_mangle]
 unsafe extern "C" fn hstrerror() {
@@ -1973,42 +1541,6 @@ unsafe extern "C" fn backtrace() {
 #[no_mangle]
 unsafe extern "C" fn backtrace_symbols() {
     todo!("backtrace_symbols")
-}
-#[no_mangle]
-unsafe extern "C" fn __mbrlen() {
-    todo!("__mbrlen")
-}
-#[no_mangle]
-unsafe extern "C" fn mbsnrtowcs() {
-    todo!("mbsnrtowcs")
-}
-#[no_mangle]
-unsafe extern "C" fn strftime_l() {
-    todo!("strftime_l")
-}
-#[no_mangle]
-unsafe extern "C" fn strtod_l() {
-    todo!("strtod_l")
-}
-#[no_mangle]
-unsafe extern "C" fn strtof_l() {
-    todo!("strtof_l")
-}
-#[no_mangle]
-unsafe extern "C" fn strtold_l() {
-    todo!("strtold_l")
-}
-#[no_mangle]
-unsafe extern "C" fn strtoll_l() {
-    todo!("strtoll_l")
-}
-#[no_mangle]
-unsafe extern "C" fn strtoull_l() {
-    todo!("strtoull_l")
-}
-#[no_mangle]
-unsafe extern "C" fn wcsnrtombs() {
-    todo!("wcsnrtombs")
 }
 #[no_mangle]
 unsafe extern "C" fn __timezone() {

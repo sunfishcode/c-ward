@@ -135,8 +135,11 @@ rustc-dep-of-std = [
     "rustix/rustc-dep-of-std",
 ]
 
-# Enable `todo!()` stubs for unimplemented functions.
+# Enable `todo!()` stubs for not-yet-unimplemented functions.
 todo = []
+
+# Enable `unimplemented!()` stubs for deprecated functions.
+deprecated-and-unimplemented = []
 
 # This extends the `syscall` function with suppport for more syscalls. This is
 # not enabled by default because it increases the code size of `syscall` by

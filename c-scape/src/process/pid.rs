@@ -29,6 +29,13 @@ unsafe extern "C" fn setpgid(pid: pid_t, pgid: pid_t) -> c_int {
 }
 
 #[no_mangle]
+unsafe extern "C" fn setpgrp() -> c_int {
+    //libc!(libc::setpgrp());
+
+    setpgid(0, 0)
+}
+
+#[no_mangle]
 unsafe extern "C" fn getpgid(pid: pid_t) -> pid_t {
     libc!(libc::getpgid(pid));
 

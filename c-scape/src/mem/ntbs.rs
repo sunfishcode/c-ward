@@ -255,6 +255,17 @@ unsafe extern "C" fn strnlen(s: *const c_char, mut n: size_t) -> size_t {
 }
 
 #[no_mangle]
+unsafe extern "C" fn strnlen_s(s: *const c_char, n: size_t) -> size_t {
+    //libc!(libc::strnlen_s(s, n));
+
+    if s.is_null() {
+        0
+    } else {
+        strnlen(s, n)
+    }
+}
+
+#[no_mangle]
 unsafe extern "C" fn strpbrk(s: *const c_char, m: *const c_char) -> *mut c_char {
     libc!(libc::strpbrk(s, m));
 
@@ -399,6 +410,35 @@ unsafe extern "C" fn strstr(haystack: *const c_char, needle: *const c_char) -> *
         for n in CStr::from_ptr(needle).to_bytes() {
             let h = *haystack.add(len);
             if h != *n as c_char {
+                break;
+            }
+            len += 1;
+        }
+        if *needle.add(len) == 0 {
+            return haystack.cast_mut();
+        }
+        haystack = haystack.add(1);
+    }
+    ptr::null_mut()
+}
+
+#[no_mangle]
+unsafe extern "C" fn strcasestr(haystack: *const c_char, needle: *const c_char) -> *mut c_char {
+    libc!(libc::strcasestr(haystack, needle));
+
+    if *needle == 0 {
+        return haystack.cast_mut();
+    }
+
+    let mut haystack = haystack;
+    loop {
+        if *haystack == 0 {
+            break;
+        }
+        let mut len = 0;
+        for n in CStr::from_ptr(needle).to_bytes() {
+            let h = *haystack.add(len);
+            if libc::tolower(h as _) != libc::tolower(*n as _) {
                 break;
             }
             len += 1;

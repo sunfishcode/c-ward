@@ -83,7 +83,7 @@ unsafe extern "C" fn regexec(
         .no_end(noteol)
         .matches(string, Some(1));
 
-    if let Some(first) = matches.iter().next() {
+    if let Some(first) = matches.first() {
         if !nosub {
             for i in 0..nmatch {
                 let (start, end) = first.get(i).and_then(|range| *range).unwrap_or((!0, !0));
@@ -130,10 +130,10 @@ unsafe extern "C" fn regerror(
         _ => "Unknown error",
     };
 
-    let len = msg.len().min(errbuf_size as usize);
+    let len = msg.len().min(errbuf_size);
     copy_nonoverlapping(msg.as_ptr(), errbuf as *mut u8, len);
     if errbuf_size != 0 {
-        *errbuf.add((msg.len() + 1).min(errbuf_size as usize)) = 0;
+        *errbuf.add((msg.len() + 1).min(errbuf_size)) = 0;
     }
 
     msg.len() + 1

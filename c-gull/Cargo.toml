@@ -87,3 +87,6 @@ extra-syscalls = ["c-scape/extra-syscalls"]
 
 # Enable `todo!()` stubs for unimplemented functions.
 todo = ["c-scape/todo"]
+
+# Enable `unimplemented!()` stubs for deprecated functions.
+deprecated-and-unimplemented = ["c-scape/deprecated-and-unimplemented"]

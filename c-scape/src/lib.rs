@@ -102,6 +102,8 @@ mod strtol;
 mod syscall;
 mod time;
 
+#[cfg(feature = "deprecated-and-unimplemented")]
+mod deprecated;
 #[cfg(feature = "todo")]
 mod todo;
 

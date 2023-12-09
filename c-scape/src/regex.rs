@@ -86,11 +86,17 @@ unsafe extern "C" fn regexec(
     if let Some(first) = matches.first() {
         if !nosub {
             for i in 0..nmatch {
-                let (start, end) = first.get(i).and_then(|range| *range).unwrap_or((!0, !0));
-                *pmatch.add(i) = regmatch_t {
-                    rm_so: start.try_into().unwrap(),
-                    rm_eo: end.try_into().unwrap(),
+                let new = match first.get(i).and_then(|range| *range) {
+                    Some((start, end)) => regmatch_t {
+                        rm_so: start.try_into().unwrap(),
+                        rm_eo: end.try_into().unwrap(),
+                    },
+                    None => regmatch_t {
+                        rm_so: -1,
+                        rm_eo: -1,
+                    },
                 };
+                *pmatch.add(i) = new;
             }
         }
         0

@@ -230,8 +230,8 @@ unsafe extern "C" fn __fdelt_chk() {
     todo!("__fdelt_chk")
 }
 #[no_mangle]
-unsafe extern "C" fn _setjmp() {
-    todo!("_setjmp")
+unsafe extern "C" fn longjmp() {
+    todo!("longjmp")
 }
 #[no_mangle]
 unsafe extern "C" fn _longjmp() {
@@ -240,6 +240,10 @@ unsafe extern "C" fn _longjmp() {
 #[no_mangle]
 unsafe extern "C" fn __longjmp_chk() {
     todo!("__longjmp_chk")
+}
+#[no_mangle]
+unsafe extern "C" fn siglongjmp() {
+    todo!("siglongjmp")
 }
 #[no_mangle]
 unsafe extern "C" fn acct() {
@@ -488,10 +492,6 @@ unsafe extern "C" fn getopt_long() {
 #[no_mangle]
 unsafe extern "C" fn getopt_long_only() {
     todo!("getopt_long_only")
-}
-#[no_mangle]
-unsafe extern "C" fn longjmp() {
-    todo!("longjmp")
 }
 #[no_mangle]
 unsafe extern "C" fn ns_get16() {

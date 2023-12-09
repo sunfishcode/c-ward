@@ -566,10 +566,6 @@ unsafe extern "C" fn pthread_attr_setscope() {
     todo!("pthread_attr_setscope")
 }
 #[no_mangle]
-unsafe extern "C" fn pthread_attr_setstack() {
-    todo!("pthread_attr_setstack")
-}
-#[no_mangle]
 unsafe extern "C" fn pthread_barrierattr_destroy() {
     todo!("pthread_barrierattr_destroy")
 }

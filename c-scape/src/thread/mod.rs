@@ -184,6 +184,23 @@ unsafe extern "C" fn pthread_attr_getstack(
 }
 
 #[no_mangle]
+unsafe extern "C" fn pthread_attr_setstack(
+    attr: *mut PthreadAttrT,
+    stackaddr: *mut c_void,
+    stacksize: usize,
+) -> c_int {
+    //libc!(libc::pthread_attr_setstack(checked_cast!(attr), stackaddr, stacksize));
+
+    if stacksize < libc::PTHREAD_STACK_MIN {
+        return libc::EINVAL;
+    }
+
+    (*attr).stack_addr = stackaddr;
+    (*attr).stack_size = stacksize;
+    0
+}
+
+#[no_mangle]
 unsafe extern "C" fn pthread_attr_setdetachstate(
     attr: *mut PthreadAttrT,
     detachstate: c_int,

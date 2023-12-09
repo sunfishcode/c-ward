@@ -116,26 +116,39 @@ unsafe fn strto(
     let mut overflow = false;
     let mut num: uintmax_t = 0;
     loop {
-        let dig: uintmax_t = match *s as u8 {
-            b'0'..=b'9' => *s as u8 - b'0',
-            b'a'..=b'f' => *s as u8 - b'a' + 10,
-            b'A'..=b'F' => *s as u8 - b'A' + 10,
+        let digit: uintmax_t = match *s as u8 {
+            x @ b'0'..=b'9' => x - b'0',
+            x @ b'a'..=b'z' => x - b'a' + 10,
+            x @ b'A'..=b'Z' => x - b'A' + 10,
             _ => break,
         }
         .into();
-        if dig >= base {
+        if digit >= base {
             break;
         }
 
-        if num > max / base {
-            overflow = true;
+        if negate && min != 0 {
+            if (num as intmax_t) < min / base as intmax_t {
+                overflow = true;
+            }
+        } else {
+            if num > max / base {
+                overflow = true;
+            }
         }
         num = num.wrapping_mul(base);
 
-        if num > max - dig {
-            overflow = true;
+        if negate && min != 0 {
+            if (num as intmax_t) < min + digit as intmax_t {
+                overflow = true;
+            }
+            num = num.wrapping_sub(digit);
+        } else {
+            if num > max - digit {
+                overflow = true;
+            }
+            num = num.wrapping_add(digit);
         }
-        num = num.wrapping_add(dig);
 
         s = s.add(1);
     }
@@ -143,11 +156,6 @@ unsafe fn strto(
     // If requested, report the end position.
     if !endptr.is_null() {
         *endptr = s.cast_mut();
-    }
-
-    // If we need to negate, check for negation overflow.
-    if negate && min != 0 && num == min as uintmax_t {
-        overflow = true;
     }
 
     // Report overflow.
@@ -161,7 +169,7 @@ unsafe fn strto(
     }
 
     // Perform negation if requested.
-    if negate {
+    if negate && min == 0 {
         num = num.wrapping_neg();
     }
 

@@ -106,7 +106,13 @@ unsafe extern "C" fn seed48(seed: *mut [c_ushort; 3]) -> *mut c_ushort {
     static PREV_SEED: SyncUnsafeCell<[c_ushort; 3]> = SyncUnsafeCell::new([0, 0, 0]);
 
     *PREV_SEED.get() = (*STORAGE.get()).x_subi;
-    (*STORAGE.get()).x_subi = *seed;
+    (*STORAGE.get()) = RngData {
+        x_subi: *seed,
+        data: LCongData {
+            a_mult: [0xe66d, 0xdeec, 0x5],
+            c: 0xb,
+        },
+    };
 
     PREV_SEED.get().cast::<u16>()
 }

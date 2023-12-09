@@ -116,7 +116,7 @@ unsafe fn strto(
         let dig: uintmax_t = match *s as u8 {
             b'0'..=b'9' => *s as u8 - b'0',
             b'a'..=b'f' => *s as u8 - b'a' + 10,
-            b'A'..=b'F' => *s as u8 - b'a' + 10,
+            b'A'..=b'F' => *s as u8 - b'A' + 10,
             _ => break,
         }
         .into();

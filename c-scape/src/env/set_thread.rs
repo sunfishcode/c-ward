@@ -144,9 +144,9 @@ unsafe extern "C" fn unsetenv(key: *const c_char) -> c_int {
             environ_vecs.ptrs.pop();
             environ_vecs.ptrs.swap_remove(index);
             environ_vecs.ptrs.push(null_mut());
-            break;
+        } else {
+            ptr = ptr.add(1);
         }
-        ptr = ptr.add(1);
     }
 
     environ_vecs.install();
@@ -161,7 +161,10 @@ unsafe extern "C" fn putenv(key_value: *mut c_char) -> c_int {
     let key_value_cstr = CStr::from_ptr(key_value);
     let key_value_bytes = key_value_cstr.to_bytes();
 
-    let eq = key_value_bytes.iter().position(|x| *x == b'=').unwrap();
+    let eq = match key_value_bytes.iter().position(|x| *x == b'=') {
+        Some(pos) => pos,
+        None => return unsetenv(key_value),
+    };
     let key_bytes = &key_value_bytes[..eq];
 
     // Read the existing `environ` contents.

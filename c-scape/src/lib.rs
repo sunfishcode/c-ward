@@ -4,6 +4,7 @@
 #![feature(c_variadic)] // for `ioctl` etc.
 #![cfg_attr(feature = "use-compiler-builtins", feature(rustc_private))]
 #![feature(strict_provenance)]
+#![feature(exposed_provenance)]
 #![feature(inline_const)]
 #![feature(sync_unsafe_cell)]
 #![feature(linkage)]

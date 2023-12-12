@@ -113,6 +113,6 @@ jobs:
 
     - name: cargo test
       run: |
-        cargo test
+        cargo test --workspace
       env:
         RUST_BACKTRACE: 1

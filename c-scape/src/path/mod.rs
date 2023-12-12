@@ -111,3 +111,44 @@ unsafe extern "C" fn dirname(path: *mut c_char) -> *mut c_char {
     *path.add(i) = 0;
     path
 }
+
+#[test]
+fn test_dirname_basename() {
+    use core::ffi::CStr;
+
+    fn test(input: &CStr, expected_dir: &CStr, expected_gnu: &CStr, expected_posix: &CStr) {
+        unsafe {
+            let mut s = input.to_bytes_with_nul().to_vec();
+            let i = s.as_mut_ptr().cast();
+            let o = libc::dirname(i);
+            assert_eq!(CStr::from_ptr(o), expected_dir);
+
+            let mut s = input.to_bytes_with_nul().to_vec();
+            let i = s.as_mut_ptr().cast();
+            let o = libc::gnu_basename(i);
+            assert_eq!(CStr::from_ptr(o), expected_gnu);
+
+            let mut s = input.to_bytes_with_nul().to_vec();
+            let i = s.as_mut_ptr().cast();
+            let o = libc::posix_basename(i);
+            assert_eq!(CStr::from_ptr(o), expected_posix);
+        }
+    }
+
+    test(cstr!("/usr/lib"), cstr!("/usr"), cstr!("lib"), cstr!("lib"));
+    test(
+        cstr!("/usr//lib"),
+        cstr!("/usr"),
+        cstr!("lib"),
+        cstr!("lib"),
+    );
+    test(cstr!("/usr/lib/"), cstr!("/usr"), cstr!(""), cstr!("lib"));
+    test(cstr!("/usr/lib//"), cstr!("/usr"), cstr!(""), cstr!("lib"));
+    test(cstr!("/"), cstr!("/"), cstr!(""), cstr!("/"));
+    test(cstr!("//"), cstr!("//"), cstr!(""), cstr!("/"));
+    test(cstr!("///"), cstr!("/"), cstr!(""), cstr!("/"));
+    test(cstr!(""), cstr!("."), cstr!(""), cstr!("."));
+    test(cstr!("usr"), cstr!("."), cstr!("usr"), cstr!("usr"));
+    test(cstr!("usr/"), cstr!("."), cstr!(""), cstr!("usr"));
+    test(cstr!("usr//"), cstr!("."), cstr!(""), cstr!("usr"));
+}

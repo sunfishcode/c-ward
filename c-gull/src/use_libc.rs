@@ -32,7 +32,7 @@ macro_rules! checked_cast {
 ///
 /// # Example
 ///
-/// ```no_run
+/// ```no_compile
 /// #[no_mangle]
 /// unsafe extern "C" fn strlen(s: *const c_char) -> usize {
 ///     libc!(libc::strlen(s));

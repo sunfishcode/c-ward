@@ -31,7 +31,7 @@ unsafe extern "C" fn getentropy(ptr: *mut c_void, len: usize) -> i32 {
         return 0;
     }
 
-    if len >= 256 {
+    if len > 256 {
         set_errno(Errno(libc::EIO));
         return -1;
     }
@@ -41,7 +41,7 @@ unsafe extern "C" fn getentropy(ptr: *mut c_void, len: usize) -> i32 {
 
     let mut filled = 0usize;
 
-    while !buf.is_empty() {
+    while filled < buf.len() {
         match rustix::rand::getrandom_uninit(&mut buf[filled..], flags) {
             Ok((init, _uninit)) => filled += init.len(),
             Err(rustix::io::Errno::INTR) => {}
@@ -53,4 +53,18 @@ unsafe extern "C" fn getentropy(ptr: *mut c_void, len: usize) -> i32 {
     }
 
     0
+}
+
+#[cfg(any(target_os = "android", target_os = "linux"))]
+#[test]
+fn test_getentropy() {
+    unsafe {
+        let mut buf = [0; 257];
+        assert_eq!(getentropy(buf.as_mut_ptr().cast(), 257), -1);
+        assert_eq!(errno::errno().0, libc::EIO);
+
+        let mut buf = [0; 257];
+        assert_eq!(getentropy(buf.as_mut_ptr().cast(), 256), 0);
+        assert!(buf.iter().any(|b| *b != 0));
+    }
 }

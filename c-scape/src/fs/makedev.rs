@@ -1,3 +1,8 @@
+//! `major`, `minor`, and `makedev`.
+//!
+//! These are macros in libc, so the Rust libc crate defines them itself as
+//! functions, so we can just call those functions here.
+
 #[no_mangle]
 unsafe extern "C" fn gnu_dev_major(dev: libc::dev_t) -> u32 {
     libc::major(dev)

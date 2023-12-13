@@ -124,7 +124,18 @@ unsafe extern "C" fn syscall(number: c_long, mut args: ...) -> *mut c_void {
             let path = args.arg::<*const c_char>();
             let times = args.arg::<*const libc::timespec>();
             let flags = args.arg::<c_int>();
-            invalid_mut(libc::utimensat(fd, path, times, flags) as isize as usize)
+            // On Linux, a NULL path means `utimensat` should behave like
+            // `futimens`.
+            if path.is_null() {
+                if flags != 0 {
+                    set_errno(Errno(libc::EINVAL));
+                    invalid_mut(-1 as isize as usize)
+                } else {
+                    invalid_mut(libc::futimens(fd, times) as isize as usize)
+                }
+            } else {
+                invalid_mut(libc::utimensat(fd, path, times, flags) as isize as usize)
+            }
         }
         #[cfg(feature = "syscall-fdatasync")]
         libc::SYS_fdatasync => {
@@ -198,5 +209,34 @@ unsafe fn futex(
     match convert_res(futex(uaddr, op, flags, val, new_timespec, uaddr2, val3)) {
         Some(result) => result as _,
         None => -1,
+    }
+}
+
+#[cfg(feature = "syscall-utimensat")]
+#[test]
+fn test_syscall_utimensat() {
+    use core::ptr::null_mut;
+    use rustix::cstr;
+    use rustix::fd::BorrowedFd;
+    unsafe {
+        let fd = libc::memfd_create(cstr!("test").as_ptr(), 0);
+        assert_ne!(fd, -1);
+        let times = [
+            libc::timespec {
+                tv_sec: 43,
+                tv_nsec: 44,
+            },
+            libc::timespec {
+                tv_sec: 45,
+                tv_nsec: 46,
+            },
+        ];
+        assert_eq!(
+            syscall(libc::SYS_utimensat, fd, null::<u8>(), &times, 0),
+            null_mut()
+        );
+        let stat = rustix::fs::fstat(BorrowedFd::borrow_raw(fd)).unwrap();
+        assert_eq!(stat.st_mtime, times[1].tv_sec as _);
+        assert_eq!(stat.st_mtime_nsec, times[1].tv_nsec as _);
     }
 }

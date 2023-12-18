@@ -111,6 +111,134 @@ unsafe extern "C" fn strcmp(mut s1: *const c_char, mut s2: *const c_char) -> c_i
     *s1 as c_uchar as c_int - *s2 as c_uchar as c_int
 }
 
+// enum for strverscmp state
+// internal so no surface
+// see https://codebrowser.dev/glibc/glibc/string/strverscmp.c.html#26
+#[derive(Debug, Copy, Clone, PartialEq, Eq)]
+enum StrverscmpState {
+    Normal,
+    Integral,
+    Fractional,
+    LeadingZeros,
+}
+
+enum CharType {
+    Zero,
+    Digit,
+    NonNumeric,
+}
+
+impl CharType {
+    fn from_char(c: c_char) -> Self {
+        match c {
+            // ASCII 0
+            48 => Self::Zero,
+            // ASCII 1-9
+            49..=57 => Self::Digit,
+            // non numeric ASCII
+            _ => Self::NonNumeric,
+        }
+    }
+    unsafe fn from_char_raw(c: *const c_char) -> Self {
+        if *c == NUL {
+            return Self::NonNumeric;
+        } else {
+            match *c {
+                // ASCII 0
+                48 => Self::Zero,
+                // ASCII 1-9
+                49..=57 => Self::Digit,
+                // non numeric ASCII
+                _ => Self::NonNumeric,
+            }
+        }
+    }
+}
+
+impl StrverscmpState {
+    fn transition(&mut self, s: CharType) {
+        match s {
+            CharType::Zero => {
+                if self == &Self::Normal {
+                    *self = Self::LeadingZeros;
+                }
+            }
+            // ASCII 1-9
+            CharType::Digit => {
+                if self == &Self::Normal {
+                    *self = Self::Integral;
+                }
+                if self == &Self::LeadingZeros {
+                    *self = Self::Fractional;
+                }
+            }
+            // non numeric ASCII
+            CharType::NonNumeric => *self = Self::Normal,
+        }
+    }
+
+    unsafe fn exit(&mut self, mut s1: *const c_char, mut s2: *const c_char) -> c_int {
+        // safe as loop checks neither pointer is null
+
+        let chartype1 = CharType::from_char(*s1);
+        let chartype2 = CharType::from_char(*s2);
+        match (self, chartype1, chartype2) {
+            // LEN exit path
+            (StrverscmpState::Normal, CharType::Digit, CharType::Digit)
+            | (StrverscmpState::Integral, CharType::Digit, CharType::Digit)
+            | (StrverscmpState::Integral, CharType::Digit, CharType::Zero)
+            | (StrverscmpState::Integral, CharType::Zero, CharType::Digit)
+            | (StrverscmpState::Integral, CharType::Zero, CharType::Zero) => {
+                let diff = *s1 as c_uchar as c_int - *s2 as c_uchar as c_int;
+                loop {
+                    let chartype1 = CharType::from_char_raw(s1);
+                    let chartype2 = CharType::from_char_raw(s2);
+                    match (chartype1, chartype2) {
+                        (CharType::Zero, CharType::NonNumeric) => return 1,
+                        (CharType::Digit, CharType::NonNumeric) => return 1,
+                        (CharType::NonNumeric, CharType::Zero) => return -1,
+                        (CharType::NonNumeric, CharType::Digit) => return -1,
+                        (CharType::NonNumeric, CharType::NonNumeric) => break,
+                        (_, _) => {
+                            s1 = s1.add(1);
+                            s2 = s2.add(1);
+                        }
+                    }
+                }
+                diff
+            }
+
+            (StrverscmpState::Integral, CharType::Zero, CharType::NonNumeric)
+            | (StrverscmpState::Integral, CharType::Digit, CharType::NonNumeric)
+            | (StrverscmpState::LeadingZeros, CharType::NonNumeric, CharType::Zero)
+            | (StrverscmpState::LeadingZeros, CharType::NonNumeric, CharType::Digit) => 1,
+
+            (StrverscmpState::Integral, CharType::NonNumeric, CharType::Zero)
+            | (StrverscmpState::Integral, CharType::NonNumeric, CharType::Digit)
+            | (StrverscmpState::LeadingZeros, CharType::Zero, CharType::NonNumeric)
+            | (StrverscmpState::LeadingZeros, CharType::Digit, CharType::NonNumeric) => -1,
+
+            (_, _, _) => *s1 as c_uchar as c_int - *s2 as c_uchar as c_int, // all other paths lead to CMP
+        }
+    }
+}
+
+#[no_mangle]
+unsafe extern "C" fn strverscmp(mut s1: *const c_char, mut s2: *const c_char) -> c_int {
+    // libc!(libc::strverscmp(s1, s2));
+    let mut state = StrverscmpState::Normal;
+    while *s1 != NUL && *s2 != NUL {
+        if *s1 != *s2 {
+            return state.exit(s1, s2);
+        }
+        state.transition(CharType::from_char(*s1));
+        s1 = s1.add(1);
+        s2 = s2.add(1);
+    }
+
+    *s1 as c_uchar as c_int - *s2 as c_uchar as c_int
+}
+
 #[no_mangle]
 unsafe extern "C" fn strcpy(d: *mut c_char, s: *const c_char) -> *mut c_char {
     libc!(libc::strcpy(d, s));

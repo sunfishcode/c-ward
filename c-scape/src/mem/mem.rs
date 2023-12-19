@@ -188,6 +188,9 @@ unsafe extern "C" fn explicit_bzero(dst: *mut c_void, len: size_t) {
     libc!(libc::explicit_bzero(dst, len));
 
     bzero(dst, len);
+
+    // Attempt to discourage compiler optimizations from thinking this `bzero`
+    // is unnecessary.
     core::arch::asm!("# {}, {}", in(reg) dst, in(reg) len, options(nostack, preserves_flags));
 }
 

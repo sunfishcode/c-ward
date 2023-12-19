@@ -827,10 +827,6 @@ unsafe extern "C" fn __stpcpy_chk() {
     todo!("__stpcpy_chk")
 }
 #[no_mangle]
-unsafe extern "C" fn strverscmp() {
-    todo!("strverscmp")
-}
-#[no_mangle]
 unsafe extern "C" fn strtold() {
     todo!("strtold")
 }

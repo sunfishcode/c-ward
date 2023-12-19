@@ -113,12 +113,16 @@ unsafe extern "C" fn strcmp(mut s1: *const c_char, mut s2: *const c_char) -> c_i
 
 // enum for strverscmp state
 // internal so no surface
-// see https://codebrowser.dev/glibc/glibc/string/strverscmp.c.html#26
+// Tracks the current state of the comparison
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
 enum StrverscmpState {
+    /// Normal string comparison
     Normal,
+    /// compare whole numbers: 1<2<10
     Integral,
+    /// compare fractional 01 < 011 < 02
     Fractional,
+    /// compare leading zeros 000 < 00
     LeadingZeros,
 }
 
@@ -130,27 +134,13 @@ enum CharType {
 
 impl CharType {
     fn from_char(c: c_char) -> Self {
-        match c {
+        match c as c_uchar {
             // ASCII 0
-            48 => Self::Zero,
+            b'0' => Self::Zero,
             // ASCII 1-9
-            49..=57 => Self::Digit,
+            b'1'..=b'9' => Self::Digit,
             // non numeric ASCII
             _ => Self::NonNumeric,
-        }
-    }
-    unsafe fn from_char_raw(c: *const c_char) -> Self {
-        if *c == NUL {
-            return Self::NonNumeric;
-        } else {
-            match *c {
-                // ASCII 0
-                48 => Self::Zero,
-                // ASCII 1-9
-                49..=57 => Self::Digit,
-                // non numeric ASCII
-                _ => Self::NonNumeric,
-            }
         }
     }
 }
@@ -178,12 +168,10 @@ impl StrverscmpState {
     }
 
     unsafe fn exit(&mut self, mut s1: *const c_char, mut s2: *const c_char) -> c_int {
-        // safe as loop checks neither pointer is null
-
         let chartype1 = CharType::from_char(*s1);
         let chartype2 = CharType::from_char(*s2);
         match (self, chartype1, chartype2) {
-            // LEN exit path
+            // compare the strings based on length of the numeric part
             (StrverscmpState::Normal, CharType::Digit, CharType::Digit)
             | (StrverscmpState::Integral, CharType::Digit, CharType::Digit)
             | (StrverscmpState::Integral, CharType::Digit, CharType::Zero)
@@ -191,8 +179,8 @@ impl StrverscmpState {
             | (StrverscmpState::Integral, CharType::Zero, CharType::Zero) => {
                 let diff = *s1 as c_uchar as c_int - *s2 as c_uchar as c_int;
                 loop {
-                    let chartype1 = CharType::from_char_raw(s1);
-                    let chartype2 = CharType::from_char_raw(s2);
+                    let chartype1 = CharType::from_char(*s1);
+                    let chartype2 = CharType::from_char(*s2);
                     match (chartype1, chartype2) {
                         (CharType::Zero, CharType::NonNumeric) => return 1,
                         (CharType::Digit, CharType::NonNumeric) => return 1,
@@ -218,7 +206,8 @@ impl StrverscmpState {
             | (StrverscmpState::LeadingZeros, CharType::Zero, CharType::NonNumeric)
             | (StrverscmpState::LeadingZeros, CharType::Digit, CharType::NonNumeric) => -1,
 
-            (_, _, _) => *s1 as c_uchar as c_int - *s2 as c_uchar as c_int, // all other paths lead to CMP
+            // Compare the strings the same as strcmp
+            (_, _, _) => *s1 as c_uchar as c_int - *s2 as c_uchar as c_int,
         }
     }
 }

@@ -719,14 +719,6 @@ unsafe extern "C" fn lfind() {
     todo!("lfind")
 }
 #[no_mangle]
-unsafe extern "C" fn lrint() {
-    todo!("lrint")
-}
-#[no_mangle]
-unsafe extern "C" fn lrintf() {
-    todo!("lrintf")
-}
-#[no_mangle]
 unsafe extern "C" fn lsearch() {
     todo!("lsearch")
 }
@@ -1391,14 +1383,6 @@ unsafe extern "C" fn isnanf() {
     todo!("isnanf")
 }
 #[no_mangle]
-unsafe extern "C" fn drem() {
-    todo!("drem")
-}
-#[no_mangle]
-unsafe extern "C" fn dremf() {
-    todo!("dremf")
-}
-#[no_mangle]
 unsafe extern "C" fn gamma() {
     todo!("gamma")
 }
@@ -1415,56 +1399,8 @@ unsafe extern "C" fn lgammaf() {
     todo!("lgammaf")
 }
 #[no_mangle]
-unsafe extern "C" fn llrint() {
-    todo!("llrint")
-}
-#[no_mangle]
-unsafe extern "C" fn llrintf() {
-    todo!("llrintf")
-}
-#[no_mangle]
-unsafe extern "C" fn llround() {
-    todo!("llround")
-}
-#[no_mangle]
-unsafe extern "C" fn llroundf() {
-    todo!("llroundf")
-}
-#[no_mangle]
-unsafe extern "C" fn logb() {
-    todo!("logb")
-}
-#[no_mangle]
-unsafe extern "C" fn logbf() {
-    todo!("logbf")
-}
-#[no_mangle]
-unsafe extern "C" fn lround() {
-    todo!("lround")
-}
-#[no_mangle]
-unsafe extern "C" fn lroundf() {
-    todo!("lroundf")
-}
-#[no_mangle]
-unsafe extern "C" fn scalb() {
-    todo!("scalb")
-}
-#[no_mangle]
-unsafe extern "C" fn scalbf() {
-    todo!("scalbf")
-}
-#[no_mangle]
 unsafe extern "C" fn strfromf() {
     todo!("strfromf")
-}
-#[no_mangle]
-unsafe extern "C" fn scalbln() {
-    todo!("scalbln")
-}
-#[no_mangle]
-unsafe extern "C" fn scalblnf() {
-    todo!("scalblnf")
 }
 #[no_mangle]
 unsafe extern "C" fn signgam() {

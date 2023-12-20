@@ -652,7 +652,7 @@ unsafe extern "C" fn logb(x: f64) -> f64 {
         x - 0.0
     } else if x == 0.0 {
         -f64::INFINITY
-    } else if x.abs() == f64::INFINITY {
+    } else if fabs(x) == f64::INFINITY {
         f64::INFINITY
     } else {
         ilogb(x) as f64
@@ -665,7 +665,7 @@ unsafe extern "C" fn logbf(x: f32) -> f32 {
         x - 0.0
     } else if x == 0.0 {
         -f32::INFINITY
-    } else if x.abs() == f32::INFINITY {
+    } else if fabsf(x) == f32::INFINITY {
         f32::INFINITY
     } else {
         ilogbf(x) as f32

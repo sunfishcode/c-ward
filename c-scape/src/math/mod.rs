@@ -416,8 +416,18 @@ unsafe extern "C" fn remainder(x: f64, y: f64) -> f64 {
 }
 
 #[no_mangle]
+unsafe extern "C" fn drem(x: f64, y: f64) -> f64 {
+    remainder(x, y)
+}
+
+#[no_mangle]
 unsafe extern "C" fn remainderf(x: f32, y: f32) -> f32 {
     libm::remainderf(x, y)
+}
+
+#[no_mangle]
+unsafe extern "C" fn dremf(x: f32, y: f32) -> f32 {
+    remainderf(x, y)
 }
 
 #[no_mangle]
@@ -452,6 +462,64 @@ unsafe extern "C" fn scalbn(x: f64, y: i32) -> f64 {
 #[no_mangle]
 unsafe extern "C" fn scalbnf(x: f32, y: i32) -> f32 {
     libm::scalbnf(x, y)
+}
+
+#[no_mangle]
+unsafe extern "C" fn scalbln(x: f64, y: libc::c_long) -> f64 {
+    let y = y.clamp(libc::c_int::MIN.into(), libc::c_int::MAX.into()) as _;
+    scalbn(x, y)
+}
+
+#[no_mangle]
+unsafe extern "C" fn scalblnf(x: f32, y: libc::c_long) -> f32 {
+    let y = y.clamp(libc::c_int::MIN.into(), libc::c_int::MAX.into()) as _;
+    scalbnf(x, y)
+}
+
+#[no_mangle]
+unsafe extern "C" fn scalb(x: f64, exp: f64) -> f64 {
+    if x.is_nan() {
+        x - 0.0
+    } else if exp.is_nan() {
+        exp - 0.0
+    } else if !exp.is_finite() {
+        if exp > 0.0 {
+            x * exp
+        } else {
+            x / -exp
+        }
+    } else if rint(exp) != exp {
+        f64::NAN
+    } else if exp > 65000.0 {
+        scalbn(x, 65000)
+    } else if -exp > 65000.0 {
+        scalbn(x, -65000)
+    } else {
+        scalbn(x, exp as i32)
+    }
+}
+
+#[no_mangle]
+unsafe extern "C" fn scalbf(x: f32, exp: f32) -> f32 {
+    if x.is_nan() {
+        x - 0.0
+    } else if exp.is_nan() {
+        exp - 0.0
+    } else if !exp.is_finite() {
+        if exp > 0.0 {
+            x * exp
+        } else {
+            x / -exp
+        }
+    } else if rintf(exp) != exp {
+        f32::NAN
+    } else if exp > 65000.0 {
+        scalbnf(x, 65000)
+    } else if -exp > 65000.0 {
+        scalbnf(x, -65000)
+    } else {
+        scalbnf(x, exp as i32)
+    }
 }
 
 #[no_mangle]
@@ -576,6 +644,75 @@ unsafe extern "C" fn rint(x: f64) -> f64 {
 #[no_mangle]
 unsafe extern "C" fn rintf(x: f32) -> f32 {
     libm::rintf(x)
+}
+
+#[no_mangle]
+unsafe extern "C" fn logb(x: f64) -> f64 {
+    if x.is_nan() {
+        x - 0.0
+    } else if x == 0.0 {
+        -f64::INFINITY
+    } else if fabs(x) == f64::INFINITY {
+        f64::INFINITY
+    } else {
+        ilogb(x) as f64
+    }
+}
+
+#[no_mangle]
+unsafe extern "C" fn logbf(x: f32) -> f32 {
+    if x.is_nan() {
+        x - 0.0
+    } else if x == 0.0 {
+        -f32::INFINITY
+    } else if fabsf(x) == f32::INFINITY {
+        f32::INFINITY
+    } else {
+        ilogbf(x) as f32
+    }
+}
+
+// The libm crate doesn't have `lrint` etc., but we can implement them with
+// `rint` etc. and casting, because we don't support floating-point exceptions,
+// so don't worry about it `FE_INEXACT`.
+#[no_mangle]
+unsafe extern "C" fn lrint(x: f64) -> libc::c_long {
+    rint(x) as libc::c_long
+}
+
+#[no_mangle]
+unsafe extern "C" fn lrintf(x: f32) -> libc::c_long {
+    rintf(x) as libc::c_long
+}
+
+#[no_mangle]
+unsafe extern "C" fn llrint(x: f64) -> libc::c_longlong {
+    rint(x) as libc::c_longlong
+}
+
+#[no_mangle]
+unsafe extern "C" fn llrintf(x: f32) -> libc::c_longlong {
+    rintf(x) as libc::c_longlong
+}
+
+#[no_mangle]
+unsafe extern "C" fn lround(x: f64) -> libc::c_long {
+    round(x) as libc::c_long
+}
+
+#[no_mangle]
+unsafe extern "C" fn lroundf(x: f32) -> libc::c_long {
+    roundf(x) as libc::c_long
+}
+
+#[no_mangle]
+unsafe extern "C" fn llround(x: f64) -> libc::c_longlong {
+    round(x) as libc::c_longlong
+}
+
+#[no_mangle]
+unsafe extern "C" fn llroundf(x: f32) -> libc::c_longlong {
+    roundf(x) as libc::c_longlong
 }
 
 // `nearbyint` differs from `rint` in that it doesn't raise

@@ -54,7 +54,7 @@ unsafe extern "C" fn fputs(s: *const c_char, file: *mut libc::FILE) -> c_int {
     //libc!(libc::fputs(s, file));
 
     let len = libc::strlen(s);
-    if fwrite(s.cast(), 1, len, file) == 0 {
+    if fwrite(s.cast(), 1, len, file) != len {
         libc::EOF
     } else {
         0
@@ -968,5 +968,33 @@ unsafe extern "C" fn perror(user_message: *const c_char) {
             user_message.as_ptr(),
             errno_message.as_ptr(),
         );
+    }
+}
+
+#[test]
+fn test_fputs() {
+    use core::ptr::null_mut;
+    use rustix::cstr;
+    unsafe {
+        let mut buf = [0u8; 8];
+        let fd = libc::memfd_create(cstr!("test").as_ptr(), 0);
+        assert_ne!(fd, -1);
+        let file = fdopen(fd, cstr!("w").as_ptr());
+        assert_ne!(file, null_mut());
+
+        assert!(fputs(cstr!("").as_ptr(), file) >= 0);
+        assert!(fflush(file) == 0);
+        assert_eq!(libc::pread(fd, buf.as_mut_ptr().cast(), buf.len(), 0), 0);
+        assert_eq!(buf, [0u8; 8]);
+
+        assert!(fputs(cstr!("hi").as_ptr(), file) >= 0);
+        assert!(fflush(file) == 0);
+        assert_eq!(libc::pread(fd, buf.as_mut_ptr().cast(), buf.len(), 0), 2);
+        assert_eq!(&buf, b"hi\0\0\0\0\0\0");
+
+        assert!(fputs(cstr!("hello\n").as_ptr(), file) >= 0);
+        assert!(fflush(file) == 0);
+        assert_eq!(libc::pread(fd, buf.as_mut_ptr().cast(), buf.len(), 2), 6);
+        assert_eq!(&buf, b"hello\n\0\0");
     }
 }

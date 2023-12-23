@@ -225,7 +225,7 @@ unsafe extern "C" fn strverscmp(mut s1: *const c_char, mut s2: *const c_char) ->
         s2 = s2.add(1);
     }
 
-    *s1 as c_uchar as c_int - *s2 as c_uchar as c_int
+    state.exit(s1, s2)
 }
 
 #[no_mangle]
@@ -627,4 +627,27 @@ unsafe extern "C" fn strlcat(dst: *mut c_char, src: *const c_char, limit: size_t
     }
 
     strlcpy(dst.add(len), src, limit - len) + len
+}
+
+#[cfg(test)]
+mod tests {
+
+    // use candle_core::test_utils::{to_vec0_round, to_vec2_round};
+    use super::*;
+    #[test]
+    fn strverscmp_test() {
+        extern "C" {
+            fn strverscmp(a: *const libc::c_char, b: *const libc::c_char) -> libc::c_int;
+        }
+        unsafe {
+            assert!(strverscmp("000\0".as_ptr().cast(), "00\0".as_ptr().cast()) < 0);
+            assert!(strverscmp("00\0".as_ptr().cast(), "01\0".as_ptr().cast()) < 0);
+            assert!(strverscmp("01\0".as_ptr().cast(), "010\0".as_ptr().cast()) < 0);
+            assert!(strverscmp("010\0".as_ptr().cast(), "09\0".as_ptr().cast()) < 0);
+            assert!(strverscmp("09\0".as_ptr().cast(), "0\0".as_ptr().cast()) < 0);
+            assert!(strverscmp("0\0".as_ptr().cast(), "1\0".as_ptr().cast()) < 0);
+            assert!(strverscmp("1\0".as_ptr().cast(), "9\0".as_ptr().cast()) < 0);
+            assert!(strverscmp("9\0".as_ptr().cast(), "10\0".as_ptr().cast()) < 0);
+        }
+    }
 }

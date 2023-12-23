@@ -225,7 +225,7 @@ unsafe extern "C" fn strverscmp(mut s1: *const c_char, mut s2: *const c_char) ->
         s2 = s2.add(1);
     }
 
-    *s1 as c_uchar as c_int - *s2 as c_uchar as c_int
+    state.exit(s1, s2)
 }
 
 #[no_mangle]

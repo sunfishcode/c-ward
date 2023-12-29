@@ -724,9 +724,15 @@ unsafe extern "C" fn vsprintf(
 
     let mut out = String::new();
     let num_bytes = format(fmt, va_list, output::fmt_write(&mut out));
-    if num_bytes >= 0 {
-        copy_nonoverlapping(out.as_ptr(), ptr.cast(), num_bytes as usize);
+    debug_assert_eq!(out.len(), num_bytes as usize);
+
+    let copy_len = num_bytes as usize + 1;
+    if copy_len > 0 {
+        out.push('\0');
+
+        copy_nonoverlapping(out.as_ptr(), ptr.cast(), copy_len);
     }
+
     num_bytes
 }
 
@@ -752,11 +758,15 @@ unsafe extern "C" fn vsnprintf(
 
     let mut out = String::new();
     let num_bytes = format(fmt, va_list, output::fmt_write(&mut out));
+    debug_assert_eq!(out.len(), num_bytes as usize);
 
-    if num_bytes >= 0 {
+    let copy_len = min(num_bytes as usize + 1, len);
+    if copy_len > 0 {
         out.push('\0');
+        let mut out = out.into_bytes();
+        out[copy_len - 1] = b'\0';
 
-        copy_nonoverlapping(out.as_ptr(), ptr.cast(), min(num_bytes as usize + 1, len));
+        copy_nonoverlapping(out.as_ptr(), ptr.cast(), copy_len);
     }
 
     num_bytes
@@ -996,5 +1006,80 @@ fn test_fputs() {
         assert!(fflush(file) == 0);
         assert_eq!(libc::pread(fd, buf.as_mut_ptr().cast(), buf.len(), 2), 6);
         assert_eq!(&buf, b"hello\n\0\0");
+    }
+
+    #[test]
+    fn test_sprintf() {
+        let mut buf = [b'_'; 16];
+        let r = unsafe {
+            sprintf(
+                buf.as_mut_ptr().cast(),
+                cstr!("hello %s").as_ptr(),
+                cstr!("world").as_ptr(),
+            )
+        };
+        assert_eq!(r, 11);
+        assert_eq!(&buf, b"hello world\0____");
+    }
+
+    #[test]
+    fn test_snprintf() {
+        let r = unsafe {
+            snprintf(
+                null_mut(),
+                0,
+                cstr!("hello %s").as_ptr(),
+                cstr!("world").as_ptr(),
+            )
+        };
+        assert_eq!(r, 11);
+
+        let mut buf = [b'_'; 16];
+        let r = unsafe {
+            snprintf(
+                buf.as_mut_ptr().cast(),
+                0,
+                cstr!("hello %s").as_ptr(),
+                cstr!("world").as_ptr(),
+            )
+        };
+        assert_eq!(r, 11);
+        assert_eq!(&buf, b"________________");
+
+        let mut buf = [b'_'; 16];
+        let r = unsafe {
+            snprintf(
+                buf.as_mut_ptr().cast(),
+                1,
+                cstr!("hello %s").as_ptr(),
+                cstr!("world").as_ptr(),
+            )
+        };
+        assert_eq!(r, 11);
+        assert_eq!(&buf, b"\0_______________");
+
+        let mut buf = [b'_'; 16];
+        let r = unsafe {
+            snprintf(
+                buf.as_mut_ptr().cast(),
+                15,
+                cstr!("hello %s").as_ptr(),
+                cstr!("world").as_ptr(),
+            )
+        };
+        assert_eq!(r, 11);
+        assert_eq!(&buf, b"hello world\0____");
+
+        let mut buf = [b'_'; 16];
+        let r = unsafe {
+            snprintf(
+                buf.as_mut_ptr().cast(),
+                15,
+                cstr!("hello big %s").as_ptr(),
+                cstr!("world").as_ptr(),
+            )
+        };
+        assert_eq!(r, 15);
+        assert_eq!(&buf, b"hello big worl\0_");
     }
 }

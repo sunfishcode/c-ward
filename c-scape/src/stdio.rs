@@ -724,6 +724,9 @@ unsafe extern "C" fn vsprintf(
 
     let mut out = String::new();
     let num_bytes = format(fmt, va_list, output::fmt_write(&mut out));
+    if num_bytes < 0 {
+        return num_bytes;
+    }
     debug_assert_eq!(out.len(), num_bytes as usize);
 
     let copy_len = num_bytes as usize + 1;
@@ -758,6 +761,9 @@ unsafe extern "C" fn vsnprintf(
 
     let mut out = String::new();
     let num_bytes = format(fmt, va_list, output::fmt_write(&mut out));
+    if num_bytes < 0 {
+        return num_bytes;
+    }
     debug_assert_eq!(out.len(), num_bytes as usize);
 
     let copy_len = min(num_bytes as usize + 1, len);
@@ -787,6 +793,7 @@ unsafe extern "C" fn vdprintf(fd: c_int, fmt: *const c_char, va_list: VaList<'_,
     if num_bytes < 0 {
         return num_bytes;
     }
+    debug_assert_eq!(out.len(), num_bytes as usize);
 
     let bytes = out.into_bytes();
     let mut remaining = &bytes[..];

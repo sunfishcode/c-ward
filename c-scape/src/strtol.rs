@@ -70,7 +70,7 @@ unsafe fn strto(
 ) -> uintmax_t {
     if base < 0 || base > 36 {
         set_errno(Errno(libc::EINVAL));
-        return max;
+        return 0;
     }
 
     // Skip leading whitespace.
@@ -175,4 +175,20 @@ unsafe fn strto(
 
     // Return a successful result.
     num as uintmax_t
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use core::ptr::null_mut;
+    use errno::errno;
+    use rustix::cstr;
+
+    #[test]
+    fn test_strtol() {
+        unsafe {
+            assert_eq!(strtol(cstr!("45").as_ptr(), null_mut(), 37), 0);
+            assert_eq!(errno().0, libc::EINVAL);
+        }
+    }
 }

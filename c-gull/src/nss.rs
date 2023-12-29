@@ -8,11 +8,13 @@
 //! so it's theoretically doable.
 
 use core::ffi::CStr;
-use core::mem::align_of;
-use core::ptr::{copy_nonoverlapping, null_mut, write};
+use core::mem::{align_of, zeroed};
+use core::ptr::{copy_nonoverlapping, null, null_mut, write};
 use core::str;
+use core::str::FromStr;
 use errno::{set_errno, Errno};
-use libc::{c_char, c_int, c_void, gid_t, group, passwd, uid_t};
+use libc::{c_char, c_int, c_void, gid_t, group, passwd, size_t, uid_t};
+use rustix::cstr;
 use rustix::path::DecInt;
 use std::ffi::OsStr;
 use std::os::unix::ffi::OsStrExt;
@@ -621,4 +623,213 @@ unsafe extern "C" fn getgrouplist(
 
     ngroups.write(ngroups_out);
     ngroups_out
+}
+
+#[no_mangle]
+unsafe extern "C" fn getservbyport_r(
+    port: c_int,
+    proto: *const c_char,
+    result_buf: *mut libc::servent,
+    buf: *mut c_char,
+    buflen: size_t,
+    result: *mut *mut libc::servent,
+) -> c_int {
+    //libc!(libc::getservbyport_r(
+    //port, proto, result_buf, buf, buflen, result
+    //));
+
+    let mut command = Command::new("getent");
+    command
+        .arg("services")
+        .arg(DecInt::new(u16::from_be(port as u16)).as_ref());
+    getserv_r(command, null(), proto, result_buf, buf, buflen, result)
+}
+
+#[no_mangle]
+unsafe extern "C" fn getservbyname_r(
+    name: *const c_char,
+    proto: *const c_char,
+    result_buf: *mut libc::servent,
+    buf: *mut c_char,
+    buflen: size_t,
+    result: *mut *mut libc::servent,
+) -> c_int {
+    //libc!(libc::getservbyname_r(
+    //name, proto, result_buf, buf, buflen, result
+    //));
+
+    let arg_name = OsStr::from_bytes(CStr::from_ptr(name).to_bytes());
+    let mut command = Command::new("getent");
+    command.arg("services").arg(arg_name);
+    getserv_r(command, name, proto, result_buf, buf, buflen, result)
+}
+
+unsafe fn getserv_r(
+    command: Command,
+    name: *const c_char,
+    proto: *const c_char,
+    result_buf: *mut libc::servent,
+    buf: *mut c_char,
+    buflen: size_t,
+    result: *mut *mut libc::servent,
+) -> c_int {
+    // glibc returns all the aliases but doesn't include the protocol name, and
+    // musl returns just the protocol name as the alias list. The intersection
+    // of these two that portable code is obliged to assume is an empty list.
+    static mut STATIC_SERVENT_ALIASES: *mut c_char = null_mut();
+    let s_aliases = &mut STATIC_SERVENT_ALIASES;
+
+    let mut command = command;
+    let output = match command.output() {
+        Ok(output) => output,
+        Err(_err) => {
+            *result = null_mut();
+            return libc::EIO;
+        }
+    };
+
+    match output.status.code() {
+        Some(0) => {}
+        Some(2) => {
+            *result = null_mut();
+            return libc::ENOENT;
+        }
+        Some(r) => panic!("unexpected exit status from `getent services`: {}", r),
+        None => {
+            *result = null_mut();
+            return libc::EIO;
+        }
+    }
+
+    let stdout = match str::from_utf8(&output.stdout) {
+        Ok(stdout) => stdout,
+        Err(_err) => {
+            *result = null_mut();
+            return libc::EIO;
+        }
+    };
+    let stdout = match stdout.strip_suffix('\n') {
+        Some(stdout) => stdout,
+        None => {
+            *result = null_mut();
+            return libc::EIO;
+        }
+    };
+
+    // Parse eg. "http                  80/tcp www".
+    let mut parts = stdout.split_ascii_whitespace();
+
+    let s_name = match parts.next() {
+        Some(check_name) => {
+            if name.is_null() {
+                if check_name.len() > buflen {
+                    return libc::ERANGE;
+                }
+                copy_nonoverlapping(check_name.as_ptr(), buf.cast(), check_name.len());
+                buf.add(check_name.len()).write(0);
+                buf
+            } else {
+                name.cast_mut()
+            }
+        }
+        None => {
+            *result = null_mut();
+            return libc::EIO;
+        }
+    };
+
+    let port_protocol = match parts.next() {
+        Some(port_protocol) => port_protocol,
+        None => {
+            *result = null_mut();
+            return libc::EIO;
+        }
+    };
+
+    // The rest of `pars.next()` contains aliases, but per the comment above,
+    // we ignore them.
+
+    // Parse eg. "443/tcp".
+    let (port, protocol) = match port_protocol.split_once('/') {
+        Some(port_protocol) => port_protocol,
+        None => {
+            *result = null_mut();
+            return libc::EIO;
+        }
+    };
+
+    // Parse the port number.
+    let s_port: i32 = match u16::from_str(port) {
+        Ok(port) => port.to_be().into(),
+        Err(_) => {
+            *result = null_mut();
+            return libc::EIO;
+        }
+    };
+
+    // Check the protocol, and if needed, translate the protocol string to
+    // a static string so that it lives at least as long as the `servent`.
+    let s_proto = if !proto.is_null() {
+        if protocol.as_bytes() != CStr::from_ptr(proto).to_bytes() {
+            *result = null_mut();
+            return libc::EIO;
+        }
+        proto
+    } else if protocol == "tcp" {
+        cstr!("tcp").as_ptr()
+    } else if protocol == "udp" {
+        cstr!("udp").as_ptr()
+    } else {
+        return libc::EINVAL;
+    }
+    .cast_mut();
+
+    *result_buf = libc::servent {
+        s_name,
+        s_aliases,
+        s_port,
+        s_proto,
+    };
+    *result = result_buf;
+    0
+}
+
+// The C contract is that it's the caller's responsibility to ensure that
+// we don't implicitly send this across threads.
+static mut STATIC_SERVENT: libc::servent = unsafe { zeroed() };
+
+#[no_mangle]
+unsafe extern "C" fn getservbyname(
+    name: *const c_char,
+    proto: *const c_char,
+) -> *mut libc::servent {
+    libc!(libc::getservbyname(name, proto));
+
+    let mut result = null_mut();
+    if getservbyname_r(name, proto, &mut STATIC_SERVENT, null_mut(), 0, &mut result) == 0 {
+        result
+    } else {
+        null_mut()
+    }
+}
+
+#[no_mangle]
+unsafe extern "C" fn getservbyport(port: c_int, proto: *const c_char) -> *mut libc::servent {
+    libc!(libc::getservbyport(port, proto));
+
+    let mut buf = [0; 32];
+    let mut result = null_mut();
+    if getservbyport_r(
+        port,
+        proto,
+        &mut STATIC_SERVENT,
+        buf.as_mut_ptr(),
+        buf.len(),
+        &mut result,
+    ) == 0
+    {
+        result
+    } else {
+        null_mut()
+    }
 }

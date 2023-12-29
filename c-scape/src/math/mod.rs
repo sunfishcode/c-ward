@@ -728,6 +728,35 @@ unsafe extern "C" fn nearbyintf(x: f32) -> f32 {
     libm::rintf(x)
 }
 
+#[no_mangle]
+unsafe extern "C" fn finite(x: f64) -> i32 {
+    return x.is_finite() as i32;
+}
+#[no_mangle]
+unsafe extern "C" fn finitef(x: f32) -> i32 {
+    return x.is_finite() as i32;
+}
+
+#[no_mangle]
+unsafe extern "C" fn isnan(x: f64) -> i32 {
+    return x.is_nan() as i32;
+}
+
+#[no_mangle]
+unsafe extern "C" fn isnanf(x: f32) -> i32 {
+    return x.is_nan() as i32;
+}
+
+#[no_mangle]
+unsafe extern "C" fn isinf(x: f64) -> i32 {
+    return (x.is_infinite() as i32) * x.signum() as i32;
+}
+
+#[no_mangle]
+unsafe extern "C" fn isinff(x: f32) -> i32 {
+    return (x.is_infinite() as i32) * x.signum() as i32;
+}
+
 // Enable support for complex numbers only on architectures where the builtin
 // C complex type has the same calling convention rules as a struct containing
 // two scalars. Notably, this excludes 32-bit "x86".
@@ -738,3 +767,43 @@ unsafe extern "C" fn nearbyintf(x: f32) -> f32 {
     target_arch = "x86_64"
 ))]
 mod complex;
+
+#[cfg(test)]
+mod tests {
+
+    use super::*;
+    #[test]
+    fn is_finite_test() {
+        unsafe {
+            assert_eq!(finite(1.), 1);
+            assert_eq!(finite(f64::NAN), 0);
+            assert_eq!(finite(f64::INFINITY), 0);
+            assert_eq!(finite(f64::NEG_INFINITY), 0);
+
+            assert_eq!(isnan(1.), 0);
+            assert_eq!(isnan(f64::NAN), 1);
+            assert_eq!(isnan(f64::INFINITY), 0);
+            assert_eq!(isnan(f64::NEG_INFINITY), 0);
+
+            assert_eq!(isinf(1.), 0);
+            assert_eq!(isinf(f64::NAN), 0);
+            assert_eq!(isinf(f64::INFINITY), 1);
+            assert_eq!(isinf(f64::NEG_INFINITY), -1);
+
+            assert_eq!(finitef(1.), 1);
+            assert_eq!(finitef(f32::NAN), 0);
+            assert_eq!(finitef(f32::INFINITY), 0);
+            assert_eq!(finitef(f32::NEG_INFINITY), 0);
+
+            assert_eq!(isnanf(1.), 0);
+            assert_eq!(isnanf(f32::NAN), 1);
+            assert_eq!(isnanf(f32::INFINITY), 0);
+            assert_eq!(isnanf(f32::NEG_INFINITY), 0);
+
+            assert_eq!(isinff(1.), 0);
+            assert_eq!(isinff(f32::NAN), 0);
+            assert_eq!(isinff(f32::INFINITY), 1);
+            assert_eq!(isinff(f32::NEG_INFINITY), -1);
+        }
+    }
+}

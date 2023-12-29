@@ -1378,10 +1378,7 @@ unsafe extern "C" fn register_printf_function() {
 unsafe extern "C" fn adjtime() {
     todo!("adjtime")
 }
-#[no_mangle]
-unsafe extern "C" fn isnanf() {
-    todo!("isnanf")
-}
+
 #[no_mangle]
 unsafe extern "C" fn gamma() {
     todo!("gamma")

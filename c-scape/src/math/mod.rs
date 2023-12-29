@@ -750,22 +750,22 @@ unsafe extern "C" fn isnanf(x: f32) -> i32 {
 #[no_mangle]
 unsafe extern "C" fn isinf(x: f64) -> i32 {
     if x == f64::INFINITY {
-        return 1;
+        1
     } else if x == f64::NEG_INFINITY {
-        return -1;
+        -1
     } else {
-        return 0;
+        0
     }
 }
 
 #[no_mangle]
 unsafe extern "C" fn isinff(x: f32) -> i32 {
     if x == f32::INFINITY {
-        return 1;
+        1
     } else if x == f32::NEG_INFINITY {
-        return -1;
+        -1
     } else {
-        return 0;
+        0
     }
 }
 

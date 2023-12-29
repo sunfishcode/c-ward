@@ -769,6 +769,16 @@ unsafe extern "C" fn isinff(x: f32) -> i32 {
     }
 }
 
+#[no_mangle]
+unsafe extern "C" fn lgamma(x: f64) -> f64 {
+    libm::lgamma(x)
+}
+
+#[no_mangle]
+unsafe extern "C" fn lgammaf(x: f32) -> f32 {
+    libm::lgammaf(x)
+}
+
 // Enable support for complex numbers only on architectures where the builtin
 // C complex type has the same calling convention rules as a struct containing
 // two scalars. Notably, this excludes 32-bit "x86".

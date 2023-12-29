@@ -1388,14 +1388,6 @@ unsafe extern "C" fn gammaf() {
     todo!("gammaf")
 }
 #[no_mangle]
-unsafe extern "C" fn lgamma() {
-    todo!("lgamma")
-}
-#[no_mangle]
-unsafe extern "C" fn lgammaf() {
-    todo!("lgammaf")
-}
-#[no_mangle]
 unsafe extern "C" fn strfromf() {
     todo!("strfromf")
 }

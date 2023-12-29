@@ -730,21 +730,21 @@ unsafe extern "C" fn nearbyintf(x: f32) -> f32 {
 
 #[no_mangle]
 unsafe extern "C" fn finite(x: f64) -> i32 {
-    return x.is_finite() as i32;
+    x.is_finite() as i32
 }
 #[no_mangle]
 unsafe extern "C" fn finitef(x: f32) -> i32 {
-    return x.is_finite() as i32;
+    x.is_finite() as i32
 }
 
 #[no_mangle]
 unsafe extern "C" fn isnan(x: f64) -> i32 {
-    return x.is_nan() as i32;
+    x.is_nan() as i32
 }
 
 #[no_mangle]
 unsafe extern "C" fn isnanf(x: f32) -> i32 {
-    return x.is_nan() as i32;
+    x.is_nan() as i32
 }
 
 #[no_mangle]

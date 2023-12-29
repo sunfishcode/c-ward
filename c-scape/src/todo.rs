@@ -130,14 +130,6 @@ unsafe extern "C" fn gethostbyname() {
     todo!("gethostbyname")
 }
 #[no_mangle]
-unsafe extern "C" fn getservbyname() {
-    todo!("getservbyname")
-}
-#[no_mangle]
-unsafe extern "C" fn getservbyport() {
-    todo!("getservbyport")
-}
-#[no_mangle]
 unsafe extern "C" fn if_indextoname() {
     todo!("if_indextoname")
 }

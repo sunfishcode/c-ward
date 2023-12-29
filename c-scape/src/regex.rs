@@ -139,7 +139,7 @@ unsafe extern "C" fn regerror(
     let len = msg.len().min(errbuf_size);
     copy_nonoverlapping(msg.as_ptr(), errbuf as *mut u8, len);
     if errbuf_size != 0 {
-        *errbuf.add((msg.len() + 1).min(errbuf_size)) = 0;
+        *errbuf.add(msg.len().min(errbuf_size - 1)) = 0;
     }
 
     msg.len() + 1
@@ -152,4 +152,39 @@ unsafe extern "C" fn regfree(preg: *mut regex_t) {
     let preg = preg.cast::<Regex>();
 
     let _ = Box::from_raw((*preg).tree);
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use core::ptr::null_mut;
+    use core::str;
+
+    #[test]
+    fn test_regerror() {
+        unsafe {
+            let mut buf = [b'_'; 8];
+            let r = regerror(
+                REG_NOMATCH,
+                null_mut(),
+                buf.as_mut_ptr().cast(),
+                buf.len() - 1,
+            );
+            assert_eq!(r, 26);
+            assert_eq!(str::from_utf8(&buf).unwrap(), "regexe\0_");
+
+            let mut buf = [b'_'; 27];
+            let r = regerror(
+                REG_NOMATCH,
+                null_mut(),
+                buf.as_mut_ptr().cast(),
+                buf.len() - 1,
+            );
+            assert_eq!(r, 26);
+            assert_eq!(
+                str::from_utf8(&buf).unwrap(),
+                "regexec() failed to match\0_"
+            );
+        }
+    }
 }

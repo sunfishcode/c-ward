@@ -370,42 +370,6 @@ unsafe extern "C" fn getrusage() {
     todo!("getrusage")
 }
 #[no_mangle]
-unsafe extern "C" fn inet_addr() {
-    todo!("inet_addr")
-}
-#[no_mangle]
-unsafe extern "C" fn inet_aton() {
-    todo!("inet_aton")
-}
-#[no_mangle]
-unsafe extern "C" fn inet_lnaof() {
-    todo!("inet_lnaof")
-}
-#[no_mangle]
-unsafe extern "C" fn inet_makeaddr() {
-    todo!("inet_makeaddr")
-}
-#[no_mangle]
-unsafe extern "C" fn inet_netof() {
-    todo!("inet_netof")
-}
-#[no_mangle]
-unsafe extern "C" fn inet_network() {
-    todo!("inet_network")
-}
-#[no_mangle]
-unsafe extern "C" fn inet_ntoa() {
-    todo!("inet_ntoa")
-}
-#[no_mangle]
-unsafe extern "C" fn inet_ntop() {
-    todo!("inet_ntop")
-}
-#[no_mangle]
-unsafe extern "C" fn inet_pton() {
-    todo!("inet_pton")
-}
-#[no_mangle]
 unsafe extern "C" fn pclose() {
     todo!("pclose")
 }

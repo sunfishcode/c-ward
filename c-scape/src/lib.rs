@@ -7,6 +7,7 @@
 #![feature(exposed_provenance)]
 #![feature(inline_const)]
 #![feature(sync_unsafe_cell)]
+#![feature(ip_in_core)]
 #![feature(linkage)]
 #![deny(fuzzy_provenance_casts, lossy_provenance_casts)]
 
@@ -79,6 +80,7 @@ mod termios_;
 #[cfg(feature = "take-charge")]
 mod thread;
 
+mod arpa_inet;
 mod atoi;
 mod errno_;
 mod error;

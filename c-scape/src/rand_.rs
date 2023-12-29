@@ -55,16 +55,21 @@ unsafe extern "C" fn getentropy(ptr: *mut c_void, len: usize) -> i32 {
     0
 }
 
-#[cfg(any(target_os = "android", target_os = "linux"))]
-#[test]
-fn test_getentropy() {
-    unsafe {
-        let mut buf = [0; 257];
-        assert_eq!(getentropy(buf.as_mut_ptr().cast(), 257), -1);
-        assert_eq!(errno::errno().0, libc::EIO);
+#[cfg(test)]
+mod tests {
+    use super::*;
 
-        let mut buf = [0; 257];
-        assert_eq!(getentropy(buf.as_mut_ptr().cast(), 256), 0);
-        assert!(buf.iter().any(|b| *b != 0));
+    #[cfg(any(target_os = "android", target_os = "linux"))]
+    #[test]
+    fn test_getentropy() {
+        unsafe {
+            let mut buf = [0; 257];
+            assert_eq!(getentropy(buf.as_mut_ptr().cast(), 257), -1);
+            assert_eq!(errno::errno().0, libc::EIO);
+
+            let mut buf = [0; 257];
+            assert_eq!(getentropy(buf.as_mut_ptr().cast(), 256), 0);
+            assert!(buf.iter().any(|b| *b != 0));
+        }
     }
 }

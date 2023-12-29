@@ -212,31 +212,34 @@ unsafe fn futex(
     }
 }
 
-#[cfg(feature = "syscall-utimensat")]
-#[test]
-fn test_syscall_utimensat() {
-    use core::ptr::null_mut;
-    use rustix::cstr;
-    use rustix::fd::BorrowedFd;
-    unsafe {
-        let fd = libc::memfd_create(cstr!("test").as_ptr(), 0);
-        assert_ne!(fd, -1);
-        let times = [
-            libc::timespec {
-                tv_sec: 43,
-                tv_nsec: 44,
-            },
-            libc::timespec {
-                tv_sec: 45,
-                tv_nsec: 46,
-            },
-        ];
-        assert_eq!(
-            syscall(libc::SYS_utimensat, fd, null::<u8>(), &times, 0),
-            null_mut()
-        );
-        let stat = rustix::fs::fstat(BorrowedFd::borrow_raw(fd)).unwrap();
-        assert_eq!(stat.st_mtime, times[1].tv_sec as _);
-        assert_eq!(stat.st_mtime_nsec, times[1].tv_nsec as _);
+#[cfg(test)]
+mod tests {
+    #[cfg(feature = "syscall-utimensat")]
+    #[test]
+    fn test_syscall_utimensat() {
+        use core::ptr::null_mut;
+        use rustix::cstr;
+        use rustix::fd::BorrowedFd;
+        unsafe {
+            let fd = libc::memfd_create(cstr!("test").as_ptr(), 0);
+            assert_ne!(fd, -1);
+            let times = [
+                libc::timespec {
+                    tv_sec: 43,
+                    tv_nsec: 44,
+                },
+                libc::timespec {
+                    tv_sec: 45,
+                    tv_nsec: 46,
+                },
+            ];
+            assert_eq!(
+                syscall(libc::SYS_utimensat, fd, null::<u8>(), &times, 0),
+                null_mut()
+            );
+            let stat = rustix::fs::fstat(BorrowedFd::borrow_raw(fd)).unwrap();
+            assert_eq!(stat.st_mtime, times[1].tv_sec as _);
+            assert_eq!(stat.st_mtime_nsec, times[1].tv_nsec as _);
+        }
     }
 }

@@ -8,7 +8,7 @@ use crate::convert_res;
 fn rustix_timespec_to_libc_timespec(
     rustix_time: rustix::time::Timespec,
 ) -> Result<libc::timespec, core::num::TryFromIntError> {
-    // SAFETY: libc structs can be zero-initalized freely
+    // SAFETY: libc structs can be zero-initialized freely
     let mut time: libc::timespec = unsafe { core::mem::zeroed() };
     time.tv_sec = rustix_time.tv_sec.try_into()?;
     time.tv_nsec = rustix_time.tv_nsec.try_into()?;

@@ -74,7 +74,7 @@ unsafe extern "C" fn __stack_chk_fail() -> ! {
 }
 
 // If we were building a dynamic library, this function could have a
-// restricted visibiltiy.
+// restricted visibility.
 #[cold]
 #[no_mangle]
 unsafe extern "C" fn __stack_chk_fail_local() -> ! {

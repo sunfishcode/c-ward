@@ -63,6 +63,47 @@ unsafe fn _sysconf(name: c_int) -> c_long {
         libc::_SC_PHYS_PAGES => get_phys_pages(),
         #[cfg(not(target_os = "wasi"))]
         libc::_SC_AVPHYS_PAGES => get_avphys_pages(),
+
+        libc::_SC_2_C_BIND
+        | libc::_SC_2_VERSION
+        | libc::_SC_ADVISORY_INFO
+        | libc::_SC_ASYNCHRONOUS_IO
+        | libc::_SC_BARRIERS
+        | libc::_SC_CLOCK_SELECTION
+        | libc::_SC_CPUTIME
+        | libc::_SC_FSYNC
+        | libc::_SC_IPV6
+        | libc::_SC_MAPPED_FILES
+        | libc::_SC_MEMLOCK
+        | libc::_SC_MEMLOCK_RANGE
+        | libc::_SC_MEMORY_PROTECTION
+        | libc::_SC_MESSAGE_PASSING
+        | libc::_SC_MONOTONIC_CLOCK
+        | libc::_SC_PRIORITIZED_IO
+        | libc::_SC_PRIORITY_SCHEDULING
+        | libc::_SC_RAW_SOCKETS
+        | libc::_SC_READER_WRITER_LOCKS
+        | libc::_SC_REALTIME_SIGNALS
+        | libc::_SC_SEMAPHORES
+        | libc::_SC_SHARED_MEMORY_OBJECTS
+        | libc::_SC_SPAWN
+        | libc::_SC_SPIN_LOCKS
+        | libc::_SC_SYNCHRONIZED_IO
+        | libc::_SC_THREAD_ATTR_STACKADDR
+        | libc::_SC_THREAD_ATTR_STACKSIZE
+        | libc::_SC_THREAD_CPUTIME
+        | libc::_SC_THREAD_PRIO_INHERIT
+        | libc::_SC_THREAD_PRIO_PROTECT
+        | libc::_SC_THREAD_PRIORITY_SCHEDULING
+        | libc::_SC_THREAD_PROCESS_SHARED
+        | libc::_SC_THREADS
+        | libc::_SC_THREAD_SAFE_FUNCTIONS
+        | libc::_SC_TIMEOUTS
+        | libc::_SC_TIMERS
+        | libc::_SC_VERSION => 200809,
+
+        libc::_SC_THREAD_STACK_MIN => libc::PTHREAD_STACK_MIN as _,
+
         _ => panic!("unrecognized sysconf({})", name),
     }
 }

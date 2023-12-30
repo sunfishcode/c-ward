@@ -82,7 +82,7 @@ unsafe extern "C" fn sigaction(signal: c_int, new: *const sigaction, old: *mut s
 
         Some(Sigaction {
             sa_handler_kernel: transmute(new.sa_sigaction),
-            sa_flags: new.sa_flags.try_into().unwrap(),
+            sa_flags: new.sa_flags as _,
             #[cfg(not(target_arch = "riscv64"))]
             sa_restorer: transmute(new.sa_restorer),
             sa_mask,
@@ -101,7 +101,7 @@ unsafe extern "C" fn sigaction(signal: c_int, new: *const sigaction, old: *mut s
 
                 let old_action = sigaction {
                     sa_sigaction: transmute(old_action.sa_handler_kernel),
-                    sa_flags: old_action.sa_flags.try_into().unwrap(),
+                    sa_flags: old_action.sa_flags as _,
                     #[cfg(not(target_arch = "riscv64"))]
                     sa_restorer: transmute(old_action.sa_restorer),
                     #[cfg(target_arch = "riscv64")]
@@ -469,4 +469,23 @@ unsafe extern "C" fn __libc_current_sigrtmax() -> i32 {
     libc!(libc::__libc_current_sigrtmax());
 
     rustix::runtime::SIGRTMAX as i32
+}
+
+#[cfg(test)]
+mod tests {
+    use core::mem::zeroed;
+    use core::ptr::null_mut;
+
+    #[test]
+    fn test_sigaction_invalid_flags() {
+        unsafe {
+            let new = libc::sigaction {
+                sa_sigaction: libc::SIG_DFL,
+                sa_flags: !0,
+                sa_mask: zeroed(),
+                sa_restorer: None,
+            };
+            assert_eq!(libc::sigaction(libc::SIGILL, &new, null_mut()), 0);
+        }
+    }
 }

@@ -7,7 +7,7 @@ use libc::{c_char, c_int, mode_t};
 
 use crate::convert_res;
 
-// This has to be a macro because we can't delegate C varadic functions.
+// This has to be a macro because we can't delegate C variadic functions.
 // This allows us to reduce code duplication as all of the `open` variants
 // should morally delegate to openat64.
 macro_rules! openat_impl {

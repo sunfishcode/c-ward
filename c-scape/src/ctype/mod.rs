@@ -75,7 +75,7 @@ unsafe extern "C" fn isspace(c: c_int) -> c_int {
 
     // We can't use the core function
     // for space testing here because we
-    // have a slightly different defintion.
+    // have a slightly different definition.
     let is_space = c == ' ' as c_int
         || c == '\t' as c_int
         || c == '\n' as c_int

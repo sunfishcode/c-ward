@@ -25,7 +25,7 @@ type PthreadT = *mut c_void;
 libc_type!(PthreadT, pthread_t);
 
 bitflags::bitflags! {
-    /// Flags for use with [`PthreaadAttrT`].
+    /// Flags for use with [`PthreadAttrT`].
     #[repr(transparent)]
     #[derive(Copy, Clone, Eq, PartialEq, Hash, Debug)]
     pub struct PthreadAttrFlags: usize {
@@ -952,7 +952,7 @@ unsafe extern "C" fn pthread_setname_np(pthread: PthreadT, name: *const libc::c_
 }
 
 // TODO: See comment on `pthread_clean_push` about the
-// ordering gurantees that programs expect.
+// ordering guarantees that programs expect.
 #[no_mangle]
 unsafe extern "C" fn __cxa_thread_atexit_impl(
     func: unsafe extern "C" fn(*mut c_void),

@@ -12,7 +12,7 @@ use crate::convert_res;
 fn rustix_stat_to_libc_stat(
     rustix_stat: rustix::fs::Stat,
 ) -> Result<libc::stat, core::num::TryFromIntError> {
-    // SAFETY: libc structs can be zero-initalized freely
+    // SAFETY: libc structs can be zero-initialized freely
     let mut stat: libc::stat = unsafe { core::mem::zeroed() };
     stat.st_dev = rustix_stat.st_dev.try_into()?;
     stat.st_ino = rustix_stat.st_ino.try_into()?;

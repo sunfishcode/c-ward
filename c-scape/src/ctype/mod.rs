@@ -101,11 +101,11 @@ unsafe extern "C" fn isxdigit(c: c_int) -> c_int {
 #[no_mangle]
 unsafe extern "C" fn tolower(c: c_int) -> c_int {
     libc!(libc::tolower(c));
-    truncate_to_u8(c).to_ascii_lowercase() as c_int
+    c_int::from(truncate_to_u8(c).to_ascii_lowercase())
 }
 
 #[no_mangle]
 unsafe extern "C" fn toupper(c: c_int) -> c_int {
     libc!(libc::toupper(c));
-    truncate_to_u8(c).to_ascii_uppercase() as c_int
+    c_int::from(truncate_to_u8(c).to_ascii_uppercase())
 }

@@ -178,10 +178,10 @@ impl StrverscmpState {
                     let chartype1 = CharType::from_char(*s1);
                     let chartype2 = CharType::from_char(*s2);
                     match (chartype1, chartype2) {
-                        (CharType::Zero, CharType::NonNumeric) => return 1,
-                        (CharType::Digit, CharType::NonNumeric) => return 1,
-                        (CharType::NonNumeric, CharType::Zero) => return -1,
-                        (CharType::NonNumeric, CharType::Digit) => return -1,
+                        (CharType::Zero, CharType::NonNumeric)
+                        | (CharType::Digit, CharType::NonNumeric) => return 1,
+                        (CharType::NonNumeric, CharType::Zero)
+                        | (CharType::NonNumeric, CharType::Digit) => return -1,
                         (CharType::NonNumeric, CharType::NonNumeric) => break,
                         (_, _) => {
                             s1 = s1.add(1);

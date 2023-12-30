@@ -871,30 +871,6 @@ unsafe extern "C" fn unshare() {
     todo!("unshare")
 }
 #[no_mangle]
-unsafe extern "C" fn __vasprintf_chk() {
-    todo!("__vasprintf_chk")
-}
-#[no_mangle]
-unsafe extern "C" fn __vdprintf_chk() {
-    todo!("__vdprintf_chk")
-}
-#[no_mangle]
-unsafe extern "C" fn __vsprintf_chk() {
-    todo!("__vsprintf_chk")
-}
-#[no_mangle]
-unsafe extern "C" fn __asprintf_chk() {
-    todo!("__asprintf_chk")
-}
-#[no_mangle]
-unsafe extern "C" fn __dprintf_chk() {
-    todo!("__dprintf_chk")
-}
-#[no_mangle]
-unsafe extern "C" fn __strncat_chk() {
-    todo!("__strncat_chk")
-}
-#[no_mangle]
 unsafe extern "C" fn err() {
     todo!("err")
 }

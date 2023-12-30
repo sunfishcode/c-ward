@@ -23,11 +23,28 @@ unsafe extern "C" fn __strcpy_chk(
 ) -> *mut c_char {
     let src_strlen = libc::strlen(src);
 
-    if src_strlen + 1 > destlen {
+    if src_strlen >= destlen {
         __chk_fail();
     }
 
-    libc::strcpy(dest, src)
+    libc::memcpy(dest.cast(), src.cast(), src_strlen + 1).cast()
+}
+
+// <https://refspecs.linuxbase.org/LSB_5.0.0/LSB-Core-generic/LSB-Core-generic/baselib---stpcpy-chk-1.html>
+#[no_mangle]
+unsafe extern "C" fn __stpcpy_chk(
+    dest: *mut c_char,
+    src: *const c_char,
+    destlen: size_t,
+) -> *mut c_char {
+    let src_strlen = libc::strlen(src);
+
+    if src_strlen >= destlen {
+        __chk_fail();
+    }
+
+    libc::memcpy(dest.cast(), src.cast(), src_strlen + 1);
+    dest.add(src_strlen)
 }
 
 // <https://refspecs.linuxbase.org/LSB_5.0.0/LSB-Core-generic/LSB-Core-generic/baselib---memcpy-chk-1.html>
@@ -43,6 +60,21 @@ unsafe extern "C" fn __memcpy_chk(
     }
 
     libc::memcpy(dest, src, len)
+}
+
+// <https://refspecs.linuxbase.org/LSB_5.0.0/LSB-Core-generic/LSB-Core-generic/baselib---memmove-chk-1.html>
+#[no_mangle]
+unsafe extern "C" fn __memmove_chk(
+    dest: *mut c_void,
+    src: *const c_void,
+    len: size_t,
+    destlen: size_t,
+) -> *mut c_void {
+    if destlen < len {
+        __chk_fail();
+    }
+
+    libc::memmove(dest, src, len)
 }
 
 // <https://refspecs.linuxbase.org/LSB_5.0.0/LSB-Core-generic/LSB-Core-generic/baselib---memset-chk-1.html>

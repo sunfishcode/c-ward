@@ -22,8 +22,6 @@ mod nss;
 #[cfg(feature = "std")]
 mod resolve;
 #[cfg(feature = "std")]
-mod strtod;
-#[cfg(feature = "std")]
 mod sysconf;
 #[cfg(feature = "std")]
 mod system;

@@ -4,9 +4,12 @@
 mod aio;
 mod cat;
 mod fenv;
+mod jmp;
 mod locale;
 mod long_double;
 mod long_double_complex;
+mod pthread_cancel;
+mod pthread_spin;
 mod sysv;
 mod wchar;
 
@@ -203,40 +206,8 @@ unsafe extern "C" fn pthread_kill() {
     todo!("pthread_kill")
 }
 #[no_mangle]
-unsafe extern "C" fn getcontext() {
-    todo!("getcontext")
-}
-#[no_mangle]
-unsafe extern "C" fn setcontext() {
-    todo!("setcontext")
-}
-#[no_mangle]
-unsafe extern "C" fn makecontext() {
-    todo!("makecontext")
-}
-#[no_mangle]
-unsafe extern "C" fn swapcontext() {
-    todo!("swapcontext")
-}
-#[no_mangle]
 unsafe extern "C" fn __fdelt_chk() {
     todo!("__fdelt_chk")
-}
-#[no_mangle]
-unsafe extern "C" fn longjmp() {
-    todo!("longjmp")
-}
-#[no_mangle]
-unsafe extern "C" fn _longjmp() {
-    todo!("_longjmp")
-}
-#[no_mangle]
-unsafe extern "C" fn __longjmp_chk() {
-    todo!("__longjmp_chk")
-}
-#[no_mangle]
-unsafe extern "C" fn siglongjmp() {
-    todo!("siglongjmp")
 }
 #[no_mangle]
 unsafe extern "C" fn acct() {
@@ -591,10 +562,6 @@ unsafe extern "C" fn pthread_mutexattr_setrobust() {
     todo!("pthread_mutexattr_setrobust")
 }
 #[no_mangle]
-unsafe extern "C" fn __pthread_register_cancel() {
-    todo!("__pthread_register_cancel")
-}
-#[no_mangle]
 unsafe extern "C" fn pthread_rwlockattr_getpshared() {
     todo!("pthread_rwlockattr_getpshared")
 }
@@ -605,10 +572,6 @@ unsafe extern "C" fn pthread_rwlockattr_setpshared() {
 #[no_mangle]
 unsafe extern "C" fn pthread_setschedparam() {
     todo!("pthread_setschedparam")
-}
-#[no_mangle]
-unsafe extern "C" fn __pthread_unregister_cancel() {
-    todo!("__pthread_unregister_cancel")
 }
 #[cfg(not(feature = "std"))]
 #[no_mangle]
@@ -858,26 +821,6 @@ unsafe extern "C" fn pthread_setaffinity_np() {
 #[no_mangle]
 unsafe extern "C" fn pthread_setschedprio() {
     todo!("pthread_setschedprio")
-}
-#[no_mangle]
-unsafe extern "C" fn pthread_spin_destroy() {
-    todo!("pthread_spin_destroy")
-}
-#[no_mangle]
-unsafe extern "C" fn pthread_spin_init() {
-    todo!("pthread_spin_init")
-}
-#[no_mangle]
-unsafe extern "C" fn pthread_spin_lock() {
-    todo!("pthread_spin_lock")
-}
-#[no_mangle]
-unsafe extern "C" fn pthread_spin_trylock() {
-    todo!("pthread_spin_trylock")
-}
-#[no_mangle]
-unsafe extern "C" fn pthread_spin_unlock() {
-    todo!("pthread_spin_unlock")
 }
 #[no_mangle]
 unsafe extern "C" fn sched_getparam() {

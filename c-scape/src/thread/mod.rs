@@ -833,56 +833,6 @@ unsafe extern "C" fn pthread_attr_setstacksize(attr: *mut PthreadAttrT, stacksiz
 }
 
 #[no_mangle]
-unsafe extern "C" fn pthread_cancel() -> c_int {
-    //libc!(libc::pthread_cancel());
-    unimplemented!("pthread_cancel")
-}
-
-#[no_mangle]
-unsafe extern "C" fn pthread_exit() -> c_int {
-    //libc!(libc::pthread_exit());
-    // As with `pthread_cancel`, `pthread_exit` may be tricky to implement.
-    unimplemented!("pthread_exit")
-}
-
-// TODO: The ordering that we need here is
-// all the pthread_cleanup functions,
-// then all thread-local dtors,
-// and then finally all static
-// (`__cxa_thread_atexit_impl`) dtors.
-//
-// We don't have the mechanism for that yet though.
-#[no_mangle]
-unsafe extern "C" fn pthread_cleanup_push() -> c_int {
-    //libc!(libc::pthread_cleanup_push());
-    unimplemented!("pthread_cleanup_push")
-}
-
-#[no_mangle]
-unsafe extern "C" fn pthread_cleanup_pop() -> c_int {
-    //libc!(libc::pthread_cleanup_pop());
-    unimplemented!("pthread_cleanup_pop")
-}
-
-#[no_mangle]
-unsafe extern "C" fn pthread_setcancelstate() -> c_int {
-    //libc!(libc::pthread_setcancelstate());
-    unimplemented!("pthread_setcancelstate")
-}
-
-#[no_mangle]
-unsafe extern "C" fn pthread_setcanceltype() -> c_int {
-    //libc!(libc::pthread_setcanceltype());
-    unimplemented!("pthread_setcanceltype")
-}
-
-#[no_mangle]
-unsafe extern "C" fn pthread_testcancel() -> c_int {
-    //libc!(libc::pthread_testcancel());
-    unimplemented!("pthread_testcancel")
-}
-
-#[no_mangle]
 unsafe extern "C" fn pthread_atfork(
     prepare: Option<unsafe extern "C" fn()>,
     parent: Option<unsafe extern "C" fn()>,

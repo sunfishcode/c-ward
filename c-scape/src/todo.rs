@@ -6,6 +6,7 @@ mod cat;
 mod fenv;
 mod locale;
 mod long_double;
+mod long_double_complex;
 mod sysv;
 mod wchar;
 

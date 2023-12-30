@@ -1271,7 +1271,3 @@ unsafe extern "C" fn backtrace() {
 unsafe extern "C" fn backtrace_symbols() {
     todo!("backtrace_symbols")
 }
-#[no_mangle]
-unsafe extern "C" fn __timezone() {
-    todo!("__timezone")
-}

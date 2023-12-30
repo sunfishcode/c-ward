@@ -1348,10 +1348,6 @@ unsafe extern "C" fn strfromf() {
     todo!("strfromf")
 }
 #[no_mangle]
-unsafe extern "C" fn signgam() {
-    todo!("signgam")
-}
-#[no_mangle]
 unsafe extern "C" fn hstrerror() {
     todo!("hstrerror")
 }

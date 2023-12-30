@@ -94,7 +94,7 @@ unsafe fn strto(
         if *s == b'0' as c_char {
             s = s.add(1);
             if (*s == b'x' as c_char || *s == b'X' as c_char)
-                && matches!(*s.add(1) as u8, b'0'..=b'9' | b'a'..=b'f' | b'A'..=b'F')
+                && (*s.add(1) as u8).is_ascii_hexdigit()
             {
                 s = s.add(1);
                 base = 16;
@@ -107,7 +107,7 @@ unsafe fn strto(
     } else if base == 16
         && *s == b'0' as c_char
         && (*s.add(1) == b'x' as c_char || *s.add(1) == b'X' as c_char)
-        && matches!(*s.add(2) as u8, b'0'..=b'9' | b'a'..=b'f' | b'A'..=b'F')
+        && (*s.add(2) as u8).is_ascii_hexdigit()
     {
         s = s.add(2);
     }

@@ -13,6 +13,121 @@ mod pthread_spin;
 mod sysv;
 mod wchar;
 
+// Functions that are implemented in rustix, so we just need to implement
+// C-compatible wrappers for them.
+
+#[no_mangle]
+unsafe extern "C" fn sysinfo() {
+    todo!("sysinfo")
+}
+#[no_mangle]
+unsafe extern "C" fn signalfd() {
+    todo!("signalfd")
+}
+#[no_mangle]
+unsafe extern "C" fn posix_fallocate() {
+    todo!("posix_fallocate")
+}
+#[no_mangle]
+unsafe extern "C" fn mount() {
+    todo!("mount")
+}
+#[no_mangle]
+unsafe extern "C" fn umount() {
+    todo!("umount")
+}
+#[no_mangle]
+unsafe extern "C" fn umount2() {
+    todo!("umount2")
+}
+#[no_mangle]
+unsafe extern "C" fn unshare() {
+    todo!("unshare")
+}
+#[no_mangle]
+unsafe extern "C" fn eaccess() {
+    todo!("eaccess")
+}
+#[no_mangle]
+unsafe extern "C" fn fchownat() {
+    todo!("fchownat")
+}
+#[no_mangle]
+unsafe extern "C" fn fstatfs() {
+    todo!("fstatfs")
+}
+#[no_mangle]
+unsafe extern "C" fn fstatfs64() {
+    todo!("fstatfs64")
+}
+#[no_mangle]
+unsafe extern "C" fn timerfd_gettime() {
+    todo!("timerfd_gettime")
+}
+
+// `_chk` versions of functions we have implemented, so we just need to add
+// wrappers with extra checks.
+
+#[no_mangle]
+unsafe extern "C" fn __realpath_chk() {
+    todo!("__realpath_chk")
+}
+#[no_mangle]
+unsafe extern "C" fn __fread_chk() {
+    todo!("__fread_chk")
+}
+#[no_mangle]
+unsafe extern "C" fn __getgroups_chk() {
+    todo!("__getgroups_chk")
+}
+#[no_mangle]
+unsafe extern "C" fn __readlink_chk() {
+    todo!("__readlink_chk")
+}
+#[no_mangle]
+unsafe extern "C" fn __readlinkat_chk() {
+    todo!("__readlinkat_chk")
+}
+
+// BSD formatted error functions. These can be implemented using other
+// libc functions.
+
+#[no_mangle]
+unsafe extern "C" fn err() {
+    todo!("err")
+}
+#[no_mangle]
+unsafe extern "C" fn errx() {
+    todo!("errx")
+}
+#[no_mangle]
+unsafe extern "C" fn warn() {
+    todo!("warn")
+}
+#[no_mangle]
+unsafe extern "C" fn warnx() {
+    todo!("warnx")
+}
+#[no_mangle]
+unsafe extern "C" fn verr() {
+    todo!("verr")
+}
+#[no_mangle]
+unsafe extern "C" fn verrx() {
+    todo!("verrx")
+}
+#[no_mangle]
+unsafe extern "C" fn vwarn() {
+    todo!("vwarn")
+}
+#[no_mangle]
+unsafe extern "C" fn vwarnx() {
+    todo!("vwarnx")
+}
+
+// NSS functions. Currently we're implementing NSS functions in c-gull by
+// invoking the `getent` command and parsing its output.
+
 #[no_mangle]
 unsafe extern "C" fn setnetent() {
     todo!("setnetent")
@@ -153,13 +268,12 @@ unsafe extern "C" fn getspent_r() {
 unsafe extern "C" fn gethostbyname_r() {
     todo!("gethostbyname_r")
 }
+
+// Additional functions.
+
 #[no_mangle]
 unsafe extern "C" fn alarm() {
     todo!("alarm")
-}
-#[no_mangle]
-unsafe extern "C" fn sysinfo() {
-    todo!("sysinfo")
 }
 #[no_mangle]
 unsafe extern "C" fn process_vm_writev() {
@@ -168,14 +282,6 @@ unsafe extern "C" fn process_vm_writev() {
 #[no_mangle]
 unsafe extern "C" fn process_vm_readv() {
     todo!("process_vm_readv")
-}
-#[no_mangle]
-unsafe extern "C" fn signalfd() {
-    todo!("signalfd")
-}
-#[no_mangle]
-unsafe extern "C" fn posix_fallocate() {
-    todo!("posix_fallocate")
 }
 #[no_mangle]
 unsafe extern "C" fn setfsuid() {
@@ -216,14 +322,6 @@ unsafe extern "C" fn acct() {
 #[no_mangle]
 unsafe extern "C" fn clock_getcpuclockid() {
     todo!("clock_getcpuclockid")
-}
-#[no_mangle]
-unsafe extern "C" fn eaccess() {
-    todo!("eaccess")
-}
-#[no_mangle]
-unsafe extern "C" fn fchownat() {
-    todo!("fchownat")
 }
 #[no_mangle]
 unsafe extern "C" fn getresgid() {
@@ -304,10 +402,6 @@ unsafe extern "C" fn timer_settime() {
 #[no_mangle]
 unsafe extern "C" fn timer_getoverrun() {
     todo!("timer_getoverrun")
-}
-#[no_mangle]
-unsafe extern "C" fn timerfd_gettime() {
-    todo!("timerfd_gettime")
 }
 #[no_mangle]
 unsafe extern "C" fn truncate() {
@@ -811,20 +905,12 @@ unsafe extern "C" fn sigqueue() {
     todo!("sigqueue")
 }
 #[no_mangle]
-unsafe extern "C" fn __getgroups_chk() {
-    todo!("__getgroups_chk")
-}
-#[no_mangle]
 unsafe extern "C" fn __isoc99_vfscanf() {
     todo!("__isoc99_vfscanf")
 }
 #[no_mangle]
 unsafe extern "C" fn mincore() {
     todo!("mincore")
-}
-#[no_mangle]
-unsafe extern "C" fn __realpath_chk() {
-    todo!("__realpath_chk")
 }
 #[no_mangle]
 unsafe extern "C" fn setns() {
@@ -837,54 +923,6 @@ unsafe extern "C" fn setresgid() {
 #[no_mangle]
 unsafe extern "C" fn setresuid() {
     todo!("setresuid")
-}
-#[no_mangle]
-unsafe extern "C" fn mount() {
-    todo!("mount")
-}
-#[no_mangle]
-unsafe extern "C" fn umount() {
-    todo!("umount")
-}
-#[no_mangle]
-unsafe extern "C" fn umount2() {
-    todo!("umount2")
-}
-#[no_mangle]
-unsafe extern "C" fn unshare() {
-    todo!("unshare")
-}
-#[no_mangle]
-unsafe extern "C" fn err() {
-    todo!("err")
-}
-#[no_mangle]
-unsafe extern "C" fn errx() {
-    todo!("errx")
-}
-#[no_mangle]
-unsafe extern "C" fn warn() {
-    todo!("warn")
-}
-#[no_mangle]
-unsafe extern "C" fn warnx() {
-    todo!("warnx")
-}
-#[no_mangle]
-unsafe extern "C" fn verr() {
-    todo!("verr")
-}
-#[no_mangle]
-unsafe extern "C" fn verrx() {
-    todo!("verrx")
-}
-#[no_mangle]
-unsafe extern "C" fn vwarn() {
-    todo!("vwarn")
-}
-#[no_mangle]
-unsafe extern "C" fn vwarnx() {
-    todo!("vwarnx")
 }
 #[no_mangle]
 unsafe extern "C" fn mq_close() {
@@ -983,18 +1021,6 @@ unsafe extern "C" fn fmtmsg() {
     todo!("fmtmsg")
 }
 #[no_mangle]
-unsafe extern "C" fn __fread_chk() {
-    todo!("__fread_chk")
-}
-#[no_mangle]
-unsafe extern "C" fn fstatfs() {
-    todo!("fstatfs")
-}
-#[no_mangle]
-unsafe extern "C" fn fstatfs64() {
-    todo!("fstatfs64")
-}
-#[no_mangle]
 unsafe extern "C" fn getcpu() {
     todo!("getcpu")
 }
@@ -1091,14 +1117,6 @@ unsafe extern "C" fn readahead() {
     todo!("readahead")
 }
 #[no_mangle]
-unsafe extern "C" fn __readlink_chk() {
-    todo!("__readlink_chk")
-}
-#[no_mangle]
-unsafe extern "C" fn __readlinkat_chk() {
-    todo!("__readlinkat_chk")
-}
-#[no_mangle]
 unsafe extern "C" fn reboot() {
     todo!("reboot")
 }
@@ -1190,7 +1208,6 @@ unsafe extern "C" fn register_printf_function() {
 unsafe extern "C" fn adjtime() {
     todo!("adjtime")
 }
-
 #[no_mangle]
 unsafe extern "C" fn gamma() {
     todo!("gamma")

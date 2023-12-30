@@ -128,6 +128,21 @@ unsafe extern "C" fn __strncpy_chk(
     libc::strncpy(dest, src, len)
 }
 
+// <https://refspecs.linuxbase.org/LSB_5.0.0/LSB-Core-generic/LSB-Core-generic/baselib---strncat-chk-1.html>
+#[no_mangle]
+unsafe extern "C" fn __strncat_chk(
+    dest: *mut c_char,
+    src: *const c_char,
+    len: size_t,
+    destlen: size_t,
+) -> *mut c_char {
+    if destlen < len {
+        __chk_fail();
+    }
+
+    libc::strncat(dest, src, len)
+}
+
 // <https://refspecs.linuxbase.org/LSB_5.0.0/LSB-Core-generic/LSB-Core-generic/baselib---fgets-chk-1.html>
 #[no_mangle]
 unsafe extern "C" fn __fgets_chk(

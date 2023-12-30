@@ -30,6 +30,8 @@ use rustix_futex_sync::Mutex;
 #[cfg(feature = "thread")]
 use rustix_futex_sync::RawMutex;
 
+mod chk;
+
 #[no_mangle]
 unsafe extern "C" fn fputc(c: c_int, file: *mut libc::FILE) -> c_int {
     //libc!(libc::fputc(c, file));
@@ -860,132 +862,6 @@ unsafe extern "C" fn vasprintf(
 unsafe extern "C" fn asprintf(strp: *mut *mut c_char, fmt: *const c_char, mut args: ...) -> c_int {
     let va_list = args.as_va_list();
     vasprintf(strp, fmt, va_list)
-}
-
-// `__*_chk` functions that have to live in c-gull because they depend on
-// C functions not in the libc crate, due to `VaList` being unstable.
-
-extern "C" {
-    #[cold]
-    fn __chk_fail() -> !;
-}
-
-// <https://refspecs.linuxbase.org/LSB_5.0.0/LSB-Core-generic/LSB-Core-generic/baselib---snprintf-chk-1.html>
-#[no_mangle]
-unsafe extern "C" fn __snprintf_chk(
-    ptr: *mut c_char,
-    len: size_t,
-    flag: c_int,
-    slen: size_t,
-    fmt: *const c_char,
-    mut args: ...
-) -> c_int {
-    if slen < len {
-        __chk_fail();
-    }
-
-    if flag > 0 {
-        unimplemented!("__USE_FORTIFY_LEVEL > 0");
-    }
-
-    let va_list = args.as_va_list();
-    vsnprintf(ptr, len, fmt, va_list)
-}
-
-// <https://refspecs.linuxbase.org/LSB_5.0.0/LSB-Core-generic/LSB-Core-generic/baselib---vsnprintf-chk-1.html>
-#[no_mangle]
-unsafe extern "C" fn __vsnprintf_chk(
-    ptr: *mut c_char,
-    len: size_t,
-    flag: c_int,
-    slen: size_t,
-    fmt: *const c_char,
-    va_list: VaList<'_, '_>,
-) -> c_int {
-    if slen < len {
-        __chk_fail();
-    }
-
-    if flag > 0 {
-        unimplemented!("__USE_FORTIFY_LEVEL > 0");
-    }
-
-    vsnprintf(ptr, len, fmt, va_list)
-}
-
-// <https://refspecs.linuxbase.org/LSB_5.0.0/LSB-Core-generic/LSB-Core-generic/baselib---sprintf-chk-1.html>
-#[no_mangle]
-unsafe extern "C" fn __sprintf_chk(
-    ptr: *mut c_char,
-    flag: c_int,
-    strlen: size_t,
-    format: *const c_char,
-    mut args: ...
-) -> c_int {
-    if flag > 0 {
-        unimplemented!("__USE_FORTIFY_LEVEL > 0");
-    }
-
-    if strlen == 0 {
-        __chk_fail();
-    }
-
-    // We can't check `sprintf` up front, so do a `vsnprintf` and check the
-    // results.
-    let va_list = args.as_va_list();
-    let n = vsnprintf(ptr, strlen, format, va_list);
-    if n >= 0 && n as size_t >= strlen {
-        __chk_fail();
-    }
-    n
-}
-
-// <https://refspecs.linuxbase.org/LSB_5.0.0/LSB-Core-generic/LSB-Core-generic/baselib---fprintf-chk-1.html>
-#[no_mangle]
-unsafe extern "C" fn __fprintf_chk(
-    file: *mut libc::FILE,
-    flag: c_int,
-    fmt: *const c_char,
-    mut args: ...
-) -> c_int {
-    if flag > 0 {
-        unimplemented!("__USE_FORTIFY_LEVEL > 0");
-    }
-
-    // Our `printf` uses `printf_compat` which doesn't support `%n`.
-
-    let va_list = args.as_va_list();
-    vfprintf(file, fmt, va_list)
-}
-
-// <https://refspecs.linuxbase.org/LSB_5.0.0/LSB-Core-generic/LSB-Core-generic/baselib---vfprintf-chk-1.html>
-#[no_mangle]
-unsafe extern "C" fn __vfprintf_chk(
-    file: *mut libc::FILE,
-    flag: c_int,
-    fmt: *const c_char,
-    va_list: VaList<'_, '_>,
-) -> c_int {
-    if flag > 0 {
-        unimplemented!("__USE_FORTIFY_LEVEL > 0");
-    }
-
-    // Our `printf` uses `printf_compat` which doesn't support `%n`.
-
-    vfprintf(file, fmt, va_list)
-}
-
-// <https://refspecs.linuxbase.org/LSB_5.0.0/LSB-Core-generic/LSB-Core-generic/baselib---printf-chk-1.html>
-#[no_mangle]
-unsafe extern "C" fn __printf_chk(flag: c_int, fmt: *const c_char, mut args: ...) -> c_int {
-    if flag > 0 {
-        unimplemented!("__USE_FORTIFY_LEVEL > 0");
-    }
-
-    // Our `printf` uses `printf_compat` which doesn't support `%n`.
-
-    let va_list = args.as_va_list();
-    vprintf(fmt, va_list)
 }
 
 #[no_mangle]

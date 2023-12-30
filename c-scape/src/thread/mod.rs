@@ -697,7 +697,10 @@ unsafe extern "C" fn pthread_create(
     } else {
         ptr::read(attr)
     };
-    assert!(stack_addr.is_null());
+    assert!(
+        stack_addr.is_null(),
+        "custom thread stacks not supported yet"
+    );
 
     let args = [NonNull::new(fn_ as *mut c_void), NonNull::new(arg)];
 

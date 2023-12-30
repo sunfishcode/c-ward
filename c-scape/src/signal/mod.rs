@@ -421,7 +421,7 @@ unsafe extern "C" fn strsignal(sig: c_int) -> *mut c_char {
         Signal::Cont => cstr!("Continue executing, if stopped").as_ptr() as _,
         Signal::Fpe => cstr!("Erroneous arithmetic operation").as_ptr() as _,
         Signal::Hup => cstr!("Hangup").as_ptr() as _,
-        Signal::Ill => cstr!("Illegal instruction").as_ptr() as _,
+        Signal::Ill => cstr!("Invalid instruction").as_ptr() as _,
         Signal::Int => cstr!("Terminal interrupt signal").as_ptr() as _,
         Signal::Kill => cstr!("Kill (cannot be caught or ignored)").as_ptr() as _,
         Signal::Pipe => cstr!("Write on a pipe with no one to read it").as_ptr() as _,

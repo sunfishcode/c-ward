@@ -623,10 +623,6 @@ unsafe extern "C" fn iconv_open() {
     todo!("iconv_open")
 }
 #[no_mangle]
-unsafe extern "C" fn initstate() {
-    todo!("initstate")
-}
-#[no_mangle]
 unsafe extern "C" fn __isoc99_fscanf() {
     todo!("__isoc99_fscanf")
 }
@@ -719,6 +715,10 @@ unsafe extern "C" fn sem_wait() {
     todo!("sem_wait")
 }
 #[no_mangle]
+unsafe extern "C" fn initstate() {
+    todo!("initstate")
+}
+#[no_mangle]
 unsafe extern "C" fn setstate() {
     todo!("setstate")
 }
@@ -733,18 +733,6 @@ unsafe extern "C" fn srandom() {
 #[no_mangle]
 unsafe extern "C" fn strptime() {
     todo!("strptime")
-}
-#[no_mangle]
-unsafe extern "C" fn __stpcpy_chk() {
-    todo!("__stpcpy_chk")
-}
-#[no_mangle]
-unsafe extern "C" fn strtold() {
-    todo!("strtold")
-}
-#[no_mangle]
-unsafe extern "C" fn atof() {
-    todo!("atof")
 }
 #[no_mangle]
 unsafe extern "C" fn a64l() {
@@ -1201,26 +1189,6 @@ unsafe extern "C" fn fts_close() {
 #[no_mangle]
 unsafe extern "C" fn __open_2() {
     todo!("__open_2")
-}
-#[no_mangle]
-unsafe extern "C" fn tcsendbreak() {
-    todo!("tcsendbreak")
-}
-#[no_mangle]
-unsafe extern "C" fn tcdrain() {
-    todo!("tcdrain")
-}
-#[no_mangle]
-unsafe extern "C" fn tcflush() {
-    todo!("tcflush")
-}
-#[no_mangle]
-unsafe extern "C" fn tcflow() {
-    todo!("tcflow")
-}
-#[no_mangle]
-unsafe extern "C" fn __memmove_chk() {
-    todo!("__memmove_chk")
 }
 #[no_mangle]
 unsafe extern "C" fn if_nameindex() {

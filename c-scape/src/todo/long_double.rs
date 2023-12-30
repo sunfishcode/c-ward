@@ -1,6 +1,10 @@
 //! Rust doesn't support ABI-compatible long double yet.
 
 #[no_mangle]
+unsafe extern "C" fn strtold() {
+    todo!("strtold")
+}
+#[no_mangle]
 unsafe extern "C" fn nexttowardf() {
     todo!("nexttowardf")
 }

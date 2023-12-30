@@ -7,8 +7,8 @@ use libc::{c_char, c_int, pid_t, termios, winsize};
 use rustix::fd::{BorrowedFd, FromRawFd, IntoRawFd, OwnedFd};
 use rustix::process::Pid;
 use rustix::termios::{
-    ControlModes, InputModes, LocalModes, OptionalActions, OutputModes, SpecialCodeIndex,
-    SpecialCodes, Termios,
+    Action, ControlModes, InputModes, LocalModes, OptionalActions, OutputModes, QueueSelector,
+    SpecialCodeIndex, SpecialCodes, Termios,
 };
 
 #[no_mangle]
@@ -477,6 +477,70 @@ unsafe extern "C" fn tcsetpgrp(fd: c_int, pgrp: pid_t) -> c_int {
     let fd = BorrowedFd::borrow_raw(fd);
     let pgrp = Pid::from_raw(pgrp).unwrap();
     match convert_res(rustix::termios::tcsetpgrp(fd, pgrp)) {
+        Some(()) => 0,
+        None => -1,
+    }
+}
+
+#[no_mangle]
+unsafe extern "C" fn tcsendbreak(fd: c_int, duration: c_int) -> c_int {
+    libc!(libc::tcsendbreak(fd, duration));
+
+    let fd = BorrowedFd::borrow_raw(fd);
+    let _ = duration;
+    match convert_res(rustix::termios::tcsendbreak(fd)) {
+        Some(()) => 0,
+        None => -1,
+    }
+}
+
+#[no_mangle]
+unsafe extern "C" fn tcdrain(fd: c_int) -> c_int {
+    libc!(libc::tcdrain(fd));
+
+    let fd = BorrowedFd::borrow_raw(fd);
+    match convert_res(rustix::termios::tcdrain(fd)) {
+        Some(()) => 0,
+        None => -1,
+    }
+}
+
+#[no_mangle]
+unsafe extern "C" fn tcflush(fd: c_int, queue_selector: c_int) -> c_int {
+    libc!(libc::tcflush(fd, queue_selector));
+
+    let fd = BorrowedFd::borrow_raw(fd);
+    let queue_selector = match queue_selector {
+        libc::TCIFLUSH => QueueSelector::IFlush,
+        libc::TCOFLUSH => QueueSelector::OFlush,
+        libc::TCIOFLUSH => QueueSelector::IOFlush,
+        _ => {
+            set_errno(Errno(libc::EINVAL));
+            return -1;
+        }
+    };
+    match convert_res(rustix::termios::tcflush(fd, queue_selector)) {
+        Some(()) => 0,
+        None => -1,
+    }
+}
+
+#[no_mangle]
+unsafe extern "C" fn tcflow(fd: c_int, action: c_int) -> c_int {
+    libc!(libc::tcflow(fd, action));
+
+    let fd = BorrowedFd::borrow_raw(fd);
+    let action = match action {
+        libc::TCOOFF => Action::OOff,
+        libc::TCOON => Action::OOn,
+        libc::TCIOFF => Action::IOff,
+        libc::TCION => Action::IOn,
+        _ => {
+            set_errno(Errno(libc::EINVAL));
+            return -1;
+        }
+    };
+    match convert_res(rustix::termios::tcflow(fd, action)) {
         Some(()) => 0,
         None => -1,
     }

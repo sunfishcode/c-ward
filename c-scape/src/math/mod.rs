@@ -770,7 +770,7 @@ unsafe extern "C" fn isinff(x: f32) -> i32 {
 }
 
 #[no_mangle]
-pub static mut signgam: i32 = 0;
+static mut signgam: i32 = 0;
 
 #[no_mangle]
 unsafe extern "C" fn lgamma(x: f64) -> f64 {

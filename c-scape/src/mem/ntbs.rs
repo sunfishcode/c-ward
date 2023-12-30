@@ -624,10 +624,9 @@ unsafe extern "C" fn strlcat(dst: *mut c_char, src: *const c_char, limit: size_t
 
 #[cfg(test)]
 mod tests {
-
     use super::*;
     #[test]
-    fn strverscmp_test() {
+    fn test_strverscmp() {
         unsafe {
             assert!(strverscmp("000\0".as_ptr().cast(), "00\0".as_ptr().cast()) < 0);
             assert!(strverscmp("00\0".as_ptr().cast(), "01\0".as_ptr().cast()) < 0);

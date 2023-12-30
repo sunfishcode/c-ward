@@ -350,22 +350,6 @@ unsafe extern "C" fn popen() {
     todo!("popen")
 }
 #[no_mangle]
-unsafe extern "C" fn setbuf() {
-    todo!("setbuf")
-}
-#[no_mangle]
-unsafe extern "C" fn setvbuf() {
-    todo!("setvbuf")
-}
-#[no_mangle]
-unsafe extern "C" fn setbuffer() {
-    todo!("setbuffer")
-}
-#[no_mangle]
-unsafe extern "C" fn setlinebuf() {
-    todo!("setlinebuf")
-}
-#[no_mangle]
 unsafe extern "C" fn tempnam() {
     todo!("tempnam")
 }

@@ -30,6 +30,7 @@ use rustix_futex_sync::Mutex;
 #[cfg(feature = "thread")]
 use rustix_futex_sync::RawMutex;
 
+mod buf;
 mod chk;
 
 #[no_mangle]

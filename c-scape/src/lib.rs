@@ -102,6 +102,7 @@ mod regex;
 mod setjmp;
 mod sort;
 mod stdio;
+mod strtod;
 mod strtol;
 mod syscall;
 mod time;

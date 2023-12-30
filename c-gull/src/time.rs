@@ -32,6 +32,9 @@ static mut timezone: c_long = 0;
 #[no_mangle]
 static mut daylight: c_int = 0;
 
+// Alias `__timezone` to `timezone`.
+core::arch::global_asm!(".globl __timezone", ".set __timezone, timezone");
+
 // Name storage for the `tm_zone` field.
 static TIMEZONE_NAMES: Mutex<OnceCell<HashSet<CString>>> = Mutex::new(OnceCell::new());
 

@@ -735,14 +735,6 @@ unsafe extern "C" fn strptime() {
     todo!("strptime")
 }
 #[no_mangle]
-unsafe extern "C" fn a64l() {
-    todo!("a64l")
-}
-#[no_mangle]
-unsafe extern "C" fn l64a() {
-    todo!("l64a")
-}
-#[no_mangle]
 unsafe extern "C" fn alphasort() {
     todo!("alphasort")
 }

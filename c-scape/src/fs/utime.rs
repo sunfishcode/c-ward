@@ -56,12 +56,12 @@ unsafe extern "C" fn utimensat(
     fd: c_int,
     path: *const c_char,
     times: *const libc::timespec,
-    flag: c_int,
+    flags: c_int,
 ) -> c_int {
-    libc!(libc::utimensat(fd, path, times, flag));
+    libc!(libc::utimensat(fd, path, times, flags));
 
     let times = times.cast::<[libc::timespec; 2]>();
-    let flags = AtFlags::from_bits(flag as _).unwrap();
+    let flags = AtFlags::from_bits(flags as _).unwrap();
 
     match convert_res(rustix::fs::utimensat(
         BorrowedFd::borrow_raw(fd),

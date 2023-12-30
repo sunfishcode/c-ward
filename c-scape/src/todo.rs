@@ -378,10 +378,6 @@ unsafe extern "C" fn ungetc() {
     todo!("ungetc")
 }
 #[no_mangle]
-unsafe extern "C" fn vasprintf() {
-    todo!("vasprintf")
-}
-#[no_mangle]
 unsafe extern "C" fn vfscanf() {
     todo!("vfscanf")
 }
@@ -741,10 +737,6 @@ unsafe extern "C" fn alphasort() {
 #[no_mangle]
 unsafe extern "C" fn asctime() {
     todo!("asctime")
-}
-#[no_mangle]
-unsafe extern "C" fn asprintf() {
-    todo!("asprintf")
 }
 #[no_mangle]
 unsafe extern "C" fn ctime() {

@@ -836,6 +836,32 @@ unsafe extern "C" fn vfprintf(
     r
 }
 
+#[no_mangle]
+unsafe extern "C" fn vasprintf(
+    strp: *mut *mut c_char,
+    fmt: *const c_char,
+    va_list: VaList<'_, '_>,
+) -> c_int {
+    let len = va_list.with_copy(|va_list| vsnprintf(null_mut(), 0, fmt, va_list));
+    if len < 0 {
+        return -1;
+    }
+
+    let ptr = libc::malloc(len as usize + 1).cast::<c_char>();
+    if ptr.is_null() {
+        return -1;
+    }
+
+    *strp = ptr;
+    vsnprintf(ptr, len as usize + 1, fmt, va_list)
+}
+
+#[no_mangle]
+unsafe extern "C" fn asprintf(strp: *mut *mut c_char, fmt: *const c_char, mut args: ...) -> c_int {
+    let va_list = args.as_va_list();
+    vasprintf(strp, fmt, va_list)
+}
+
 // `__*_chk` functions that have to live in c-gull because they depend on
 // C functions not in the libc crate, due to `VaList` being unstable.
 

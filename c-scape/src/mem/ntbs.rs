@@ -99,11 +99,7 @@ unsafe extern "C" fn strchrnul(s: *const c_char, c: c_int) -> *mut c_char {
 unsafe extern "C" fn strcmp(mut s1: *const c_char, mut s2: *const c_char) -> c_int {
     libc!(libc::strcmp(s1, s2));
 
-    while *s1 != NUL && *s2 != NUL {
-        if *s1 != *s2 {
-            break;
-        }
-
+    while *s1 == *s2 && *s1 != NUL {
         s1 = s1.add(1);
         s2 = s2.add(1);
     }
@@ -216,10 +212,7 @@ impl StrverscmpState {
 unsafe extern "C" fn strverscmp(mut s1: *const c_char, mut s2: *const c_char) -> c_int {
     // libc!(libc::strverscmp(s1, s2));
     let mut state = StrverscmpState::Normal;
-    while *s1 != NUL && *s2 != NUL {
-        if *s1 != *s2 {
-            return state.exit(s1, s2);
-        }
+    while *s1 == *s2 && *s1 != NUL {
         state.transition(CharType::from_char(*s1));
         s1 = s1.add(1);
         s2 = s2.add(1);
@@ -632,13 +625,9 @@ unsafe extern "C" fn strlcat(dst: *mut c_char, src: *const c_char, limit: size_t
 #[cfg(test)]
 mod tests {
 
-    // use candle_core::test_utils::{to_vec0_round, to_vec2_round};
     use super::*;
     #[test]
     fn strverscmp_test() {
-        extern "C" {
-            fn strverscmp(a: *const libc::c_char, b: *const libc::c_char) -> libc::c_int;
-        }
         unsafe {
             assert!(strverscmp("000\0".as_ptr().cast(), "00\0".as_ptr().cast()) < 0);
             assert!(strverscmp("00\0".as_ptr().cast(), "01\0".as_ptr().cast()) < 0);

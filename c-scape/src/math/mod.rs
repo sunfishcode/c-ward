@@ -770,13 +770,20 @@ unsafe extern "C" fn isinff(x: f32) -> i32 {
 }
 
 #[no_mangle]
+pub static mut signgam: i32 = 0;
+
+#[no_mangle]
 unsafe extern "C" fn lgamma(x: f64) -> f64 {
-    libm::lgamma(x)
+    let (a, b) = libm::lgamma_r(x);
+    signgam = b;
+    a
 }
 
 #[no_mangle]
 unsafe extern "C" fn lgammaf(x: f32) -> f32 {
-    libm::lgammaf(x)
+    let (res, sgn) = libm::lgammaf_r(x);
+    signgam = sgn;
+    res
 }
 
 // Enable support for complex numbers only on architectures where the builtin

@@ -82,6 +82,7 @@ mod thread;
 
 mod arpa_inet;
 mod atoi;
+mod base64;
 mod errno_;
 mod error;
 mod exec;

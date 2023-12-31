@@ -49,14 +49,6 @@ unsafe extern "C" fn eaccess() {
     todo!("eaccess")
 }
 #[no_mangle]
-unsafe extern "C" fn fstatfs() {
-    todo!("fstatfs")
-}
-#[no_mangle]
-unsafe extern "C" fn fstatfs64() {
-    todo!("fstatfs64")
-}
-#[no_mangle]
 unsafe extern "C" fn timerfd_gettime() {
     todo!("timerfd_gettime")
 }

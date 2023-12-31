@@ -208,3 +208,60 @@ unsafe extern "C" fn statfs(path: *const c_char, stat_: *mut libc::statfs) -> c_
         None => -1,
     }
 }
+
+#[no_mangle]
+unsafe extern "C" fn fstatfs64(fd: c_int, stat_: *mut libc::statfs64) -> c_int {
+    libc!(libc::fstatfs64(fd, stat_));
+    let stat_: *mut rustix::fs::StatFs = checked_cast!(stat_);
+
+    match convert_res(rustix::fs::fstatfs(BorrowedFd::borrow_raw(fd))) {
+        Some(r) => {
+            *stat_ = r;
+            0
+        }
+        None => -1,
+    }
+}
+
+#[no_mangle]
+unsafe extern "C" fn fstatfs(fd: c_int, stat_: *mut libc::statfs) -> c_int {
+    libc!(libc::fstatfs(fd, stat_));
+
+    match convert_res(rustix::fs::fstatfs(BorrowedFd::borrow_raw(fd))) {
+        Some(r) => {
+            #[cfg(target_os = "linux")]
+            {
+                let mut converted = core::mem::zeroed::<libc::statfs>();
+                converted.f_type = r.f_type.try_into().unwrap();
+                converted.f_bsize = r.f_bsize.try_into().unwrap();
+                converted.f_blocks = r.f_blocks.try_into().unwrap();
+                converted.f_bfree = r.f_bfree.try_into().unwrap();
+                converted.f_bavail = r.f_bavail.try_into().unwrap();
+                converted.f_files = r.f_files.try_into().unwrap();
+                converted.f_ffree = r.f_ffree.try_into().unwrap();
+                converted.f_namelen = r.f_namelen.try_into().unwrap();
+                converted.f_frsize = r.f_frsize.try_into().unwrap();
+
+                // The libc crate declares `f_fsid` with private fields,
+                // perhaps because who even knows what this field means,
+                // but understanding is not required for the job here.
+                assert_eq!(size_of_val(&r.f_fsid), size_of_val(&converted.f_fsid));
+                copy_nonoverlapping(
+                    addr_of!(r.f_fsid).cast::<u8>(),
+                    addr_of_mut!(converted.f_fsid).cast::<u8>(),
+                    size_of_val(&r.f_fsid),
+                );
+
+                *stat_ = converted;
+            }
+
+            #[cfg(not(target_os = "linux"))]
+            {
+                *stat_ = r;
+            }
+
+            0
+        }
+        None => -1,
+    }
+}

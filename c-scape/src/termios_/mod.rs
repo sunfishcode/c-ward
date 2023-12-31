@@ -589,6 +589,7 @@ unsafe extern "C" fn ptsname_r(fd: c_int, buf: *mut c_char, buflen: libc::size_t
                 0
             }
         } else {
+            set_errno(Errno(libc::ENOTTY));
             -1
         }
     }

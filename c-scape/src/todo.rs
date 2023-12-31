@@ -356,14 +356,6 @@ unsafe extern "C" fn ptrace() {
     todo!("ptrace")
 }
 #[no_mangle]
-unsafe extern "C" fn ptsname() {
-    todo!("ptsname")
-}
-#[no_mangle]
-unsafe extern "C" fn ptsname_r() {
-    todo!("ptsname_r")
-}
-#[no_mangle]
 unsafe extern "C" fn forkpty() {
     todo!("forkpty")
 }

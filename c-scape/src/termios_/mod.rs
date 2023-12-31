@@ -545,3 +545,51 @@ unsafe extern "C" fn tcflow(fd: c_int, action: c_int) -> c_int {
         None => -1,
     }
 }
+
+#[no_mangle]
+static mut pts_buffer: [c_char; 30] = [0; 30];
+
+#[no_mangle]
+unsafe extern "C" fn ptsname(fd: c_int) -> *mut c_char {
+    if ptsname_r(fd, pts_buffer.as_mut_ptr(), pts_buffer.len()) != 0 {
+        core::ptr::null_mut()
+    } else {
+        pts_buffer.as_mut_ptr()
+    }
+}
+
+#[no_mangle]
+unsafe extern "C" fn ptsname_r(fd: c_int, buf: *mut c_char, buflen: libc::size_t) -> c_int {
+    libc!(libc::ptsname_r(fd, buf, buflen));
+    if buf.is_null() {
+        set_errno(Errno(libc::EINVAL));
+        -1
+    } else {
+        let fd = BorrowedFd::borrow_raw(fd);
+        if let Ok(name) = rustix::pty::ptsname(fd, []) {
+            let len = name.as_bytes().len() + 1; // length inc null terminator
+            if len > buflen {
+                set_errno(Errno(libc::ERANGE));
+                -1
+            } else {
+                // we have checked the string will fit in the buffer
+                // so can use strcpy safely
+                let mut d = buf;
+                let mut s = name.as_ptr().cast();
+                while !d.is_null() {
+                    *d = *s;
+
+                    if d.is_null() {
+                        break;
+                    }
+
+                    d = d.add(1);
+                    s = s.add(1);
+                }
+                0
+            }
+        } else {
+            -1
+        }
+    }
+}

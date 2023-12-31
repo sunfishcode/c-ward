@@ -1,5 +1,6 @@
 use crate::convert_res;
 use core::ffi::CStr;
+use errno::{set_errno, Errno};
 use libc::{c_char, c_int, c_uint};
 use rustix::fd::BorrowedFd;
 use rustix::fs::AtFlags;
@@ -17,10 +18,14 @@ unsafe extern "C" fn fchownat(
     let pathname = CStr::from_ptr(pathname);
     let owner = Some(rustix::process::Uid::from_raw(owner));
     let group = Some(rustix::process::Gid::from_raw(group));
-    let flags = AtFlags::from_bits(flags as c_uint).unwrap();
-    let dirfd = BorrowedFd::borrow_raw(dirfd);
-    match convert_res(rustix::fs::chownat(dirfd, pathname, owner, group, flags)) {
-        Some(()) => 0,
-        None => -1,
+    if let Some(flags) = AtFlags::from_bits(flags as c_uint) {
+        let dirfd = BorrowedFd::borrow_raw(dirfd);
+        match convert_res(rustix::fs::chownat(dirfd, pathname, owner, group, flags)) {
+            Some(()) => 0,
+            None => -1,
+        }
+    } else {
+        set_errno(Errno(libc::EINVAL));
+        -1
     }
 }

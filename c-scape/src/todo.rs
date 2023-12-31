@@ -49,10 +49,6 @@ unsafe extern "C" fn eaccess() {
     todo!("eaccess")
 }
 #[no_mangle]
-unsafe extern "C" fn fchownat() {
-    todo!("fchownat")
-}
-#[no_mangle]
 unsafe extern "C" fn fstatfs() {
     todo!("fstatfs")
 }

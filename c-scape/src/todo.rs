@@ -49,18 +49,6 @@ unsafe extern "C" fn eaccess() {
     todo!("eaccess")
 }
 #[no_mangle]
-unsafe extern "C" fn fchownat() {
-    todo!("fchownat")
-}
-#[no_mangle]
-unsafe extern "C" fn fstatfs() {
-    todo!("fstatfs")
-}
-#[no_mangle]
-unsafe extern "C" fn fstatfs64() {
-    todo!("fstatfs64")
-}
-#[no_mangle]
 unsafe extern "C" fn timerfd_gettime() {
     todo!("timerfd_gettime")
 }
@@ -358,14 +346,6 @@ unsafe extern "C" fn epoll_pwait2() {
 #[no_mangle]
 unsafe extern "C" fn ptrace() {
     todo!("ptrace")
-}
-#[no_mangle]
-unsafe extern "C" fn ptsname() {
-    todo!("ptsname")
-}
-#[no_mangle]
-unsafe extern "C" fn ptsname_r() {
-    todo!("ptsname_r")
 }
 #[no_mangle]
 unsafe extern "C" fn forkpty() {

@@ -3,6 +3,7 @@
 use crate::{convert_res, set_errno, Errno};
 use core::mem::{size_of, transmute, zeroed};
 use core::ops::Index;
+use core::ptr::copy_nonoverlapping;
 use libc::{c_char, c_int, pid_t, termios, winsize};
 use rustix::fd::{BorrowedFd, FromRawFd, IntoRawFd, OwnedFd};
 use rustix::process::Pid;
@@ -543,5 +544,40 @@ unsafe extern "C" fn tcflow(fd: c_int, action: c_int) -> c_int {
     match convert_res(rustix::termios::tcflow(fd, action)) {
         Some(()) => 0,
         None => -1,
+    }
+}
+
+#[no_mangle]
+unsafe extern "C" fn ptsname(fd: c_int) -> *mut c_char {
+    static mut PTS_BUFFER: [c_char; 30] = [0; 30];
+    if ptsname_r(fd, PTS_BUFFER.as_mut_ptr(), PTS_BUFFER.len()) != 0 {
+        core::ptr::null_mut()
+    } else {
+        PTS_BUFFER.as_mut_ptr()
+    }
+}
+
+#[no_mangle]
+unsafe extern "C" fn ptsname_r(fd: c_int, buf: *mut c_char, buflen: libc::size_t) -> c_int {
+    libc!(libc::ptsname_r(fd, buf, buflen));
+    if buf.is_null() {
+        Errno(libc::EINVAL).into()
+    } else {
+        let fd = BorrowedFd::borrow_raw(fd);
+        match rustix::pty::ptsname(fd, []) {
+            Ok(name) => {
+                let len = name.as_bytes().len() + 1; // length inc null terminator
+                if len > buflen {
+                    Errno(libc::ERANGE).into()
+                } else {
+                    // we have checked the string will fit in the buffer
+                    // so can use strcpy safely
+                    let s = name.as_ptr().cast();
+                    copy_nonoverlapping(s, buf, len);
+                    0
+                }
+            }
+            Err(err) => err.raw_os_error(),
+        }
     }
 }

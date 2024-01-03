@@ -561,8 +561,7 @@ unsafe extern "C" fn ptsname(fd: c_int) -> *mut c_char {
 unsafe extern "C" fn ptsname_r(fd: c_int, buf: *mut c_char, buflen: libc::size_t) -> c_int {
     libc!(libc::ptsname_r(fd, buf, buflen));
     if buf.is_null() {
-        set_errno(Errno(libc::EINVAL));
-        -1
+        Errno(libc::EINVAL).into()
     } else {
         let fd = BorrowedFd::borrow_raw(fd);
         match rustix::pty::ptsname(fd, []) {

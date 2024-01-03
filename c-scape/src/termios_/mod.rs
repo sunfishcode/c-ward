@@ -565,20 +565,20 @@ unsafe extern "C" fn ptsname_r(fd: c_int, buf: *mut c_char, buflen: libc::size_t
         -1
     } else {
         let fd = BorrowedFd::borrow_raw(fd);
-        if let Some(name) = convert_res(rustix::pty::ptsname(fd, [])) {
-            let len = name.as_bytes().len() + 1; // length inc null terminator
-            if len > buflen {
-                set_errno(Errno(libc::ERANGE));
-                -1
-            } else {
-                // we have checked the string will fit in the buffer
-                // so can use strcpy safely
-                let s = name.as_ptr().cast();
-                copy_nonoverlapping(s, buf, len);
-                0
+        match rustix::pty::ptsname(fd, []) {
+            Ok(name) => {
+                let len = name.as_bytes().len() + 1; // length inc null terminator
+                if len > buflen {
+                    Errno(libc::ERANGE).into()
+                } else {
+                    // we have checked the string will fit in the buffer
+                    // so can use strcpy safely
+                    let s = name.as_ptr().cast();
+                    copy_nonoverlapping(s, buf, len);
+                    0
+                }
             }
-        } else {
-            -1
+            Err(err) => err.raw_os_error(),
         }
     }
 }

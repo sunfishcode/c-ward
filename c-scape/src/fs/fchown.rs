@@ -1,6 +1,5 @@
 use crate::convert_res;
 use core::ffi::CStr;
-use errno::{set_errno, Errno};
 use libc::{c_char, c_int, c_uint};
 use rustix::fd::BorrowedFd;
 use rustix::fs::AtFlags;

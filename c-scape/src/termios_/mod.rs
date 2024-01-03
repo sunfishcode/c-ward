@@ -3,6 +3,7 @@
 use crate::{convert_res, set_errno, Errno};
 use core::mem::{size_of, transmute, zeroed};
 use core::ops::Index;
+use core::ptr::copy_nonoverlapping;
 use libc::{c_char, c_int, pid_t, termios, winsize};
 use rustix::fd::{BorrowedFd, FromRawFd, IntoRawFd, OwnedFd};
 use rustix::process::Pid;
@@ -547,14 +548,12 @@ unsafe extern "C" fn tcflow(fd: c_int, action: c_int) -> c_int {
 }
 
 #[no_mangle]
-static mut pts_buffer: [c_char; 30] = [0; 30];
-
-#[no_mangle]
 unsafe extern "C" fn ptsname(fd: c_int) -> *mut c_char {
-    if ptsname_r(fd, pts_buffer.as_mut_ptr(), pts_buffer.len()) != 0 {
+    static mut PTS_BUFFER: [c_char; 30] = [0; 30];
+    if ptsname_r(fd, PTS_BUFFER.as_mut_ptr(), PTS_BUFFER.len()) != 0 {
         core::ptr::null_mut()
     } else {
-        pts_buffer.as_mut_ptr()
+        PTS_BUFFER.as_mut_ptr()
     }
 }
 
@@ -566,7 +565,7 @@ unsafe extern "C" fn ptsname_r(fd: c_int, buf: *mut c_char, buflen: libc::size_t
         -1
     } else {
         let fd = BorrowedFd::borrow_raw(fd);
-        if let Ok(name) = rustix::pty::ptsname(fd, []) {
+        if let Some(name) = convert_res(rustix::pty::ptsname(fd, [])) {
             let len = name.as_bytes().len() + 1; // length inc null terminator
             if len > buflen {
                 set_errno(Errno(libc::ERANGE));
@@ -574,22 +573,11 @@ unsafe extern "C" fn ptsname_r(fd: c_int, buf: *mut c_char, buflen: libc::size_t
             } else {
                 // we have checked the string will fit in the buffer
                 // so can use strcpy safely
-                let mut d = buf;
-                let mut s = name.as_ptr().cast();
-                while !d.is_null() {
-                    *d = *s;
-
-                    if d.is_null() {
-                        break;
-                    }
-
-                    d = d.add(1);
-                    s = s.add(1);
-                }
+                let s = name.as_ptr().cast();
+                copy_nonoverlapping(s, buf, len);
                 0
             }
         } else {
-            set_errno(Errno(libc::ENOTTY));
             -1
         }
     }

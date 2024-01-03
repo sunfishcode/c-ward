@@ -18,14 +18,10 @@ unsafe extern "C" fn fchownat(
     let pathname = CStr::from_ptr(pathname);
     let owner = Some(rustix::process::Uid::from_raw(owner));
     let group = Some(rustix::process::Gid::from_raw(group));
-    if let Some(flags) = AtFlags::from_bits(flags as c_uint) {
-        let dirfd = BorrowedFd::borrow_raw(dirfd);
-        match convert_res(rustix::fs::chownat(dirfd, pathname, owner, group, flags)) {
-            Some(()) => 0,
-            None => -1,
-        }
-    } else {
-        set_errno(Errno(libc::EINVAL));
-        -1
+    let flags = AtFlags::from_bits_retain(flags as c_uint);
+    let dirfd = BorrowedFd::borrow_raw(dirfd);
+    match convert_res(rustix::fs::chownat(dirfd, pathname, owner, group, flags)) {
+        Some(()) => 0,
+        None => -1,
     }
 }

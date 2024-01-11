@@ -1,7 +1,6 @@
 #![doc = include_str!("../README.md")]
-#![feature(strict_provenance)]
-#![feature(c_variadic)]
 #![feature(sync_unsafe_cell)]
+#![feature(strict_provenance)]
 #![deny(fuzzy_provenance_casts, lossy_provenance_casts)]
 #![cfg_attr(not(feature = "std"), no_std)]
 

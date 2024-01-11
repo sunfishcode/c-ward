@@ -970,7 +970,7 @@ unsafe extern "C" fn __tls_get_addr(p: &[usize; 2]) -> *mut c_void {
     //libc!(libc::__tls_get_addr(p));
     let [module, offset] = *p;
     // Offset 0 is the generation field, and we don't support dynamic linking,
-    // so we should only sever see 1 here.
+    // so we should only ever see 1 here.
     assert_eq!(module, 1);
     thread::current_tls_addr(offset)
 }

@@ -1,4 +1,8 @@
 //! Termios APIs
+//!
+//! Most of the termios functions are in c-scape, but ttyname is in c-gull
+//! because it depends on rustix's procfs feature, which depends on std. Rustix
+//! could be changed to avoid using std here, if it becomes important.
 
 use crate::convert_res;
 use alloc::ffi::CString;

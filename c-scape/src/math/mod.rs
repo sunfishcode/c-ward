@@ -799,8 +799,8 @@ mod complex;
 
 #[cfg(test)]
 mod tests {
-
     use super::*;
+
     #[test]
     fn is_finite_test() {
         unsafe {

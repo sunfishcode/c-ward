@@ -11,6 +11,7 @@ mod long_double;
 mod long_double_complex;
 mod pthread_cancel;
 mod pthread_spin;
+mod set_id;
 mod sysv;
 mod wchar;
 
@@ -838,14 +839,6 @@ unsafe extern "C" fn __isoc99_vsscanf() {
     todo!("__isoc99_vsscanf")
 }
 #[no_mangle]
-unsafe extern "C" fn setregid() {
-    todo!("setregid")
-}
-#[no_mangle]
-unsafe extern "C" fn setreuid() {
-    todo!("setreuid")
-}
-#[no_mangle]
 unsafe extern "C" fn times() {
     todo!("times")
 }
@@ -924,14 +917,6 @@ unsafe extern "C" fn mincore() {
 #[no_mangle]
 unsafe extern "C" fn setns() {
     todo!("setns")
-}
-#[no_mangle]
-unsafe extern "C" fn setresgid() {
-    todo!("setresgid")
-}
-#[no_mangle]
-unsafe extern "C" fn setresuid() {
-    todo!("setresuid")
 }
 #[no_mangle]
 unsafe extern "C" fn mq_close() {

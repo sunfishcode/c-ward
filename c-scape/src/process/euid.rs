@@ -1,4 +1,4 @@
-use libc::{c_int, uid_t};
+use libc::uid_t;
 
 #[no_mangle]
 unsafe extern "C" fn geteuid() -> uid_t {

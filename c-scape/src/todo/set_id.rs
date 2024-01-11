@@ -7,14 +7,6 @@
 //! the handlers to run, and then releasing the lock.
 
 #[no_mangle]
-unsafe extern "C" fn setuid() {
-    todo!("setuid")
-}
-#[no_mangle]
-unsafe extern "C" fn setgid() {
-    todo!("setgid")
-}
-#[no_mangle]
 unsafe extern "C" fn seteuid() {
     todo!("seteuid")
 }

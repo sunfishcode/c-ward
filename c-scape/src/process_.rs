@@ -265,24 +265,6 @@ unsafe extern "C" fn dlsym(handle: *mut c_void, symbol: *const c_char) -> *mut c
 }
 
 #[no_mangle]
-unsafe extern "C" fn dlclose() {
-    //libc!(libc::dlclose());
-    unimplemented!("dlclose")
-}
-
-#[no_mangle]
-unsafe extern "C" fn dlerror() {
-    //libc!(libc::dlerror());
-    unimplemented!("dlerror")
-}
-
-#[no_mangle]
-unsafe extern "C" fn dlopen() {
-    //libc!(libc::dlopen());
-    unimplemented!("dlopen")
-}
-
-#[no_mangle]
 unsafe extern "C" fn sched_yield() -> c_int {
     libc!(libc::sched_yield());
 

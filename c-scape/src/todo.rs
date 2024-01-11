@@ -3,6 +3,7 @@
 
 mod aio;
 mod cat;
+mod dl;
 mod fenv;
 mod jmp;
 mod locale;
@@ -51,6 +52,26 @@ unsafe extern "C" fn eaccess() {
 #[no_mangle]
 unsafe extern "C" fn timerfd_gettime() {
     todo!("timerfd_gettime")
+}
+#[no_mangle]
+unsafe extern "C" fn preadv2() {
+    todo!("preadv2")
+}
+#[no_mangle]
+unsafe extern "C" fn pwritev2() {
+    todo!("pwritev2")
+}
+#[no_mangle]
+unsafe extern "C" fn preadv64v2() {
+    todo!("preadv64v2")
+}
+#[no_mangle]
+unsafe extern "C" fn pwritev64v2() {
+    todo!("pwritev64v2")
+}
+#[no_mangle]
+unsafe extern "C" fn reboot() {
+    todo!("reboot")
 }
 
 // `_chk` versions of functions we have implemented, so we just need to add
@@ -237,10 +258,6 @@ unsafe extern "C" fn gethostbyname() {
     todo!("gethostbyname")
 }
 #[no_mangle]
-unsafe extern "C" fn if_indextoname() {
-    todo!("if_indextoname")
-}
-#[no_mangle]
 unsafe extern "C" fn getgrent_r() {
     todo!("getgrent_r")
 }
@@ -255,6 +272,26 @@ unsafe extern "C" fn getspent_r() {
 #[no_mangle]
 unsafe extern "C" fn gethostbyname_r() {
     todo!("gethostbyname_r")
+}
+#[no_mangle]
+unsafe extern "C" fn initgroups() {
+    todo!("initgroups")
+}
+#[no_mangle]
+unsafe extern "C" fn if_indextoname() {
+    todo!("if_indextoname")
+}
+#[no_mangle]
+unsafe extern "C" fn if_nametoindex() {
+    todo!("if_nametoindex")
+}
+#[no_mangle]
+unsafe extern "C" fn if_nameindex() {
+    todo!("if_nameindex")
+}
+#[no_mangle]
+unsafe extern "C" fn if_freenameindex() {
+    todo!("if_freenameindex")
 }
 
 // Additional functions.
@@ -278,10 +315,6 @@ unsafe extern "C" fn setfsuid() {
 #[no_mangle]
 unsafe extern "C" fn setfsgid() {
     todo!("setfsgid")
-}
-#[no_mangle]
-unsafe extern "C" fn initgroups() {
-    todo!("initgroups")
 }
 #[no_mangle]
 unsafe extern "C" fn strftime() {
@@ -318,10 +351,6 @@ unsafe extern "C" fn getresgid() {
 #[no_mangle]
 unsafe extern "C" fn getresuid() {
     todo!("getresuid")
-}
-#[no_mangle]
-unsafe extern "C" fn if_nametoindex() {
-    todo!("if_nametoindex")
 }
 #[no_mangle]
 unsafe extern "C" fn ppoll() {
@@ -1069,22 +1098,6 @@ unsafe extern "C" fn wait4() {
     todo!("wait4")
 }
 #[no_mangle]
-unsafe extern "C" fn preadv2() {
-    todo!("preadv2")
-}
-#[no_mangle]
-unsafe extern "C" fn pwritev2() {
-    todo!("pwritev2")
-}
-#[no_mangle]
-unsafe extern "C" fn preadv64v2() {
-    todo!("preadv64v2")
-}
-#[no_mangle]
-unsafe extern "C" fn pwritev64v2() {
-    todo!("pwritev64v2")
-}
-#[no_mangle]
 unsafe extern "C" fn profil() {
     todo!("profil")
 }
@@ -1095,10 +1108,6 @@ unsafe extern "C" fn quotactl() {
 #[no_mangle]
 unsafe extern "C" fn readahead() {
     todo!("readahead")
-}
-#[no_mangle]
-unsafe extern "C" fn reboot() {
-    todo!("reboot")
 }
 #[no_mangle]
 unsafe extern "C" fn remap_file_pages() {
@@ -1131,18 +1140,6 @@ unsafe extern "C" fn fts_close() {
 #[no_mangle]
 unsafe extern "C" fn __open_2() {
     todo!("__open_2")
-}
-#[no_mangle]
-unsafe extern "C" fn if_nameindex() {
-    todo!("if_nameindex")
-}
-#[no_mangle]
-unsafe extern "C" fn if_freenameindex() {
-    todo!("if_freenameindex")
-}
-#[no_mangle]
-unsafe extern "C" fn dladdr() {
-    todo!("dladdr")
 }
 #[no_mangle]
 unsafe extern "C" fn wordexp() {

@@ -46,8 +46,7 @@ functions and replacing them with calls, which effectively makes them uselessly
 recursive calls to themselves.
 
 However, `#[no_builtins]` is too pessimistic, because we don't need to disable
-all pattern matching, just these specific cases. And, `#[no_builtins]`
-[interferes with LTO optimization].
+all pattern matching, just these specific cases.
 
 So instead, c-scape and c-gull are just careful to avoid open-coding functions
 which are known to get pattern-matched into builtins, by just calling the
@@ -60,7 +59,6 @@ using `#![no_builtins]`.
 [tinyrlibc]: https://github.com/rust-embedded-community/tinyrlibc
 [c-scape-example]: https://github.com/sunfishcode/c-ward/blob/main/example-crates/c-scape-example
 [c-gull-example]: https://github.com/sunfishcode/c-ward/blob/main/example-crates/c-gull-example
-[interferes with LTO optimization]: https://github.com/rust-lang/rust/blob/72e29da3eccd3e4c1fb2c581fa33216db50fcc93/compiler/rustc_codegen_ssa/src/back/link.rs#L1264
 [Mustang]: https://github.com/sunfishcode/mustang#readme
 [Eyra]: https://github.com/sunfishcode/eyra#readme
 ["coexist-with-libc" mode]: https://github.com/sunfishcode/c-ward/blob/main/example-crates/libc-replacement#readme

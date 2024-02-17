@@ -5,7 +5,7 @@ use core::ptr::{addr_of, addr_of_mut, copy_nonoverlapping};
 use errno::{set_errno, Errno};
 use libc::{c_char, c_int, time_t};
 use rustix::fd::BorrowedFd;
-use rustix::fs::AtFlags;
+use rustix::fs::{AtFlags, StatExt};
 
 use crate::convert_res;
 
@@ -24,11 +24,11 @@ fn rustix_stat_to_libc_stat(
     stat.st_size = rustix_stat.st_size.try_into()?;
     stat.st_blksize = rustix_stat.st_blksize.try_into()?;
     stat.st_blocks = rustix_stat.st_blocks.try_into()?;
-    stat.st_atime = rustix_stat.st_atime.try_into()?;
+    stat.st_atime = rustix_stat.atime().try_into()?;
     stat.st_atime_nsec = rustix_stat.st_atime_nsec.try_into()?;
-    stat.st_mtime = rustix_stat.st_mtime.try_into()?;
+    stat.st_mtime = rustix_stat.mtime().try_into()?;
     stat.st_mtime_nsec = rustix_stat.st_mtime_nsec.try_into()?;
-    stat.st_ctime = rustix_stat.st_ctime as time_t;
+    stat.st_ctime = rustix_stat.ctime() as time_t;
     stat.st_ctime_nsec = rustix_stat.st_ctime_nsec.try_into()?;
     Ok(stat)
 }

@@ -1,5 +1,5 @@
 use crate::convert_res;
-use core::ptr::{invalid_mut, null_mut};
+use core::ptr::{without_provenance_mut, null_mut};
 use errno::{set_errno, Errno};
 use libc::{c_int, c_void, intptr_t};
 
@@ -35,7 +35,7 @@ unsafe extern "C" fn sbrk(increment: intptr_t) -> *mut c_void {
         // Read the current value from the OS.
         old = match convert_res(rustix::runtime::brk(null_mut())) {
             Some(old) => old,
-            None => return invalid_mut(!0),
+            None => return without_provenance_mut(!0),
         };
     }
 
@@ -57,7 +57,7 @@ unsafe extern "C" fn sbrk(increment: intptr_t) -> *mut c_void {
     if !ok {
         CURRENT = old;
         set_errno(Errno(libc::ENOMEM));
-        return invalid_mut(!0);
+        return without_provenance_mut(!0);
     }
 
     // Install the new address.
@@ -65,7 +65,7 @@ unsafe extern "C" fn sbrk(increment: intptr_t) -> *mut c_void {
         Some(new) => new,
         None => {
             CURRENT = old;
-            return invalid_mut(!0);
+            return without_provenance_mut(!0);
         }
     };
 
@@ -74,7 +74,7 @@ unsafe extern "C" fn sbrk(increment: intptr_t) -> *mut c_void {
     // The `brk` syscall returns the old value if it failed.
     if new != want {
         set_errno(Errno(libc::ENOMEM));
-        return invalid_mut(!0);
+        return without_provenance_mut(!0);
     }
 
     old

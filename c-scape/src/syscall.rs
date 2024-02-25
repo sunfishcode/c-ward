@@ -2,7 +2,7 @@
 use crate::convert_res;
 #[cfg(feature = "thread")]
 use core::mem::zeroed;
-use core::ptr::invalid_mut;
+use core::ptr::without_provenance_mut;
 #[cfg(feature = "thread")]
 use core::ptr::null;
 use errno::{set_errno, Errno};
@@ -23,14 +23,14 @@ unsafe extern "C" fn syscall(number: c_long, mut args: ...) -> *mut c_void {
             let fd = args.arg::<c_int>();
             let buf = args.arg::<*mut c_void>();
             let count = args.arg::<size_t>();
-            invalid_mut(libc::read(fd, buf, count) as _)
+            without_provenance_mut(libc::read(fd, buf, count) as _)
         }
         #[cfg(feature = "syscall-write")]
         libc::SYS_write => {
             let fd = args.arg::<c_int>();
             let buf = args.arg::<*const c_void>();
             let count = args.arg::<size_t>();
-            invalid_mut(libc::write(fd, buf, count) as _)
+            without_provenance_mut(libc::write(fd, buf, count) as _)
         }
         #[cfg(feature = "syscall-open")]
         #[cfg(not(any(target_arch = "aarch64", target_arch = "riscv64")))]
@@ -45,7 +45,7 @@ unsafe extern "C" fn syscall(number: c_long, mut args: ...) -> *mut c_void {
             } else {
                 libc::open(path, flags)
             };
-            invalid_mut(fd as _)
+            without_provenance_mut(fd as _)
         }
         #[cfg(feature = "syscall-openat")]
         libc::SYS_openat => {
@@ -60,15 +60,15 @@ unsafe extern "C" fn syscall(number: c_long, mut args: ...) -> *mut c_void {
             } else {
                 libc::openat(dirfd, path, flags)
             };
-            invalid_mut(fd as _)
+            without_provenance_mut(fd as _)
         }
         #[cfg(feature = "syscall-close")]
         libc::SYS_close => {
             let fd = args.arg::<c_int>();
-            invalid_mut(libc::close(fd) as _)
+            without_provenance_mut(libc::close(fd) as _)
         }
         #[cfg(feature = "syscall-getpid")]
-        libc::SYS_getpid => invalid_mut(rustix::process::getpid().as_raw_nonzero().get() as _),
+        libc::SYS_getpid => without_provenance_mut(rustix::process::getpid().as_raw_nonzero().get() as _),
         #[cfg(feature = "syscall-statx")]
         libc::SYS_statx => {
             let dirfd = args.arg::<c_int>();
@@ -76,13 +76,13 @@ unsafe extern "C" fn syscall(number: c_long, mut args: ...) -> *mut c_void {
             let flags = args.arg::<c_int>();
             let mask = args.arg::<libc::c_uint>();
             let statxbuf = args.arg::<*mut libc::statx>();
-            invalid_mut(libc::statx(dirfd, path, flags, mask, statxbuf) as _)
+            without_provenance_mut(libc::statx(dirfd, path, flags, mask, statxbuf) as _)
         }
         libc::SYS_getrandom => {
             let buf = args.arg::<*mut c_void>();
             let len = args.arg::<usize>();
             let flags = args.arg::<u32>();
-            invalid_mut(libc::getrandom(buf, len, flags) as _)
+            without_provenance_mut(libc::getrandom(buf, len, flags) as _)
         }
         #[cfg(feature = "thread")]
         libc::SYS_futex => {
@@ -92,23 +92,23 @@ unsafe extern "C" fn syscall(number: c_long, mut args: ...) -> *mut c_void {
             let timeout = args.arg::<*const libc::timespec>();
             let uaddr2 = args.arg::<*mut u32>();
             let val3 = args.arg::<u32>();
-            invalid_mut(futex(uaddr, futex_op, val, timeout, uaddr2, val3) as isize as usize)
+            without_provenance_mut(futex(uaddr, futex_op, val, timeout, uaddr2, val3) as isize as usize)
         }
         libc::SYS_clone3 => {
             // ensure std::process uses fork as fallback code on linux
             set_errno(Errno(libc::ENOSYS));
-            invalid_mut(!0)
+            without_provenance_mut(!0)
         }
         #[cfg(feature = "syscall-epoll_create1")]
         libc::SYS_epoll_create1 => {
             let flags = args.arg::<c_int>();
-            invalid_mut(libc::epoll_create(flags) as isize as usize)
+            without_provenance_mut(libc::epoll_create(flags) as isize as usize)
         }
         #[cfg(feature = "syscall-timerfd_create")]
         libc::SYS_timerfd_create => {
             let clockid = args.arg::<c_int>();
             let flags = args.arg::<c_int>();
-            invalid_mut(libc::timerfd_create(clockid, flags) as isize as usize)
+            without_provenance_mut(libc::timerfd_create(clockid, flags) as isize as usize)
         }
         #[cfg(feature = "syscall-timerfd_settime")]
         libc::SYS_timerfd_settime => {
@@ -116,7 +116,7 @@ unsafe extern "C" fn syscall(number: c_long, mut args: ...) -> *mut c_void {
             let flags = args.arg::<c_int>();
             let new_value = args.arg::<*const libc::itimerspec>();
             let old_value = args.arg::<*mut libc::itimerspec>();
-            invalid_mut(libc::timerfd_settime(fd, flags, new_value, old_value) as isize as usize)
+            without_provenance_mut(libc::timerfd_settime(fd, flags, new_value, old_value) as isize as usize)
         }
         #[cfg(feature = "syscall-utimensat")]
         libc::SYS_utimensat => {
@@ -129,34 +129,34 @@ unsafe extern "C" fn syscall(number: c_long, mut args: ...) -> *mut c_void {
             if path.is_null() {
                 if flags != 0 {
                     set_errno(Errno(libc::EINVAL));
-                    invalid_mut(-1 as isize as usize)
+                    without_provenance_mut(-1 as isize as usize)
                 } else {
-                    invalid_mut(libc::futimens(fd, times) as isize as usize)
+                    without_provenance_mut(libc::futimens(fd, times) as isize as usize)
                 }
             } else {
-                invalid_mut(libc::utimensat(fd, path, times, flags) as isize as usize)
+                without_provenance_mut(libc::utimensat(fd, path, times, flags) as isize as usize)
             }
         }
         #[cfg(feature = "syscall-fdatasync")]
         libc::SYS_fdatasync => {
             let fd = args.arg::<c_int>();
-            invalid_mut(libc::fdatasync(fd) as isize as usize)
+            without_provenance_mut(libc::fdatasync(fd) as isize as usize)
         }
         #[cfg(feature = "syscall-syncfs")]
         libc::SYS_syncfs => {
             let fd = args.arg::<c_int>();
-            invalid_mut(libc::syncfs(fd) as isize as usize)
+            without_provenance_mut(libc::syncfs(fd) as isize as usize)
         }
         #[cfg(feature = "syscall-sync")]
         libc::SYS_sync => {
             libc::sync();
-            invalid_mut(0)
+            without_provenance_mut(0)
         }
         #[cfg(feature = "syscall-pipe2")]
         libc::SYS_pipe2 => {
             let pipefd = args.arg::<*mut c_int>();
             let flags = args.arg::<c_int>();
-            invalid_mut(libc::pipe2(pipefd, flags) as isize as usize)
+            without_provenance_mut(libc::pipe2(pipefd, flags) as isize as usize)
         }
         _ => unimplemented!(
             "syscall({:?}); maybe try enabling the \"extra-syscalls\" feature",

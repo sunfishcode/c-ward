@@ -2,9 +2,9 @@
 use crate::convert_res;
 #[cfg(feature = "thread")]
 use core::mem::zeroed;
-use core::ptr::without_provenance_mut;
 #[cfg(feature = "thread")]
 use core::ptr::null;
+use core::ptr::without_provenance_mut;
 use errno::{set_errno, Errno};
 #[cfg(feature = "extra-syscalls")]
 use libc::{c_char, size_t};
@@ -68,7 +68,9 @@ unsafe extern "C" fn syscall(number: c_long, mut args: ...) -> *mut c_void {
             without_provenance_mut(libc::close(fd) as _)
         }
         #[cfg(feature = "syscall-getpid")]
-        libc::SYS_getpid => without_provenance_mut(rustix::process::getpid().as_raw_nonzero().get() as _),
+        libc::SYS_getpid => {
+            without_provenance_mut(rustix::process::getpid().as_raw_nonzero().get() as _)
+        }
         #[cfg(feature = "syscall-statx")]
         libc::SYS_statx => {
             let dirfd = args.arg::<c_int>();
@@ -92,7 +94,9 @@ unsafe extern "C" fn syscall(number: c_long, mut args: ...) -> *mut c_void {
             let timeout = args.arg::<*const libc::timespec>();
             let uaddr2 = args.arg::<*mut u32>();
             let val3 = args.arg::<u32>();
-            without_provenance_mut(futex(uaddr, futex_op, val, timeout, uaddr2, val3) as isize as usize)
+            without_provenance_mut(
+                futex(uaddr, futex_op, val, timeout, uaddr2, val3) as isize as usize
+            )
         }
         libc::SYS_clone3 => {
             // ensure std::process uses fork as fallback code on linux
@@ -116,7 +120,9 @@ unsafe extern "C" fn syscall(number: c_long, mut args: ...) -> *mut c_void {
             let flags = args.arg::<c_int>();
             let new_value = args.arg::<*const libc::itimerspec>();
             let old_value = args.arg::<*mut libc::itimerspec>();
-            without_provenance_mut(libc::timerfd_settime(fd, flags, new_value, old_value) as isize as usize)
+            without_provenance_mut(
+                libc::timerfd_settime(fd, flags, new_value, old_value) as isize as usize,
+            )
         }
         #[cfg(feature = "syscall-utimensat")]
         libc::SYS_utimensat => {

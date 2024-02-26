@@ -1,5 +1,5 @@
 use crate::convert_res;
-use core::ptr::{without_provenance_mut, null_mut};
+use core::ptr::{null_mut, without_provenance_mut};
 use errno::{set_errno, Errno};
 use libc::{c_int, c_void, intptr_t};
 

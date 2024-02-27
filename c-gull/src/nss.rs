@@ -806,7 +806,15 @@ unsafe extern "C" fn getservbyname(
     libc!(libc::getservbyname(name, proto));
 
     let mut result = null_mut();
-    if getservbyname_r(name, proto, addr_of_mut!(STATIC_SERVENT), null_mut(), 0, &mut result) == 0 {
+    if getservbyname_r(
+        name,
+        proto,
+        addr_of_mut!(STATIC_SERVENT),
+        null_mut(),
+        0,
+        &mut result,
+    ) == 0
+    {
         result
     } else {
         null_mut()

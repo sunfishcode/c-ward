@@ -9,7 +9,7 @@
 
 use core::ffi::CStr;
 use core::mem::{align_of, zeroed};
-use core::ptr::{copy_nonoverlapping, null, null_mut, write};
+use core::ptr::{addr_of_mut, copy_nonoverlapping, null, null_mut, write};
 use core::str;
 use core::str::FromStr;
 use errno::{set_errno, Errno};
@@ -677,7 +677,7 @@ unsafe fn getserv_r(
     // musl returns just the protocol name as the alias list. The intersection
     // of these two that portable code is obliged to assume is an empty list.
     static mut STATIC_SERVENT_ALIASES: *mut c_char = null_mut();
-    let s_aliases = &mut STATIC_SERVENT_ALIASES;
+    let s_aliases = &mut *addr_of_mut!(STATIC_SERVENT_ALIASES);
 
     let mut command = command;
     let output = match command.output() {
@@ -806,7 +806,7 @@ unsafe extern "C" fn getservbyname(
     libc!(libc::getservbyname(name, proto));
 
     let mut result = null_mut();
-    if getservbyname_r(name, proto, &mut STATIC_SERVENT, null_mut(), 0, &mut result) == 0 {
+    if getservbyname_r(name, proto, addr_of_mut!(STATIC_SERVENT), null_mut(), 0, &mut result) == 0 {
         result
     } else {
         null_mut()
@@ -822,7 +822,7 @@ unsafe extern "C" fn getservbyport(port: c_int, proto: *const c_char) -> *mut li
     if getservbyport_r(
         port,
         proto,
-        &mut STATIC_SERVENT,
+        addr_of_mut!(STATIC_SERVENT),
         buf.as_mut_ptr(),
         buf.len(),
         &mut result,

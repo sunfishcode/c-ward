@@ -26,7 +26,7 @@ unsafe extern "C" fn getxattr(
     match convert_res(rustix::fs::getxattr(
         path,
         name,
-        &mut READ_BUFFER[..min(len, READ_BUFFER.len())],
+        addr_of_mut!(READ_BUFFER[..min(len, READ_BUFFER.len())]),
     )) {
         Some(size) => {
             // If `size` is 0, `value` could be null.
@@ -56,7 +56,7 @@ unsafe extern "C" fn lgetxattr(
     match convert_res(rustix::fs::lgetxattr(
         path,
         name,
-        &mut READ_BUFFER[..min(len, READ_BUFFER.len())],
+        addr_of_mut!(READ_BUFFER[..min(len, READ_BUFFER.len())]),
     )) {
         Some(size) => {
             // If `size` is 0, `value` could be null.
@@ -86,7 +86,7 @@ unsafe extern "C" fn fgetxattr(
     match convert_res(rustix::fs::fgetxattr(
         fd,
         name,
-        &mut READ_BUFFER[..min(len, READ_BUFFER.len())],
+        addr_of_mut!(READ_BUFFER[..min(len, READ_BUFFER.len())]),
     )) {
         Some(size) => {
             // If `size` is 0, `value` could be null.
@@ -169,7 +169,7 @@ unsafe extern "C" fn listxattr(path: *const c_char, list: *mut c_char, len: size
     // a slice, use a temporary copy.
     match convert_res(rustix::fs::listxattr(
         path,
-        &mut READ_BUFFER[..min(len, READ_BUFFER.len())],
+        addr_of_mut!(READ_BUFFER[..min(len, READ_BUFFER.len())]),
     )) {
         Some(size) => {
             // If `size` is 0, `value` could be null.
@@ -192,7 +192,7 @@ unsafe extern "C" fn llistxattr(path: *const c_char, list: *mut c_char, len: siz
     // a slice, use a temporary copy.
     match convert_res(rustix::fs::llistxattr(
         path,
-        &mut READ_BUFFER[..min(len, READ_BUFFER.len())],
+        addr_of_mut!(READ_BUFFER[..min(len, READ_BUFFER.len())]),
     )) {
         Some(size) => {
             // If `size` is 0, `value` could be null.
@@ -215,7 +215,7 @@ unsafe extern "C" fn flistxattr(fd: c_int, list: *mut c_char, len: size_t) -> ss
     // a slice, use a temporary copy.
     match convert_res(rustix::fs::flistxattr(
         fd,
-        &mut READ_BUFFER[..min(len, READ_BUFFER.len())],
+        addr_of_mut!([..min(len, READ_BUFFER.len())]),
     )) {
         Some(size) => {
             // If `size` is 0, `value` could be null.

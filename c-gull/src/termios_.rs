@@ -6,7 +6,6 @@
 
 use crate::convert_res;
 use alloc::ffi::CString;
-use alloc::vec::Vec;
 use core::cell::SyncUnsafeCell;
 use core::ptr::{copy_nonoverlapping, null_mut};
 use libc::{c_char, c_int, size_t};

@@ -1,7 +1,6 @@
 //! Run the programs in the `example-crates` directory and compare their
 //! outputs with expected outputs.
 
-#![feature(cfg_target_abi)]
 
 use std::sync::OnceLock;
 

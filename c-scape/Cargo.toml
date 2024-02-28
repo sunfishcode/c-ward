@@ -1,6 +1,6 @@
 [package]
 name = "c-scape"
-version = "0.15.50"
+version = "0.15.40"
 authors = [
     "Dan Gohman <dev@sunfishcode.online>",
 ]
@@ -64,7 +64,7 @@ static_assertions = "1.1.0"
 
 [features]
 default = ["thread", "std", "coexist-with-libc", "threadsafe-setenv", "use-compiler-builtins"]
-thread = [] # set_thread_id is not behind a feature anymore.
+thread = []
 std = ["rustix/std", "printf-compat/std"]
 
 # In "take-charge" mode, this enables code in c-scape to define the

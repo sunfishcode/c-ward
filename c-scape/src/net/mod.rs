@@ -1,7 +1,6 @@
 mod inet;
 
 use core::cmp::min;
-use core::convert::TryInto;
 use core::ffi::c_void;
 #[cfg(not(target_os = "wasi"))]
 use core::mem::size_of;

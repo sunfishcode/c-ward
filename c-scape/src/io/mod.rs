@@ -15,7 +15,6 @@ mod write;
 use rustix::event::EventfdFlags;
 use rustix::fd::{BorrowedFd, IntoRawFd};
 
-use core::convert::TryInto;
 use libc::{c_int, c_long, c_uint};
 
 use crate::convert_res;

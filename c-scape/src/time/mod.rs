@@ -1,5 +1,3 @@
-use core::convert::TryInto;
-
 use errno::{set_errno, Errno};
 use libc::{c_int, c_uint};
 

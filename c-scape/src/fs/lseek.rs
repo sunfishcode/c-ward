@@ -1,5 +1,4 @@
 use crate::convert_res;
-use core::convert::TryInto;
 use errno::{set_errno, Errno};
 use libc::{c_int, off64_t, off_t};
 use rustix::fd::BorrowedFd;

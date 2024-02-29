@@ -3,7 +3,6 @@ mod key;
 use crate::GetThreadId;
 use alloc::boxed::Box;
 use alloc::format;
-use core::convert::TryInto;
 use core::ffi::c_void;
 use core::mem::{align_of, size_of, transmute, zeroed, ManuallyDrop, MaybeUninit};
 use core::ptr::{self, copy_nonoverlapping, null_mut, NonNull};

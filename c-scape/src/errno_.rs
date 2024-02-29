@@ -1,7 +1,7 @@
 use alloc::borrow::ToOwned;
 use alloc::format;
 use core::cell::SyncUnsafeCell;
-use core::ptr::{copy_nonoverlapping, null_mut};
+use core::ptr::{addr_of_mut, copy_nonoverlapping, null_mut};
 use libc::{c_char, c_int};
 
 /// Return the address of the thread-local `errno` state.
@@ -15,7 +15,7 @@ unsafe extern "C" fn __errno_location() -> *mut c_int {
 
     #[cfg_attr(feature = "thread", thread_local)]
     static mut ERRNO: i32 = 0;
-    &mut ERRNO
+    addr_of_mut!(ERRNO)
 }
 
 #[no_mangle]

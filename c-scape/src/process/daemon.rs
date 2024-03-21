@@ -1,5 +1,4 @@
 use libc::c_int;
-use rustix::cstr;
 use rustix::fd::{AsRawFd, FromRawFd, OwnedFd};
 
 #[no_mangle]
@@ -10,13 +9,13 @@ unsafe extern "C" fn daemon(nochdir: c_int, noclose: c_int) -> c_int {
     let noclose = noclose != 0;
 
     if !nochdir {
-        if libc::chdir(cstr!("/").as_ptr()) != 0 {
+        if libc::chdir(c"/".as_ptr()) != 0 {
             return -1;
         }
     }
 
     if !noclose {
-        let dev_null = libc::open(cstr!("/dev/null").as_ptr(), libc::O_RDWR);
+        let dev_null = libc::open(c"/dev/null".as_ptr(), libc::O_RDWR);
         if dev_null < 0 {
             return -1;
         }

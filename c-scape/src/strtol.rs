@@ -182,12 +182,11 @@ mod tests {
     use super::*;
     use core::ptr::null_mut;
     use errno::errno;
-    use rustix::cstr;
 
     #[test]
     fn test_strtol() {
         unsafe {
-            assert_eq!(strtol(cstr!("45").as_ptr(), null_mut(), 37), 0);
+            assert_eq!(strtol(c"45".as_ptr(), null_mut(), 37), 0);
             assert_eq!(errno().0, libc::EINVAL);
         }
     }

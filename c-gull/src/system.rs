@@ -37,10 +37,9 @@ mod tests {
     #[test]
     fn test_system() {
         unsafe {
-            use rustix::cstr;
             assert_eq!(system(core::ptr::null()), 1);
 
-            let t = system(cstr!("/bin/sh -c exit\\ 42").as_ptr());
+            let t = system(c"/bin/sh -c exit\\ 42".as_ptr());
             assert!(libc::WIFEXITED(t));
             assert_eq!(libc::WEXITSTATUS(t), 42);
         }

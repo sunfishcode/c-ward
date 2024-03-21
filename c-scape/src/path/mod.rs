@@ -1,5 +1,4 @@
 use libc::c_char;
-use rustix::cstr;
 
 const SLASH: c_char = b'/' as c_char;
 
@@ -30,7 +29,7 @@ unsafe extern "C" fn __xpg_basename(path: *mut c_char) -> *mut c_char {
     //libc!(libc::__xpg_basename(path));
 
     if path.is_null() || *path == 0 {
-        return cstr!(".").as_ptr().cast_mut();
+        return c".".as_ptr().cast_mut();
     }
 
     // Find the last slash.
@@ -69,7 +68,7 @@ unsafe extern "C" fn dirname(path: *mut c_char) -> *mut c_char {
     libc!(libc::dirname(path));
 
     if path.is_null() {
-        return cstr!(".").as_ptr().cast_mut();
+        return c".".as_ptr().cast_mut();
     }
 
     // Start at the end of the string.
@@ -104,7 +103,7 @@ unsafe extern "C" fn dirname(path: *mut c_char) -> *mut c_char {
 
     // If there was no dir name, return ".".
     if i == 0 {
-        return cstr!(".").as_ptr().cast_mut();
+        return c".".as_ptr().cast_mut();
     }
 
     // Terminate the string at the end of the dirname and return it.
@@ -139,21 +138,16 @@ mod tests {
             }
         }
 
-        test(cstr!("/usr/lib"), cstr!("/usr"), cstr!("lib"), cstr!("lib"));
-        test(
-            cstr!("/usr//lib"),
-            cstr!("/usr"),
-            cstr!("lib"),
-            cstr!("lib"),
-        );
-        test(cstr!("/usr/lib/"), cstr!("/usr"), cstr!(""), cstr!("lib"));
-        test(cstr!("/usr/lib//"), cstr!("/usr"), cstr!(""), cstr!("lib"));
-        test(cstr!("/"), cstr!("/"), cstr!(""), cstr!("/"));
-        test(cstr!("//"), cstr!("//"), cstr!(""), cstr!("/"));
-        test(cstr!("///"), cstr!("/"), cstr!(""), cstr!("/"));
-        test(cstr!(""), cstr!("."), cstr!(""), cstr!("."));
-        test(cstr!("usr"), cstr!("."), cstr!("usr"), cstr!("usr"));
-        test(cstr!("usr/"), cstr!("."), cstr!(""), cstr!("usr"));
-        test(cstr!("usr//"), cstr!("."), cstr!(""), cstr!("usr"));
+        test(c"/usr/lib", c"/usr", c"lib", c"lib");
+        test(c"/usr//lib", c"/usr", c"lib", c"lib");
+        test(c"/usr/lib/", c"/usr", c"", c"lib");
+        test(c"/usr/lib//", c"/usr", c"", c"lib");
+        test(c"/", c"/", c"", c"/");
+        test(c"//", c"//", c"", c"/");
+        test(c"///", c"/", c"", c"/");
+        test(c"", c".", c"", c".");
+        test(c"usr", c".", c"usr", c"usr");
+        test(c"usr/", c".", c"", c"usr");
+        test(c"usr//", c".", c"", c"usr");
     }
 }

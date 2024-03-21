@@ -21,7 +21,6 @@ use core::ptr::{addr_of, addr_of_mut, copy_nonoverlapping, null_mut};
 use errno::{set_errno, Errno};
 use libc::{c_char, c_int, c_long, c_void, off64_t, off_t, size_t};
 use printf_compat::{format, output};
-use rustix::cstr;
 use rustix::fd::IntoRawFd;
 use rustix::fs::{Mode, OFlags};
 #[cfg(feature = "thread")]
@@ -874,7 +873,7 @@ unsafe extern "C" fn perror(user_message: *const c_char) {
 
     let errno_message = CStr::from_ptr(storage.as_mut_ptr());
     let user_message = if user_message.is_null() {
-        CStr::from_ptr(rustix::cstr!("").as_ptr())
+        CStr::from_ptr(c"".as_ptr())
     } else {
         CStr::from_ptr(user_message)
     };
@@ -884,7 +883,7 @@ unsafe extern "C" fn perror(user_message: *const c_char) {
     } else {
         let _ = fprintf(
             stderr,
-            cstr!("%s: %s\n").as_ptr(),
+            c"%s: %s\n".as_ptr(),
             user_message.as_ptr(),
             errno_message.as_ptr(),
         );
@@ -898,25 +897,24 @@ mod tests {
     #[test]
     fn test_fputs() {
         use core::ptr::null_mut;
-        use rustix::cstr;
         unsafe {
             let mut buf = [0u8; 8];
-            let fd = libc::memfd_create(cstr!("test").as_ptr(), 0);
+            let fd = libc::memfd_create(c"test".as_ptr(), 0);
             assert_ne!(fd, -1);
-            let file = fdopen(fd, cstr!("w").as_ptr());
+            let file = fdopen(fd, c"w".as_ptr());
             assert_ne!(file, null_mut());
 
-            assert!(fputs(cstr!("").as_ptr(), file) >= 0);
+            assert!(fputs(c"".as_ptr(), file) >= 0);
             assert!(fflush(file) == 0);
             assert_eq!(libc::pread(fd, buf.as_mut_ptr().cast(), buf.len(), 0), 0);
             assert_eq!(buf, [0u8; 8]);
 
-            assert!(fputs(cstr!("hi").as_ptr(), file) >= 0);
+            assert!(fputs(c"hi".as_ptr(), file) >= 0);
             assert!(fflush(file) == 0);
             assert_eq!(libc::pread(fd, buf.as_mut_ptr().cast(), buf.len(), 0), 2);
             assert_eq!(&buf, b"hi\0\0\0\0\0\0");
 
-            assert!(fputs(cstr!("hello\n").as_ptr(), file) >= 0);
+            assert!(fputs(c"hello\n".as_ptr(), file) >= 0);
             assert!(fflush(file) == 0);
             assert_eq!(libc::pread(fd, buf.as_mut_ptr().cast(), buf.len(), 2), 6);
             assert_eq!(&buf, b"hello\n\0\0");
@@ -929,8 +927,8 @@ mod tests {
         let r = unsafe {
             sprintf(
                 buf.as_mut_ptr().cast(),
-                cstr!("hello %s").as_ptr(),
-                cstr!("world").as_ptr(),
+                c"hello %s".as_ptr(),
+                c"world".as_ptr(),
             )
         };
         assert_eq!(r, 11);
@@ -939,14 +937,7 @@ mod tests {
 
     #[test]
     fn test_snprintf() {
-        let r = unsafe {
-            snprintf(
-                null_mut(),
-                0,
-                cstr!("hello %s").as_ptr(),
-                cstr!("world").as_ptr(),
-            )
-        };
+        let r = unsafe { snprintf(null_mut(), 0, c"hello %s".as_ptr(), c"world".as_ptr()) };
         assert_eq!(r, 11);
 
         let mut buf = [b'_'; 16];
@@ -954,8 +945,8 @@ mod tests {
             snprintf(
                 buf.as_mut_ptr().cast(),
                 0,
-                cstr!("hello %s").as_ptr(),
-                cstr!("world").as_ptr(),
+                c"hello %s".as_ptr(),
+                c"world".as_ptr(),
             )
         };
         assert_eq!(r, 11);
@@ -966,8 +957,8 @@ mod tests {
             snprintf(
                 buf.as_mut_ptr().cast(),
                 1,
-                cstr!("hello %s").as_ptr(),
-                cstr!("world").as_ptr(),
+                c"hello %s".as_ptr(),
+                c"world".as_ptr(),
             )
         };
         assert_eq!(r, 11);
@@ -978,8 +969,8 @@ mod tests {
             snprintf(
                 buf.as_mut_ptr().cast(),
                 15,
-                cstr!("hello %s").as_ptr(),
-                cstr!("world").as_ptr(),
+                c"hello %s".as_ptr(),
+                c"world".as_ptr(),
             )
         };
         assert_eq!(r, 11);
@@ -990,8 +981,8 @@ mod tests {
             snprintf(
                 buf.as_mut_ptr().cast(),
                 15,
-                cstr!("hello big %s").as_ptr(),
-                cstr!("world").as_ptr(),
+                c"hello big %s".as_ptr(),
+                c"world".as_ptr(),
             )
         };
         assert_eq!(r, 15);

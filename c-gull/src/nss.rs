@@ -14,7 +14,6 @@ use core::str;
 use core::str::FromStr;
 use errno::{set_errno, Errno};
 use libc::{c_char, c_int, c_void, gid_t, group, passwd, size_t, uid_t};
-use rustix::cstr;
 use rustix::path::DecInt;
 use std::ffi::OsStr;
 use std::os::unix::ffi::OsStrExt;
@@ -776,9 +775,9 @@ unsafe fn getserv_r(
         }
         proto
     } else if protocol == "tcp" {
-        cstr!("tcp").as_ptr()
+        c"tcp".as_ptr()
     } else if protocol == "udp" {
-        cstr!("udp").as_ptr()
+        c"udp".as_ptr()
     } else {
         return libc::EINVAL;
     }

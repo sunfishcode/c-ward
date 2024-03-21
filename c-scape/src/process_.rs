@@ -6,7 +6,6 @@ use core::ptr;
 use core::ptr::{addr_of, null_mut};
 use errno::{set_errno, Errno};
 use libc::{c_char, c_int, c_long, c_ulong, c_void};
-use rustix::cstr;
 
 #[no_mangle]
 unsafe extern "C" fn getpagesize() -> c_int {
@@ -216,7 +215,7 @@ unsafe extern "C" fn dl_iterate_phdr(
     let (phdr, _phent, phnum) = rustix::runtime::exe_phdrs();
     let mut info = libc::dl_phdr_info {
         dlpi_addr: addr_of!(__executable_start).expose_addr() as _,
-        dlpi_name: cstr!("/proc/self/exe").as_ptr(),
+        dlpi_name: c"/proc/self/exe".as_ptr(),
         dlpi_phdr: phdr.cast(),
         dlpi_phnum: phnum.try_into().unwrap(),
         ..zeroed()

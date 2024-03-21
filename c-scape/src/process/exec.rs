@@ -115,7 +115,7 @@ unsafe extern "C" fn execvpe(
 
     let path = crate::env::get::_getenv(b"PATH");
     let path = if path.is_null() {
-        rustix::cstr!("/bin:/usr/bin")
+        c"/bin:/usr/bin"
     } else {
         CStr::from_ptr(path)
     };
@@ -200,7 +200,7 @@ unsafe extern "C" fn fexecve(
 
     let mut error = rustix::runtime::execveat(
         BorrowedFd::borrow_raw(fd),
-        rustix::cstr!(""),
+        c"",
         argv as *const *const _,
         envp as *const *const _,
         AtFlags::EMPTY_PATH,

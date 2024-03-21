@@ -4,7 +4,6 @@ use errno::{set_errno, Errno};
 use libc::{c_char, c_int};
 use rand::Rng;
 use rand_core::OsRng;
-use rustix::cstr;
 use rustix::fd::IntoRawFd;
 use rustix::fs::MemfdFlags;
 
@@ -55,14 +54,14 @@ unsafe extern "C" fn tmpfile64() -> *mut libc::FILE {
     libc!(libc::tmpfile64());
 
     let fd = match convert_res(rustix::fs::memfd_create(
-        cstr!("libc::tmpfile"),
+        c"libc::tmpfile",
         MemfdFlags::empty(),
     )) {
         Some(fd) => fd,
         None => return null_mut(),
     };
     let fd = fd.into_raw_fd();
-    libc::fdopen(fd, cstr!("w+").as_ptr())
+    libc::fdopen(fd, c"w+".as_ptr())
 }
 
 #[no_mangle]

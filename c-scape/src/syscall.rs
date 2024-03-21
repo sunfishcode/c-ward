@@ -224,10 +224,9 @@ mod tests {
     #[test]
     fn test_syscall_utimensat() {
         use core::ptr::null_mut;
-        use rustix::cstr;
         use rustix::fd::BorrowedFd;
         unsafe {
-            let fd = libc::memfd_create(cstr!("test").as_ptr(), 0);
+            let fd = libc::memfd_create(c"test".as_ptr(), 0);
             assert_ne!(fd, -1);
             let times = [
                 libc::timespec {

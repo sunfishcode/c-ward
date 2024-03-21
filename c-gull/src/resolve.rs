@@ -10,7 +10,6 @@ use std::process::Command;
 
 use errno::{errno, set_errno, Errno};
 use libc::{c_char, c_int, size_t};
-use rustix::cstr;
 use rustix::net::{
     IpAddr, Ipv4Addr, Ipv6Addr, SocketAddr, SocketAddrAny, SocketAddrStorage, SocketAddrV4,
     SocketAddrV6,
@@ -410,8 +409,8 @@ unsafe fn resolve_service(
 
     // Do a NSS lookup for `service`.
     let proto = match prototype.ai_protocol {
-        libc::IPPROTO_TCP => cstr!("tcp").as_ptr(),
-        libc::IPPROTO_UDP => cstr!("udp").as_ptr(),
+        libc::IPPROTO_TCP => c"tcp".as_ptr(),
+        libc::IPPROTO_UDP => c"udp".as_ptr(),
         _ => null(),
     };
     let mut servent: libc::servent = zeroed();
@@ -438,17 +437,17 @@ unsafe fn resolve_service(
     // protocol.
     match prototype.ai_protocol {
         // Assert that the `getent` command did what we asked.
-        libc::IPPROTO_TCP => assert_eq!(libc::strcmp(servent.s_proto, cstr!("tcp").as_ptr()), 0),
-        libc::IPPROTO_UDP => assert_eq!(libc::strcmp(servent.s_proto, cstr!("udp").as_ptr()), 0),
+        libc::IPPROTO_TCP => assert_eq!(libc::strcmp(servent.s_proto, c"tcp".as_ptr()), 0),
+        libc::IPPROTO_UDP => assert_eq!(libc::strcmp(servent.s_proto, c"udp".as_ptr()), 0),
         // Infer what we can.
         _ => {
             if !servent.s_proto.is_null() {
-                if libc::strcmp(servent.s_proto, cstr!("tcp").as_ptr()) == 0 {
+                if libc::strcmp(servent.s_proto, c"tcp".as_ptr()) == 0 {
                     prototype.ai_protocol = libc::IPPROTO_TCP;
                     if prototype.ai_socktype == 0 {
                         prototype.ai_socktype = libc::SOCK_STREAM;
                     }
-                } else if libc::strcmp(servent.s_proto, cstr!("udp").as_ptr()) == 0 {
+                } else if libc::strcmp(servent.s_proto, c"udp".as_ptr()) == 0 {
                     prototype.ai_protocol = libc::IPPROTO_UDP;
                     if prototype.ai_socktype == 0 {
                         prototype.ai_socktype = libc::SOCK_DGRAM;
@@ -486,12 +485,12 @@ unsafe extern "C" fn gai_strerror(errcode: c_int) -> *const c_char {
     libc!(libc::gai_strerror(errcode));
 
     match errcode {
-        0 => cstr!("Success"),
-        libc::EAI_NONAME => cstr!("Name does not resolve"),
-        libc::EAI_SYSTEM => cstr!("System error"),
-        libc::EAI_BADFLAGS => cstr!("Invalid flags"),
-        libc::EAI_SERVICE => cstr!("Unrecognized service"),
-        EAI_ADDRFAMILY => cstr!("Hostname has no addresses in address family"),
+        0 => c"Success",
+        libc::EAI_NONAME => c"Name does not resolve",
+        libc::EAI_SYSTEM => c"System error",
+        libc::EAI_BADFLAGS => c"Invalid flags",
+        libc::EAI_SERVICE => c"Unrecognized service",
+        EAI_ADDRFAMILY => c"Hostname has no addresses in address family",
         _ => panic!("unrecognized gai_strerror {:?}", errcode),
     }
     .as_ptr()

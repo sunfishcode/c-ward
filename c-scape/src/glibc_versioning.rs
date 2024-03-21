@@ -1,5 +1,4 @@
 use libc::c_char;
-use rustix::cstr;
 
 #[no_mangle]
 unsafe extern "C" fn gnu_get_libc_version() -> *const c_char {
@@ -8,5 +7,5 @@ unsafe extern "C" fn gnu_get_libc_version() -> *const c_char {
     // which is a glibc version where `posix_spawn` doesn't handle `ENOENT`
     // as std wants, so it uses `fork`+`exec` instead, since we don't yet
     // implement `posix_spawn`.
-    cstr!("2.23").as_ptr()
+    c"2.23".as_ptr()
 }

@@ -8,6 +8,7 @@
 #![feature(inline_const)]
 #![feature(sync_unsafe_cell)]
 #![feature(linkage)]
+#![feature(naked_functions)]
 #![deny(fuzzy_provenance_casts, lossy_provenance_casts)]
 
 // Check that our features were used as we intend.
@@ -89,6 +90,7 @@ mod exec;
 mod exit;
 mod glibc_versioning;
 mod int;
+mod jmp;
 mod locale;
 mod mkostemps;
 mod nss;
@@ -99,7 +101,6 @@ mod process_;
 mod pty;
 mod rand_;
 mod regex;
-mod setjmp;
 mod sort;
 mod stdio;
 mod strtod;

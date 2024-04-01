@@ -1,5 +1,7 @@
 use core::arch::asm;
+use core::mem::size_of;
 use libc::{c_int, c_void};
+use rustix::runtime::{How, Sigset};
 
 #[allow(non_camel_case_types)]
 type jmp_buf = *mut c_void;
@@ -281,16 +283,139 @@ unsafe extern "C" fn longjmp(env: jmp_buf, val: c_int) -> ! {
 core::arch::global_asm!(".globl _longjmp", ".set _longjmp, longjmp");
 
 #[no_mangle]
+#[cfg_attr(
+    any(
+        target_arch = "aarch64",
+        target_arch = "riscv64",
+        target_arch = "x86_64",
+        target_arch = "x86"
+    ),
+    naked
+)]
 unsafe extern "C" fn sigsetjmp(_env: sigjmp_buf, _savesigs: c_int) -> c_int {
     //libc!(libc::sigsetjmp(env, savesigs));
 
-    // As in `setjmp`, just do the first-time return.
-    0
+    // Call `__sigsetjmp_save`, and then tail-call `setjmp` so that it sees
+    // the original return value.
+
+    #[cfg(target_arch = "aarch64")]
+    {
+        asm!(
+            "stp x29, x30, [sp, -16]!",
+            "mov x29, sp",
+            "bl {__sigsetjmp_save}",
+            "ldp x29, x30, [sp], 16",
+            "b {setjmp}",
+            __sigsetjmp_save = sym __sigsetjmp_save,
+            setjmp = sym setjmp,
+            options(noreturn)
+        )
+    }
+
+    #[cfg(target_arch = "riscv64")]
+    {
+        asm!(
+            "addi sp, sp, -16",
+            "sd ra, 8(sp)",
+            "call {__sigsetjmp_save}",
+            "ld ra, 8(sp)",
+            "addi sp, sp, 16",
+            "tail {setjmp}",
+            __sigsetjmp_save = sym __sigsetjmp_save,
+            setjmp = sym setjmp,
+            options(noreturn)
+        )
+    }
+
+    #[cfg(target_arch = "x86_64")]
+    {
+        asm!(
+            "push rbp",
+            "mov rbp, rsp",
+            "call {__sigsetjmp_save}",
+            "mov rdi, rax",
+            "pop rbp",
+            "jmp {setjmp}",
+            __sigsetjmp_save = sym __sigsetjmp_save,
+            setjmp = sym setjmp,
+            options(noreturn)
+        )
+    }
+
+    #[cfg(target_arch = "x86")]
+    {
+        asm!(
+            "sub esp, 20",
+            "push [esp+28]",
+            "push [esp+28]",
+            "call {__sigsetjmp_save}",
+            "mov [esp+32], eax",
+            "add esp, 28",
+            "jmp {setjmp}",
+            __sigsetjmp_save = sym __sigsetjmp_save,
+            setjmp = sym setjmp,
+            options(noreturn)
+        )
+    }
+
+    #[cfg(not(any(
+        target_arch = "aarch64",
+        target_arch = "riscv64",
+        target_arch = "x86_64",
+        target_arch = "x86"
+    )))]
+    {
+        // As in `setjmp`, just do the first-time return.
+        0
+    }
 }
 
 core::arch::global_asm!(".globl __sigsetjmp", ".set __sigsetjmp, sigsetjmp");
 
+// The offset from the start of `jmp_buf` to memory that `setjmp` does not
+// store to, so `sigsetjmp` can store to it.
+#[cfg(target_arch = "aarch64")]
+const SIG_OFFSET: usize = 168;
+#[cfg(target_arch = "riscv64")]
+const SIG_OFFSET: usize = 208;
+#[cfg(target_arch = "x86_64")]
+const SIG_OFFSET: usize = 64;
+#[cfg(target_arch = "x86")]
+const SIG_OFFSET: usize = 24;
+
 #[no_mangle]
-unsafe extern "C" fn siglongjmp(_env: sigjmp_buf, _val: c_int) -> ! {
-    todo!("siglongjmp")
+unsafe extern "C" fn __sigsetjmp_save(env: sigjmp_buf, savesigs: c_int) -> sigjmp_buf {
+    // Save `savesigs` so that `siglongjmp` can test it too.
+    env.byte_add(SIG_OFFSET).cast::<c_int>().write(savesigs);
+
+    if savesigs != 0 {
+        // Save the signal set at the offset after `savesigs`.
+        let set = &mut *env
+            .byte_add(SIG_OFFSET + size_of::<usize>())
+            .cast::<Sigset>();
+        *set = rustix::runtime::sigprocmask(How::SETMASK, None).unwrap();
+    }
+
+    // Return the `env` value so that the assembly code doesn't have to save
+    // and restore it manually.
+    env
+}
+
+#[no_mangle]
+unsafe extern "C" fn siglongjmp(env: sigjmp_buf, val: c_int) -> ! {
+    //libc!(libc::siglongjmp(env, val));
+
+    // Load the saved `savesigs` value.
+    let savesigs = env.byte_add(SIG_OFFSET).cast::<c_int>().read();
+
+    if savesigs != 0 {
+        // Restore the signal set from the offset after `savesigs`.
+        let set = &*env
+            .byte_add(SIG_OFFSET + size_of::<usize>())
+            .cast::<Sigset>();
+        rustix::runtime::sigprocmask(How::SETMASK, Some(set)).ok();
+    }
+
+    // Call `longjmp` to do the actual jump.
+    longjmp(env.cast(), val)
 }

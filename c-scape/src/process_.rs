@@ -170,7 +170,7 @@ fn _pathconf(name: c_int) -> c_long {
 #[cfg(feature = "take-charge")]
 #[no_mangle]
 unsafe extern "C" fn getauxval(type_: c_ulong) -> *mut c_void {
-    libc!(ptr::from_exposed_addr_mut(libc::getauxval(type_) as _));
+    libc!(ptr::with_exposed_provenance_mut(libc::getauxval(type_) as _));
     _getauxval(type_)
 }
 
@@ -187,9 +187,13 @@ unsafe extern "C" fn __getauxval(type_: c_ulong) -> *mut c_void {
 
 #[cfg(feature = "take-charge")]
 fn _getauxval(type_: c_ulong) -> *mut c_void {
+    // FIXME: reuse const from libc when available?
+    const AT_MINSIGSTKSZ: libc::c_ulong = 51;
+
     match type_ {
         libc::AT_HWCAP => ptr::without_provenance_mut(rustix::param::linux_hwcap().0),
         libc::AT_HWCAP2 => ptr::without_provenance_mut(rustix::param::linux_hwcap().1),
+        AT_MINSIGSTKSZ => ptr::without_provenance_mut(rustix::param::linux_minsigstksz()),
         _ => todo!("unrecognized __getauxval {}", type_),
     }
 }
@@ -214,7 +218,7 @@ unsafe extern "C" fn dl_iterate_phdr(
 
     let (phdr, _phent, phnum) = rustix::runtime::exe_phdrs();
     let mut info = libc::dl_phdr_info {
-        dlpi_addr: addr_of!(__executable_start).expose_addr() as _,
+        dlpi_addr: addr_of!(__executable_start).expose_provenance() as _,
         dlpi_name: c"/proc/self/exe".as_ptr(),
         dlpi_phdr: phdr.cast(),
         dlpi_phnum: phnum.try_into().unwrap(),

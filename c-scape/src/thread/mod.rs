@@ -122,14 +122,14 @@ libc_type!(PthreadRwlockattrT, pthread_rwlockattr_t);
 
 #[no_mangle]
 unsafe extern "C" fn pthread_self() -> PthreadT {
-    libc!(ptr::from_exposed_addr_mut(libc::pthread_self() as _));
+    libc!(ptr::with_exposed_provenance_mut(libc::pthread_self() as _));
     thread::current().to_raw().cast()
 }
 
 #[no_mangle]
 unsafe extern "C" fn pthread_getattr_np(thread: PthreadT, attr: *mut PthreadAttrT) -> c_int {
     libc!(libc::pthread_getattr_np(
-        thread.expose_addr() as _,
+        thread.expose_provenance() as _,
         checked_cast!(attr)
     ));
     let (stack_addr, stack_size, guard_size) = thread::stack(Thread::from_raw(thread.cast()));
@@ -741,14 +741,14 @@ unsafe extern "C" fn pthread_create(
 
 #[no_mangle]
 unsafe extern "C" fn pthread_detach(pthread: PthreadT) -> c_int {
-    libc!(libc::pthread_detach(pthread.expose_addr() as _));
+    libc!(libc::pthread_detach(pthread.expose_provenance() as _));
     thread::detach(Thread::from_raw(pthread.cast()));
     0
 }
 
 #[no_mangle]
 unsafe extern "C" fn pthread_join(pthread: PthreadT, retval: *mut *mut c_void) -> c_int {
-    libc!(libc::pthread_join(pthread.expose_addr() as _, retval));
+    libc!(libc::pthread_join(pthread.expose_provenance() as _, retval));
 
     let return_value = thread::join(Thread::from_raw(pthread.cast()));
 
@@ -852,7 +852,7 @@ unsafe extern "C" fn pthread_getname_np(
     len: size_t,
 ) -> c_int {
     libc!(libc::pthread_getname_np(
-        pthread.expose_addr() as _,
+        pthread.expose_provenance() as _,
         name,
         len
     ));
@@ -909,7 +909,10 @@ unsafe extern "C" fn pthread_getname_np(
 #[cfg(target_os = "linux")]
 #[no_mangle]
 unsafe extern "C" fn pthread_setname_np(pthread: PthreadT, name: *const libc::c_char) -> c_int {
-    libc!(libc::pthread_setname_np(pthread.expose_addr() as _, name));
+    libc!(libc::pthread_setname_np(
+        pthread.expose_provenance() as _,
+        name
+    ));
 
     let name = core::ffi::CStr::from_ptr(name);
     let bytes = name.to_bytes();

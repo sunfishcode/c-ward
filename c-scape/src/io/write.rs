@@ -69,6 +69,18 @@ unsafe extern "C" fn pwritev(fd: c_int, iov: *const iovec, iovcnt: c_int, offset
 }
 
 #[no_mangle]
+unsafe extern "C" fn pwritev2(
+    fd: c_int,
+    iov: *const iovec,
+    iovcnt: c_int,
+    offset: off_t,
+    flags: c_int,
+) -> isize {
+    libc!(libc::pwritev2(fd, iov, iovcnt, offset, flags));
+    pwritev64v2(fd, iov, iovcnt, offset as off64_t, flags)
+}
+
+#[no_mangle]
 unsafe extern "C" fn pwritev64(
     fd: c_int,
     iov: *const iovec,
@@ -81,6 +93,27 @@ unsafe extern "C" fn pwritev64(
         BorrowedFd::borrow_raw(fd),
         slice::from_raw_parts(checked_cast!(iov), iovcnt as usize),
         offset as u64,
+    )) {
+        Some(nwritten) => nwritten as isize,
+        None => -1,
+    }
+}
+
+#[no_mangle]
+unsafe extern "C" fn pwritev64v2(
+    fd: c_int,
+    iov: *const iovec,
+    iovcnt: c_int,
+    offset: off64_t,
+    flags: c_int,
+) -> isize {
+    libc!(libc::pwritev64v2(fd, iov, iovcnt, offset, flags));
+
+    match convert_res(rustix::io::pwritev2(
+        BorrowedFd::borrow_raw(fd),
+        slice::from_raw_parts(checked_cast!(iov), iovcnt as usize),
+        offset as u64,
+        rustix::io::ReadWriteFlags::from_bits_retain(flags as _),
     )) {
         Some(nwritten) => nwritten as isize,
         None => -1,

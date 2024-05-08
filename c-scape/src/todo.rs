@@ -10,7 +10,6 @@ mod locale;
 mod long_double;
 mod long_double_complex;
 mod pthread_cancel;
-mod pthread_spin;
 mod set_id;
 mod sysv;
 mod wchar;
@@ -25,10 +24,6 @@ unsafe extern "C" fn sysinfo() {
 #[no_mangle]
 unsafe extern "C" fn signalfd() {
     todo!("signalfd")
-}
-#[no_mangle]
-unsafe extern "C" fn posix_fallocate() {
-    todo!("posix_fallocate")
 }
 #[no_mangle]
 unsafe extern "C" fn mount() {
@@ -47,32 +42,8 @@ unsafe extern "C" fn unshare() {
     todo!("unshare")
 }
 #[no_mangle]
-unsafe extern "C" fn eaccess() {
-    todo!("eaccess")
-}
-#[no_mangle]
 unsafe extern "C" fn timerfd_gettime() {
     todo!("timerfd_gettime")
-}
-#[no_mangle]
-unsafe extern "C" fn preadv2() {
-    todo!("preadv2")
-}
-#[no_mangle]
-unsafe extern "C" fn pwritev2() {
-    todo!("pwritev2")
-}
-#[no_mangle]
-unsafe extern "C" fn preadv64v2() {
-    todo!("preadv64v2")
-}
-#[no_mangle]
-unsafe extern "C" fn pwritev64v2() {
-    todo!("pwritev64v2")
-}
-#[no_mangle]
-unsafe extern "C" fn reboot() {
-    todo!("reboot")
 }
 
 // `_chk` versions of functions we have implemented, so we just need to add
@@ -388,10 +359,6 @@ unsafe extern "C" fn recvmmsg() {
 #[no_mangle]
 unsafe extern "C" fn sendmmsg() {
     todo!("sendmmsg")
-}
-#[no_mangle]
-unsafe extern "C" fn renameat2() {
-    todo!("renameat2")
 }
 #[no_mangle]
 unsafe extern "C" fn timer_create() {

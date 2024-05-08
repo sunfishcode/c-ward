@@ -1,8 +1,8 @@
 use rustix_futex_sync::lock_api::RawRwLock as _;
 use rustix_futex_sync::RawRwLock;
 
-use core::sync::atomic::{AtomicBool, AtomicU32, Ordering};
 use core::ptr;
+use core::sync::atomic::{AtomicBool, AtomicU32, Ordering};
 use libc::c_int;
 
 #[allow(non_camel_case_types)]

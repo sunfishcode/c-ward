@@ -15,8 +15,9 @@ unsafe extern "C" fn pthread_spin_destroy(lock: *mut PthreadSpinlockT) -> c_int 
 unsafe extern "C" fn pthread_spin_init(lock: *mut PthreadSpinlockT, pshared: c_int) -> c_int {
     libc!(libc::pthread_spin_init(checked_cast!(lock), pshared));
 
-    let lock = &mut *lock;
-    *lock.get_mut() = 0;
+    let lock = &*lock;
+
+    lock.store(0, Ordering::Release);
     0
 }
 

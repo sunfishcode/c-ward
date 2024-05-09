@@ -42,5 +42,5 @@ unsafe extern "C" fn euidaccess(pathname: *const c_char, amode: c_int) -> c_int 
 #[no_mangle]
 unsafe extern "C" fn eaccess(pathname: *const c_char, amode: c_int) -> c_int {
     libc!(libc::eaccess(pathname, amode));
-    faccessat(libc::AT_FDCWD, pathname, amode, libc::AT_EACCESS)
+    euidaccess(pathname, amode)
 }

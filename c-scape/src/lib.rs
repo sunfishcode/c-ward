@@ -102,6 +102,7 @@ mod pty;
 mod rand_;
 mod regex;
 mod sort;
+#[cfg(feature = "take-charge")]
 mod stdio;
 mod strtod;
 mod strtol;

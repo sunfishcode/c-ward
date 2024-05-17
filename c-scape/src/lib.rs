@@ -161,11 +161,6 @@ fn convert_res<T>(result: Result<T, rustix::io::Errno>) -> Option<T> {
         .ok()
 }
 
-/// A thread-local buffer for reading into, when the user-supplied buffer
-/// may not be initialized.
-#[thread_local]
-static mut READ_BUFFER: [u8; libc::PIPE_BUF] = [0_u8; libc::PIPE_BUF];
-
 /// A type that implements `lock_api::GetThreadId` for use with
 /// `lock_api::RawReentrantMutex`.
 #[cfg(feature = "thread")]

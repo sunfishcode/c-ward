@@ -1,9 +1,9 @@
 //! Extended attributes.
 
-use crate::{convert_res, READ_BUFFER};
-use core::cmp::min;
+use crate::convert_res;
+use alloc::vec;
 use core::ffi::CStr;
-use core::ptr::{addr_of_mut, copy_nonoverlapping};
+use core::ptr::copy_nonoverlapping;
 use core::slice;
 use libc::{c_char, c_int, c_void, size_t, ssize_t};
 use rustix::fd::BorrowedFd;
@@ -23,15 +23,12 @@ unsafe extern "C" fn getxattr(
     // `slice::from_raw_parts_mut` assumes that the memory is initialized,
     // which our C API here doesn't guarantee. Since rustix currently requires
     // a slice, use a temporary copy.
-    match convert_res(rustix::fs::getxattr(
-        path,
-        name,
-        &mut *addr_of_mut!(READ_BUFFER[..min(len, READ_BUFFER.len())]),
-    )) {
+    let mut buf = vec![0; len];
+    match convert_res(rustix::fs::getxattr(path, name, &mut buf)) {
         Some(size) => {
             // If `size` is 0, `value` could be null.
             if size != 0 {
-                copy_nonoverlapping(READ_BUFFER.as_ptr(), value.cast(), size);
+                copy_nonoverlapping(buf.as_ptr(), value.cast(), size);
             }
             size as ssize_t
         }
@@ -53,15 +50,12 @@ unsafe extern "C" fn lgetxattr(
     // `slice::from_raw_parts_mut` assumes that the memory is initialized,
     // which our C API here doesn't guarantee. Since rustix currently requires
     // a slice, use a temporary copy.
-    match convert_res(rustix::fs::lgetxattr(
-        path,
-        name,
-        &mut *addr_of_mut!(READ_BUFFER[..min(len, READ_BUFFER.len())]),
-    )) {
+    let mut buf = vec![0; len];
+    match convert_res(rustix::fs::lgetxattr(path, name, &mut buf)) {
         Some(size) => {
             // If `size` is 0, `value` could be null.
             if size != 0 {
-                copy_nonoverlapping(READ_BUFFER.as_ptr(), value.cast(), size);
+                copy_nonoverlapping(buf.as_ptr(), value.cast(), size);
             }
             size as ssize_t
         }
@@ -83,15 +77,12 @@ unsafe extern "C" fn fgetxattr(
     // `slice::from_raw_parts_mut` assumes that the memory is initialized,
     // which our C API here doesn't guarantee. Since rustix currently requires
     // a slice, use a temporary copy.
-    match convert_res(rustix::fs::fgetxattr(
-        fd,
-        name,
-        &mut *addr_of_mut!(READ_BUFFER[..min(len, READ_BUFFER.len())]),
-    )) {
+    let mut buf = vec![0; len];
+    match convert_res(rustix::fs::fgetxattr(fd, name, &mut buf)) {
         Some(size) => {
             // If `size` is 0, `value` could be null.
             if size != 0 {
-                copy_nonoverlapping(READ_BUFFER.as_ptr(), value.cast(), size);
+                copy_nonoverlapping(buf.as_ptr(), value.cast(), size);
             }
             size as ssize_t
         }
@@ -167,14 +158,12 @@ unsafe extern "C" fn listxattr(path: *const c_char, list: *mut c_char, len: size
     // `slice::from_raw_parts_mut` assumes that the memory is initialized,
     // which our C API here doesn't guarantee. Since rustix currently requires
     // a slice, use a temporary copy.
-    match convert_res(rustix::fs::listxattr(
-        path,
-        &mut *addr_of_mut!(READ_BUFFER[..min(len, READ_BUFFER.len())]),
-    )) {
+    let mut buf = vec![0; len];
+    match convert_res(rustix::fs::listxattr(path, &mut buf)) {
         Some(size) => {
             // If `size` is 0, `value` could be null.
             if size != 0 {
-                copy_nonoverlapping(READ_BUFFER.as_ptr(), list.cast(), size);
+                copy_nonoverlapping(buf.as_ptr(), list.cast(), size);
             }
             size as ssize_t
         }
@@ -190,14 +179,12 @@ unsafe extern "C" fn llistxattr(path: *const c_char, list: *mut c_char, len: siz
     // `slice::from_raw_parts_mut` assumes that the memory is initialized,
     // which our C API here doesn't guarantee. Since rustix currently requires
     // a slice, use a temporary copy.
-    match convert_res(rustix::fs::llistxattr(
-        path,
-        &mut *addr_of_mut!(READ_BUFFER[..min(len, READ_BUFFER.len())]),
-    )) {
+    let mut buf = vec![0; len];
+    match convert_res(rustix::fs::llistxattr(path, &mut buf)) {
         Some(size) => {
             // If `size` is 0, `value` could be null.
             if size != 0 {
-                copy_nonoverlapping(READ_BUFFER.as_ptr(), list.cast(), size);
+                copy_nonoverlapping(buf.as_ptr(), list.cast(), size);
             }
             size as ssize_t
         }
@@ -213,14 +200,12 @@ unsafe extern "C" fn flistxattr(fd: c_int, list: *mut c_char, len: size_t) -> ss
     // `slice::from_raw_parts_mut` assumes that the memory is initialized,
     // which our C API here doesn't guarantee. Since rustix currently requires
     // a slice, use a temporary copy.
-    match convert_res(rustix::fs::flistxattr(
-        fd,
-        &mut *addr_of_mut!(READ_BUFFER[..min(len, READ_BUFFER.len())]),
-    )) {
+    let mut buf = vec![0; len];
+    match convert_res(rustix::fs::flistxattr(fd, &mut buf)) {
         Some(size) => {
             // If `size` is 0, `value` could be null.
             if size != 0 {
-                copy_nonoverlapping(READ_BUFFER.as_ptr(), list.cast(), size);
+                copy_nonoverlapping(buf.as_ptr(), list.cast(), size);
             }
             size as ssize_t
         }

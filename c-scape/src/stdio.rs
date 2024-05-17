@@ -576,6 +576,11 @@ unsafe extern "C" fn flockfile(file: *mut libc::FILE) {
     {
         (*file.cast::<FILE>()).flockfile_mutex.lock();
     }
+
+    #[cfg(not(feature = "thread"))]
+    {
+        let _ = file;
+    }
 }
 
 #[no_mangle]
@@ -585,6 +590,11 @@ unsafe extern "C" fn funlockfile(file: *mut libc::FILE) {
     #[cfg(feature = "thread")]
     {
         (*file.cast::<FILE>()).flockfile_mutex.unlock();
+    }
+
+    #[cfg(not(feature = "thread"))]
+    {
+        let _ = file;
     }
 }
 
@@ -599,6 +609,12 @@ unsafe extern "C" fn ftrylockfile(file: *mut libc::FILE) -> c_int {
         } else {
             -1
         }
+    }
+
+    #[cfg(not(feature = "thread"))]
+    {
+        let _ = file;
+        0
     }
 }
 

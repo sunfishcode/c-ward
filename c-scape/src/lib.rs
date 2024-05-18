@@ -5,11 +5,11 @@
 #![cfg_attr(feature = "use-compiler-builtins", feature(rustc_private))]
 #![feature(strict_provenance)]
 #![feature(exposed_provenance)]
-#![feature(inline_const)]
 #![feature(sync_unsafe_cell)]
 #![feature(linkage)]
 #![feature(naked_functions)]
 #![deny(fuzzy_provenance_casts, lossy_provenance_casts)]
+#![allow(unexpected_cfgs)]
 
 // Check that our features were used as we intend.
 #[cfg(all(feature = "coexist-with-libc", feature = "take-charge"))]

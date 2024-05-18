@@ -107,6 +107,7 @@ mod stdio;
 mod strtod;
 mod strtol;
 mod syscall;
+mod system;
 mod time;
 
 #[cfg(feature = "deprecated-and-unimplemented")]

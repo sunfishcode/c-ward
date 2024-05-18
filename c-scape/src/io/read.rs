@@ -86,6 +86,18 @@ unsafe extern "C" fn preadv(fd: c_int, iov: *const iovec, iovcnt: c_int, offset:
 }
 
 #[no_mangle]
+unsafe extern "C" fn preadv2(
+    fd: c_int,
+    iov: *const iovec,
+    iovcnt: c_int,
+    offset: off_t,
+    flags: c_int,
+) -> isize {
+    libc!(libc::preadv2(fd, iov, iovcnt, offset, flags));
+    preadv64v2(fd, iov, iovcnt, offset as off64_t, flags)
+}
+
+#[no_mangle]
 unsafe extern "C" fn preadv64(
     fd: c_int,
     iov: *const iovec,
@@ -108,6 +120,37 @@ unsafe extern "C" fn preadv64(
         BorrowedFd::borrow_raw(fd),
         slice::from_raw_parts_mut(iov.cast_mut(), iovcnt as usize),
         offset as u64,
+    )) {
+        Some(nwritten) => nwritten as isize,
+        None => -1,
+    }
+}
+
+#[no_mangle]
+unsafe extern "C" fn preadv64v2(
+    fd: c_int,
+    iov: *const iovec,
+    iovcnt: c_int,
+    offset: off64_t,
+    flags: c_int,
+) -> isize {
+    libc!(libc::preadv64v2(fd, iov, iovcnt, offset, flags));
+
+    if fd == -1 {
+        set_errno(Errno(libc::EBADF));
+        return -1;
+    }
+
+    let iov: *const IoSliceMut<'_> = checked_cast!(iov);
+
+    // Note that rustix's `readv` takes a `&mut`, however it doesn't
+    // mutate the `IoSliceMut` instances themselves, so it's safe to
+    // cast away the `const` here.
+    match convert_res(rustix::io::preadv2(
+        BorrowedFd::borrow_raw(fd),
+        slice::from_raw_parts_mut(iov.cast_mut(), iovcnt as usize),
+        offset as u64,
+        rustix::io::ReadWriteFlags::from_bits_retain(flags as _),
     )) {
         Some(nwritten) => nwritten as isize,
         None => -1,

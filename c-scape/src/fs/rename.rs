@@ -1,7 +1,7 @@
 use core::ffi::CStr;
 use rustix::fd::BorrowedFd;
 
-use libc::{c_char, c_int};
+use libc::{c_char, c_int, c_uint};
 
 use crate::convert_res;
 
@@ -26,6 +26,28 @@ unsafe extern "C" fn renameat(
         CStr::from_ptr(old.cast()),
         BorrowedFd::borrow_raw(new_fd),
         CStr::from_ptr(new.cast()),
+    )) {
+        Some(()) => 0,
+        None => -1,
+    }
+}
+
+#[no_mangle]
+unsafe extern "C" fn renameat2(
+    old_fd: c_int,
+    old: *const c_char,
+    new_fd: c_int,
+    new: *const c_char,
+    flags: c_uint,
+) -> c_int {
+    libc!(libc::renameat2(old_fd, old, new_fd, new, flags));
+
+    match convert_res(rustix::fs::renameat_with(
+        BorrowedFd::borrow_raw(old_fd),
+        CStr::from_ptr(old.cast()),
+        BorrowedFd::borrow_raw(new_fd),
+        CStr::from_ptr(new.cast()),
+        rustix::fs::RenameFlags::from_bits_retain(flags),
     )) {
         Some(()) => 0,
         None => -1,

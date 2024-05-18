@@ -6,7 +6,9 @@ libc_type!(Once, pthread_once_t);
 // Assert that `PTHREAD_ONCE_INIT` is zero, just like
 // `rustix_futex_sync::Once::new()` is documented to be.
 #[cfg(test)]
-static_assertions::const_assert_eq!(libc::PTHREAD_ONCE_INIT, unsafe{core::mem::transmute(Once::new())});
+static_assertions::const_assert_eq!(libc::PTHREAD_ONCE_INIT, unsafe {
+    core::mem::transmute(Once::new())
+});
 
 #[no_mangle]
 unsafe extern "C" fn pthread_once(

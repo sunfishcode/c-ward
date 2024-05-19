@@ -33,6 +33,13 @@ The primary way this is used is through [Mustang] and [Eyra], as their libc
 implementations. It can also be used as a regular library in
 ["coexist-with-libc" mode].
 
+## Runtime requirements
+
+Resolving users and DNS records requires the execution of `getent` which
+prints the entries on stdout. On a regular glibc system the `getent`
+binary is provided by it and uses the NSS setup as usual.
+Similar, a musl system also provides `getent` (but does not use NSS).
+
 ## Similar crates
 
 Another libc implementation is [relibc]. [tinyrlibc] is a very minimal set of

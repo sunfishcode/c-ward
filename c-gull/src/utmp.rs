@@ -22,9 +22,12 @@ unsafe extern "C" fn getutxent() -> *mut libc::utmpx {
 
     ensure_open_file(&mut lock);
 
-    let (_path, file, entry) = lock.get_mut().unwrap();
+    let (_path, Some(ref mut file), entry) = lock.get_mut().unwrap() else {
+        set_errno(Errno(libc::ENOENT));
+        return null_mut();
+    };
 
-    match file.as_ref().unwrap().read_exact(unsafe {
+    match file.read_exact(unsafe {
         slice::from_raw_parts_mut(entry as *mut utmpx as *mut u8, size_of::<utmpx>())
     }) {
         Ok(()) => entry,
@@ -43,10 +46,13 @@ unsafe extern "C" fn getutxid(ut: *const libc::utmpx) -> *mut libc::utmpx {
 
     ensure_open_file(&mut lock);
 
-    let (_path, file, entry) = lock.get_mut().unwrap();
+    let (_path, Some(ref mut file), entry) = lock.get_mut().unwrap() else {
+        set_errno(Errno(libc::ENOENT));
+        return null_mut();
+    };
 
     loop {
-        match file.as_ref().unwrap().read_exact(unsafe {
+        match file.read_exact(unsafe {
             slice::from_raw_parts_mut(entry as *mut utmpx as *mut u8, size_of::<utmpx>())
         }) {
             Ok(()) => {}
@@ -80,10 +86,13 @@ unsafe extern "C" fn getutxline(ut: *const libc::utmpx) -> *mut libc::utmpx {
 
     ensure_open_file(&mut lock);
 
-    let (_path, file, entry) = lock.get_mut().unwrap();
+    let (_path, Some(ref mut file), entry) = lock.get_mut().unwrap() else {
+        set_errno(Errno(libc::ENOENT));
+        return null_mut();
+    };
 
     loop {
-        match file.as_ref().unwrap().read_exact(unsafe {
+        match file.read_exact(unsafe {
             slice::from_raw_parts_mut(entry as *mut utmpx as *mut u8, size_of::<utmpx>())
         }) {
             Ok(()) => {}

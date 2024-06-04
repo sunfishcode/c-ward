@@ -26,7 +26,7 @@ realpath-ext = { version = "0.1.0", default-features = false }
 origin = { version = "0.18.4", default-features = false, features = ["thread", "init-fini-arrays", "alloc"] }
 # We use the libc crate for C ABI types and constants, but we don't depend on
 # the actual platform libc.
-libc = { version = "0.2.138", default-features = false }
+libc = { version = "0.2.155", default-features = false }
 errno = { version = "0.3.3", default-features = false }
 rand_pcg = "0.3.1"
 rand_core = { version = "0.6.4", features = ["getrandom"] }
@@ -59,7 +59,7 @@ features = [
 ]
 
 [dev-dependencies]
-libc = "0.2.138"
+libc = "0.2.155"
 static_assertions = "1.1.0"
 
 [features]

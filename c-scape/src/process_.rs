@@ -187,13 +187,10 @@ unsafe extern "C" fn __getauxval(type_: c_ulong) -> *mut c_void {
 
 #[cfg(feature = "take-charge")]
 fn _getauxval(type_: c_ulong) -> *mut c_void {
-    // FIXME: reuse const from libc when available?
-    const AT_MINSIGSTKSZ: libc::c_ulong = 51;
-
     match type_ {
         libc::AT_HWCAP => ptr::without_provenance_mut(rustix::param::linux_hwcap().0),
         libc::AT_HWCAP2 => ptr::without_provenance_mut(rustix::param::linux_hwcap().1),
-        AT_MINSIGSTKSZ => ptr::without_provenance_mut(rustix::param::linux_minsigstksz()),
+        libc::AT_MINSIGSTKSZ => ptr::without_provenance_mut(rustix::param::linux_minsigstksz()),
         _ => todo!("unrecognized __getauxval {}", type_),
     }
 }

@@ -1,7 +1,7 @@
 use alloc::borrow::ToOwned;
 use alloc::format;
 use core::cell::SyncUnsafeCell;
-use core::ptr::{addr_of_mut, copy_nonoverlapping, null_mut};
+use core::ptr::{copy_nonoverlapping, null_mut};
 use libc::{c_char, c_int};
 
 /// Return the address of the thread-local `errno` state.
@@ -10,12 +10,18 @@ use libc::{c_char, c_int};
 ///
 /// [LSB `__errno_location`]: https://refspecs.linuxfoundation.org/LSB_5.0.0/LSB-Core-generic/LSB-Core-generic/baselib---errno-location.html
 #[no_mangle]
+#[cfg(feature = "take-charge")]
 unsafe extern "C" fn __errno_location() -> *mut c_int {
     libc!(libc::__errno_location());
 
-    #[cfg_attr(feature = "thread", thread_local)]
-    static mut ERRNO: i32 = 0;
-    addr_of_mut!(ERRNO)
+    #[cfg(feature = "thread")]
+    return origin::thread::errno_location();
+
+    #[cfg(not(feature = "thread"))]
+    {
+        static mut ERRNO: i32 = 0;
+        return core::ptr::addr_of_mut!(ERRNO);
+    }
 }
 
 #[no_mangle]

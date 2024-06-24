@@ -64,7 +64,7 @@ static_assertions = "1.1.0"
 
 [features]
 default = ["thread", "std", "coexist-with-libc", "threadsafe-setenv", "use-compiler-builtins"]
-thread = []
+thread = ["origin/unstable-errno"]
 std = ["rustix/std", "printf-compat/std"]
 
 # In "take-charge" mode, this enables code in c-scape to define the

@@ -3,6 +3,10 @@
 #![feature(strict_provenance)]
 #![deny(fuzzy_provenance_casts, lossy_provenance_casts)]
 #![cfg_attr(not(feature = "std"), no_std)]
+// Don't warn if `try_into()` is fallible on some targets.
+#![allow(unreachable_patterns)]
+// Don't warn if `try_into()` is fallible on some targets.
+#![allow(irrefutable_let_patterns)]
 
 #[cfg(feature = "std")]
 extern crate alloc;

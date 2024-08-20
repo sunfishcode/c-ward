@@ -1,9 +1,8 @@
-use core::mem::transmute;
+use core::mem::{offset_of, transmute};
 use core::ptr::null_mut;
 
 use errno::{set_errno, Errno};
 use libc::{c_int, c_void};
-use memoffset::offset_of;
 
 use super::CScapeDir;
 

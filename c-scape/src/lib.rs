@@ -10,6 +10,10 @@
 #![feature(naked_functions)]
 #![deny(fuzzy_provenance_casts, lossy_provenance_casts)]
 #![allow(unexpected_cfgs)]
+// Don't warn if `try_into()` is fallible on some targets.
+#![allow(unreachable_patterns)]
+// Don't warn if `try_into()` is fallible on some targets.
+#![allow(irrefutable_let_patterns)]
 
 // Check that our features were used as we intend.
 #[cfg(all(feature = "coexist-with-libc", feature = "take-charge"))]
@@ -165,9 +169,11 @@ fn convert_res<T>(result: Result<T, rustix::io::Errno>) -> Option<T> {
 /// A type that implements `lock_api::GetThreadId` for use with
 /// `lock_api::RawReentrantMutex`.
 #[cfg(feature = "thread")]
+#[cfg(feature = "take-charge")]
 pub(crate) struct GetThreadId;
 
 #[cfg(feature = "thread")]
+#[cfg(feature = "take-charge")]
 unsafe impl rustix_futex_sync::lock_api::GetThreadId for GetThreadId {
     const INIT: Self = Self;
 

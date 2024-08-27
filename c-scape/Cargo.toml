@@ -23,7 +23,7 @@ rustix = { version = "0.38.35", default-features = false, features = ["event", "
 rustix-futex-sync = { version = "0.2.1", features = ["atomic_usize"] }
 memoffset = "0.9.0"
 realpath-ext = { version = "0.1.0", default-features = false }
-origin = { version = "0.20.0", default-features = false, features = ["thread", "init-fini-arrays", "alloc"] }
+origin = { version = "0.20.2", default-features = false, features = ["thread", "init-fini-arrays", "alloc"] }
 # We use the libc crate for C ABI types and constants, but we don't depend on
 # the actual platform libc.
 libc = { version = "0.2.155", default-features = false }

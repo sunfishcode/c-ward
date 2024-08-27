@@ -189,7 +189,10 @@ unsafe fn futex(
     let new_timespec = if timeout.is_null() {
         None
     } else {
-        let old_timespec = if !matches!(futex_op, libc::FUTEX_WAIT | libc::FUTEX_WAIT_BITSET | libc::FUTEX_LOCK_PI) {
+        let old_timespec = if !matches!(
+            futex_op,
+            libc::FUTEX_WAIT | libc::FUTEX_WAIT_BITSET | libc::FUTEX_LOCK_PI
+        ) {
             zeroed()
         } else {
             timeout.read()
@@ -210,9 +213,13 @@ unsafe fn futex(
     let val2 = timeout.addr() as u32;
 
     let res = match futex_op {
-        libc::FUTEX_WAIT => rustix::thread::futex::wait(uaddr, flags, val, new_timespec).map(|()| 0),
+        libc::FUTEX_WAIT => {
+            rustix::thread::futex::wait(uaddr, flags, val, new_timespec).map(|()| 0)
+        }
         libc::FUTEX_WAKE => rustix::thread::futex::wake(uaddr, flags, val),
-        libc::FUTEX_FD => rustix::thread::futex::fd(uaddr, flags, val).map(|fd| fd.into_raw_fd() as usize),
+        libc::FUTEX_FD => {
+            rustix::thread::futex::fd(uaddr, flags, val).map(|fd| fd.into_raw_fd() as usize)
+        }
         libc::FUTEX_REQUEUE => rustix::thread::futex::requeue(uaddr, flags, val, val2, uaddr2),
         libc::FUTEX_CMP_REQUEUE => {
             rustix::thread::futex::cmp_requeue(uaddr, flags, val, val2, uaddr2, val3)
@@ -264,9 +271,13 @@ unsafe fn futex(
                 uaddr, flags, val, val2, uaddr2, cmp_op, cmp, cmp_op_arg, cmp_arg,
             )
         }
-        libc::FUTEX_LOCK_PI => rustix::thread::futex::lock_pi(uaddr, flags, new_timespec).map(|()| 0),
+        libc::FUTEX_LOCK_PI => {
+            rustix::thread::futex::lock_pi(uaddr, flags, new_timespec).map(|()| 0)
+        }
         libc::FUTEX_UNLOCK_PI => rustix::thread::futex::unlock_pi(uaddr, flags).map(|()| 0),
-        libc::FUTEX_TRYLOCK_PI => rustix::thread::futex::trylock_pi(uaddr, flags).map(|b| b as usize),
+        libc::FUTEX_TRYLOCK_PI => {
+            rustix::thread::futex::trylock_pi(uaddr, flags).map(|b| b as usize)
+        }
         libc::FUTEX_WAIT_BITSET => {
             let val3_nonzero = match NonZeroU32::new(val3) {
                 Some(val3) => val3,
@@ -275,7 +286,8 @@ unsafe fn futex(
                     return -1;
                 }
             };
-            rustix::thread::futex::wait_bitset(uaddr, flags, val, new_timespec, val3_nonzero).map(|()| 0)
+            rustix::thread::futex::wait_bitset(uaddr, flags, val, new_timespec, val3_nonzero)
+                .map(|()| 0)
         }
         _ => unimplemented!("unrecognized futex op {}", futex_op),
     };

@@ -2,8 +2,6 @@
 use crate::convert_res;
 #[cfg(feature = "thread")]
 use core::mem::zeroed;
-#[cfg(feature = "thread")]
-use core::ptr::null;
 use core::ptr::without_provenance_mut;
 use errno::{set_errno, Errno};
 #[cfg(feature = "extra-syscalls")]
@@ -180,39 +178,120 @@ unsafe fn futex(
     uaddr2: *mut u32,
     val3: u32,
 ) -> c_long {
-    use rustix::thread::{futex, FutexFlags, FutexOperation};
+    use core::num::NonZeroU32;
+    use core::sync::atomic::AtomicU32;
+    use rustix::fd::IntoRawFd;
+    use rustix::thread::futex::{Flags as FutexFlags, WakeOp, WakeOpCmp};
 
     libc!(libc::syscall(libc::SYS_futex, uaddr, futex_op, val, timeout, uaddr2, val3) as _);
     let flags = FutexFlags::from_bits_truncate(futex_op as _);
-    let op = match futex_op & (!flags.bits() as i32) {
-        libc::FUTEX_WAIT => FutexOperation::Wait,
-        libc::FUTEX_WAKE => FutexOperation::Wake,
-        libc::FUTEX_FD => FutexOperation::Fd,
-        libc::FUTEX_REQUEUE => FutexOperation::Requeue,
-        libc::FUTEX_CMP_REQUEUE => FutexOperation::CmpRequeue,
-        libc::FUTEX_WAKE_OP => FutexOperation::WakeOp,
-        libc::FUTEX_LOCK_PI => FutexOperation::LockPi,
-        libc::FUTEX_UNLOCK_PI => FutexOperation::UnlockPi,
-        libc::FUTEX_TRYLOCK_PI => FutexOperation::TrylockPi,
-        libc::FUTEX_WAIT_BITSET => FutexOperation::WaitBitset,
-        _ => unimplemented!("unrecognized futex op {}", futex_op),
-    };
-    let old_timespec =
-        if timeout.is_null() || !matches!(op, FutexOperation::Wait | FutexOperation::WaitBitset) {
+    let futex_op = futex_op & (!flags.bits() as i32);
+    let new_timespec = if timeout.is_null() {
+        None
+    } else {
+        let old_timespec = if !matches!(
+            futex_op,
+            libc::FUTEX_WAIT | libc::FUTEX_WAIT_BITSET | libc::FUTEX_LOCK_PI
+        ) {
             zeroed()
         } else {
             timeout.read()
         };
-    let new_timespec = rustix::time::Timespec {
-        tv_sec: old_timespec.tv_sec.into(),
-        tv_nsec: old_timespec.tv_nsec as _,
+        let new_timespec = rustix::time::Timespec {
+            tv_sec: old_timespec.tv_sec.into(),
+            tv_nsec: old_timespec.tv_nsec as _,
+        };
+        Some(new_timespec)
     };
-    let new_timespec = if timeout.is_null() {
-        null()
+    let uaddr = AtomicU32::from_ptr(uaddr);
+    let uaddr2_unused = AtomicU32::default();
+    let uaddr2 = if uaddr2.is_null() {
+        AtomicU32::from_ptr(uaddr2)
     } else {
-        &new_timespec
+        &uaddr2_unused
     };
-    match convert_res(futex(uaddr, op, flags, val, new_timespec, uaddr2, val3)) {
+    let val2 = timeout.addr() as u32;
+
+    let res = match futex_op {
+        libc::FUTEX_WAIT => {
+            rustix::thread::futex::wait(uaddr, flags, val, new_timespec).map(|()| 0)
+        }
+        libc::FUTEX_WAKE => rustix::thread::futex::wake(uaddr, flags, val),
+        libc::FUTEX_FD => {
+            rustix::thread::futex::fd(uaddr, flags, val).map(|fd| fd.into_raw_fd() as usize)
+        }
+        libc::FUTEX_REQUEUE => rustix::thread::futex::requeue(uaddr, flags, val, val2, uaddr2),
+        libc::FUTEX_CMP_REQUEUE => {
+            rustix::thread::futex::cmp_requeue(uaddr, flags, val, val2, uaddr2, val3)
+        }
+        libc::FUTEX_WAKE_OP => {
+            // `WAIT_OP` arguments.
+            const WAIT_OP_SET: u32 = WakeOp::Set as u32;
+            const WAIT_OP_ADD: u32 = WakeOp::Add as u32;
+            const WAIT_OP_OR: u32 = WakeOp::Or as u32;
+            const WAIT_OP_ANDN: u32 = WakeOp::AndN as u32;
+            const WAIT_OP_XOR: u32 = WakeOp::XOr as u32;
+            const WAIT_OP_SET_SHIFT: u32 = WakeOp::SetShift as u32;
+            const WAIT_OP_ADD_SHIFT: u32 = WakeOp::AddShift as u32;
+            const WAIT_OP_OR_SHIFT: u32 = WakeOp::OrShift as u32;
+            const WAIT_OP_ANDN_SHIFT: u32 = WakeOp::AndNShift as u32;
+            const WAIT_OP_XOR_SHIFT: u32 = WakeOp::XOrShift as u32;
+            let cmp_op = match (val3 >> 28) & 0xf {
+                WAIT_OP_SET => WakeOp::Set,
+                WAIT_OP_ADD => WakeOp::Add,
+                WAIT_OP_OR => WakeOp::Or,
+                WAIT_OP_ANDN => WakeOp::AndN,
+                WAIT_OP_XOR => WakeOp::XOr,
+                WAIT_OP_SET_SHIFT => WakeOp::SetShift,
+                WAIT_OP_ADD_SHIFT => WakeOp::AddShift,
+                WAIT_OP_OR_SHIFT => WakeOp::OrShift,
+                WAIT_OP_ANDN_SHIFT => WakeOp::AndNShift,
+                WAIT_OP_XOR_SHIFT => WakeOp::XOrShift,
+                _ => {
+                    set_errno(Errno(libc::EINVAL));
+                    return -1;
+                }
+            };
+            let cmp = match (val3 >> 24) & 0xf {
+                0 => WakeOpCmp::Eq,
+                1 => WakeOpCmp::Ne,
+                2 => WakeOpCmp::Lt,
+                3 => WakeOpCmp::Le,
+                4 => WakeOpCmp::Gt,
+                5 => WakeOpCmp::Ge,
+                _ => {
+                    set_errno(Errno(libc::EINVAL));
+                    return -1;
+                }
+            };
+            let cmp_op_arg = ((val3 >> 12) & 0xfff) as u16;
+            let cmp_arg = (val3 & 0xfff) as u16;
+
+            rustix::thread::futex::wake_op(
+                uaddr, flags, val, val2, uaddr2, cmp_op, cmp, cmp_op_arg, cmp_arg,
+            )
+        }
+        libc::FUTEX_LOCK_PI => {
+            rustix::thread::futex::lock_pi(uaddr, flags, new_timespec).map(|()| 0)
+        }
+        libc::FUTEX_UNLOCK_PI => rustix::thread::futex::unlock_pi(uaddr, flags).map(|()| 0),
+        libc::FUTEX_TRYLOCK_PI => {
+            rustix::thread::futex::trylock_pi(uaddr, flags).map(|b| b as usize)
+        }
+        libc::FUTEX_WAIT_BITSET => {
+            let val3_nonzero = match NonZeroU32::new(val3) {
+                Some(val3) => val3,
+                None => {
+                    set_errno(Errno(libc::EINVAL));
+                    return -1;
+                }
+            };
+            rustix::thread::futex::wait_bitset(uaddr, flags, val, new_timespec, val3_nonzero)
+                .map(|()| 0)
+        }
+        _ => unimplemented!("unrecognized futex op {}", futex_op),
+    };
+    match convert_res(res) {
         Some(result) => result as _,
         None => -1,
     }

@@ -80,7 +80,7 @@ unsafe extern "C" fn setenv(key: *const c_char, value: *const c_char, overwrite:
     owned.extend_from_slice(value_bytes);
     let owned = CString::new(owned).unwrap();
 
-    let environ_vecs = ENVIRON_VECS.get_mut();
+    let environ_vecs = &mut *ENVIRON_VECS.get();
     sync_environ(environ_vecs);
 
     // Search for the key.
@@ -137,7 +137,7 @@ unsafe extern "C" fn unsetenv(key: *const c_char) -> c_int {
         return -1;
     }
 
-    let environ_vecs = ENVIRON_VECS.get_mut();
+    let environ_vecs = &mut *ENVIRON_VECS.get();
     sync_environ(environ_vecs);
 
     // Search for the key.
@@ -183,7 +183,7 @@ unsafe extern "C" fn putenv(key_value: *mut c_char) -> c_int {
     };
     let key_bytes = &key_value_bytes[..eq];
 
-    let environ_vecs = ENVIRON_VECS.get_mut();
+    let environ_vecs = &mut *ENVIRON_VECS.get();
     sync_environ(environ_vecs);
 
     // Search for the key.
@@ -223,7 +223,7 @@ unsafe extern "C" fn putenv(key_value: *mut c_char) -> c_int {
 unsafe extern "C" fn clearenv() -> c_int {
     libc!(libc::clearenv());
 
-    let environ_vecs = ENVIRON_VECS.get_mut();
+    let environ_vecs = &mut *ENVIRON_VECS.get();
     environ_vecs.ptrs.clear();
     environ_vecs.ptrs.push(null_mut());
     environ_vecs.allocs.clear();
@@ -245,4 +245,6 @@ impl EnvironVecs {
     }
 }
 
-static mut ENVIRON_VECS: SyncUnsafeCell<EnvironVecs> = SyncUnsafeCell::new(EnvironVecs::new());
+unsafe impl Sync for EnvironVecs {}
+
+static ENVIRON_VECS: SyncUnsafeCell<EnvironVecs> = SyncUnsafeCell::new(EnvironVecs::new());

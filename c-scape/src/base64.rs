@@ -1,3 +1,4 @@
+use core::cell::SyncUnsafeCell;
 use libc::{c_char, c_long};
 
 #[no_mangle]
@@ -21,13 +22,14 @@ unsafe extern "C" fn a64l(str64: *const c_char) -> c_long {
 
 #[no_mangle]
 unsafe extern "C" fn l64a(value: c_long) -> *mut c_char {
-    static mut BUFFER: [u8; 6 + 1] = [0; 6 + 1];
+    static BUFFER: SyncUnsafeCell<[u8; 6 + 1]> = SyncUnsafeCell::new([0; 6 + 1]);
+    let buffer = &mut *BUFFER.get();
 
     let mut value = value as u32;
     let mut i = 0;
 
     while value != 0 {
-        BUFFER[i] = match (value & 63) as u8 {
+        buffer[i] = match (value & 63) as u8 {
             v @ 0..=11 => b'.' + v,
             v @ 12..=37 => b'A' - 12 + v,
             v @ 38..=63 => b'a' - 38 + v,
@@ -36,7 +38,7 @@ unsafe extern "C" fn l64a(value: c_long) -> *mut c_char {
         i += 1;
         value >>= 6;
     }
-    BUFFER[i] = b'\0';
+    buffer[i] = b'\0';
 
-    BUFFER.as_mut_ptr().cast()
+    buffer.as_mut_ptr().cast()
 }

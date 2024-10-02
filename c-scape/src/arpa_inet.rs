@@ -1,4 +1,5 @@
 use alloc::string::ToString;
+use core::cell::SyncUnsafeCell;
 use core::ffi::CStr;
 use core::net::{Ipv4Addr, Ipv6Addr};
 use core::ptr::{addr_of, copy_nonoverlapping, null};
@@ -16,13 +17,14 @@ unsafe extern "C" fn inet_aton(cp: *const c_char, inp: *mut in_addr) -> c_int {
 unsafe extern "C" fn inet_ntoa(in_: in_addr) -> *const c_char {
     //libc!(libc::inet_ntoa(in_));
 
-    static mut BUFFER: [c_char; 16] = [0; 16];
+    static BUFFER: SyncUnsafeCell<[c_char; 16]> = SyncUnsafeCell::new([0; 16]);
+    let buffer = &mut *BUFFER.get();
 
     inet_ntop(
         libc::AF_INET,
         addr_of!(in_).cast::<c_void>(),
-        BUFFER.as_mut_ptr(),
-        BUFFER.len() as _,
+        buffer.as_mut_ptr(),
+        buffer.len() as _,
     )
 }
 

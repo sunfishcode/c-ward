@@ -4,6 +4,7 @@
 
 use alloc::ffi::CString;
 use core::cell::OnceCell;
+use core::cell::SyncUnsafeCell;
 use core::ptr::{self, null_mut};
 use errno::{set_errno, Errno};
 use libc::{c_char, c_int, c_long, time_t, tm};
@@ -16,10 +17,12 @@ use tz::{DateTime, LocalTimeType, TimeZone};
 // These things aren't really thread-safe, but they're implementing C ABIs and
 // the C rule is, it's up to the user to ensure that none of the bad things
 // happen.
+#[repr(transparent)]
 struct SyncTm(tm);
 unsafe impl Sync for SyncTm {}
 
 // `tzname`, `timezone`, and `daylight` are guarded by `TIMEZONE_LOCK`.
+#[repr(transparent)]
 struct SyncTzName([*mut c_char; 2]);
 unsafe impl Sync for SyncTzName {}
 
@@ -42,8 +45,8 @@ static TIMEZONE_NAMES: Mutex<OnceCell<HashSet<CString>>> = Mutex::new(OnceCell::
 unsafe extern "C" fn gmtime(time: *const time_t) -> *mut tm {
     libc!(libc::gmtime(time));
 
-    static mut TM: SyncTm = SyncTm(blank_tm());
-    gmtime_r(time, &mut TM.0)
+    static TM: SyncUnsafeCell<SyncTm> = SyncUnsafeCell::new(SyncTm(blank_tm()));
+    gmtime_r(time, &mut (*TM.get()).0)
 }
 
 #[no_mangle]
@@ -69,8 +72,8 @@ unsafe extern "C" fn gmtime_r(time: *const time_t, result: *mut tm) -> *mut tm {
 unsafe extern "C" fn localtime(time: *const time_t) -> *mut tm {
     libc!(libc::localtime(time));
 
-    static mut TM: SyncTm = SyncTm(blank_tm());
-    localtime_r(time, &mut TM.0)
+    static TM: SyncUnsafeCell<SyncTm> = SyncUnsafeCell::new(SyncTm(blank_tm()));
+    localtime_r(time, &mut (*TM.get()).0)
 }
 
 #[no_mangle]

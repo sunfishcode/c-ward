@@ -1,6 +1,7 @@
 //! Termios APIs
 
 use crate::{convert_res, set_errno, Errno};
+use core::cell::SyncUnsafeCell;
 use core::mem::{size_of, transmute, zeroed};
 use core::ops::Index;
 use core::ptr::copy_nonoverlapping;
@@ -549,11 +550,12 @@ unsafe extern "C" fn tcflow(fd: c_int, action: c_int) -> c_int {
 
 #[no_mangle]
 unsafe extern "C" fn ptsname(fd: c_int) -> *mut c_char {
-    static mut PTS_BUFFER: [c_char; 30] = [0; 30];
-    if ptsname_r(fd, PTS_BUFFER.as_mut_ptr(), PTS_BUFFER.len()) != 0 {
+    static PTS_BUFFER: SyncUnsafeCell<[c_char; 30]> = SyncUnsafeCell::new([0; 30]);
+    let pts_buffer = &mut *PTS_BUFFER.get();
+    if ptsname_r(fd, pts_buffer.as_mut_ptr(), pts_buffer.len()) != 0 {
         core::ptr::null_mut()
     } else {
-        PTS_BUFFER.as_mut_ptr()
+        pts_buffer.as_mut_ptr()
     }
 }
 

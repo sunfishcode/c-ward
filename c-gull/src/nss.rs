@@ -7,6 +7,7 @@
 //! This file doesn't yet implement enumeration, but the `getent` command does,
 //! so it's theoretically doable.
 
+use core::cell::SyncUnsafeCell;
 use core::ffi::CStr;
 use core::mem::{align_of, zeroed};
 use core::ptr::{addr_of_mut, copy_nonoverlapping, null, null_mut, write};
@@ -368,7 +369,7 @@ struct StaticPasswd {
 // The C contract is that it's the caller's responsibility to ensure that
 // we don't implicitly send this across threads.
 unsafe impl Sync for StaticPasswd {}
-static mut STATIC_PASSWD: StaticPasswd = StaticPasswd {
+static STATIC_PASSWD: SyncUnsafeCell<StaticPasswd> = SyncUnsafeCell::new(StaticPasswd {
     record: passwd {
         pw_name: null_mut(),
         pw_passwd: null_mut(),
@@ -380,7 +381,7 @@ static mut STATIC_PASSWD: StaticPasswd = StaticPasswd {
     },
     buf: null_mut(),
     len: 0,
-};
+});
 
 struct StaticGroup {
     record: group,
@@ -390,7 +391,7 @@ struct StaticGroup {
 // The C contract is that it's the caller's responsibility to ensure that
 // we don't implicitly send this across threads.
 unsafe impl Sync for StaticGroup {}
-static mut STATIC_GROUP: StaticGroup = StaticGroup {
+static STATIC_GROUP: SyncUnsafeCell<StaticGroup> = SyncUnsafeCell::new(StaticGroup {
     record: group {
         gr_name: null_mut(),
         gr_passwd: null_mut(),
@@ -399,34 +400,35 @@ static mut STATIC_GROUP: StaticGroup = StaticGroup {
     },
     buf: null_mut(),
     len: 0,
-};
+});
 
 #[no_mangle]
 unsafe extern "C" fn getpwnam(name: *const c_char) -> *mut libc::passwd {
     libc!(libc::getpwnam(name));
 
-    let mut ptr: *mut libc::passwd = &mut STATIC_PASSWD.record;
+    let static_passwd = &mut *STATIC_PASSWD.get();
+    let mut ptr: *mut libc::passwd = &mut static_passwd.record;
 
     loop {
-        if STATIC_PASSWD.len == 0 {
-            STATIC_PASSWD.len = 1024;
+        if static_passwd.len == 0 {
+            static_passwd.len = 1024;
         } else {
-            STATIC_PASSWD.len *= 2;
-            libc::free(STATIC_PASSWD.buf.cast());
+            static_passwd.len *= 2;
+            libc::free(static_passwd.buf.cast());
         }
 
-        STATIC_PASSWD.buf = libc::malloc(STATIC_PASSWD.len).cast();
-        if STATIC_PASSWD.buf.is_null() {
-            STATIC_PASSWD.len = 0;
+        static_passwd.buf = libc::malloc(static_passwd.len).cast();
+        if static_passwd.buf.is_null() {
+            static_passwd.len = 0;
             set_errno(Errno(libc::ENOMEM));
             return null_mut();
         }
 
         let r = getpwnam_r(
             name,
-            &mut STATIC_PASSWD.record,
-            STATIC_PASSWD.buf,
-            STATIC_PASSWD.len,
+            &mut static_passwd.record,
+            static_passwd.buf,
+            static_passwd.len,
             &mut ptr,
         );
         if r == 0 {
@@ -442,28 +444,29 @@ unsafe extern "C" fn getpwnam(name: *const c_char) -> *mut libc::passwd {
 unsafe extern "C" fn getpwuid(uid: uid_t) -> *mut libc::passwd {
     libc!(libc::getpwuid(uid));
 
-    let mut ptr: *mut libc::passwd = &mut STATIC_PASSWD.record;
+    let static_passwd = &mut *STATIC_PASSWD.get();
+    let mut ptr: *mut libc::passwd = &mut static_passwd.record;
 
     loop {
-        if STATIC_PASSWD.len == 0 {
-            STATIC_PASSWD.len = 1024;
+        if static_passwd.len == 0 {
+            static_passwd.len = 1024;
         } else {
-            STATIC_PASSWD.len *= 2;
-            libc::free(STATIC_PASSWD.buf.cast());
+            static_passwd.len *= 2;
+            libc::free(static_passwd.buf.cast());
         }
 
-        STATIC_PASSWD.buf = libc::malloc(STATIC_PASSWD.len).cast();
-        if STATIC_PASSWD.buf.is_null() {
-            STATIC_PASSWD.len = 0;
+        static_passwd.buf = libc::malloc(static_passwd.len).cast();
+        if static_passwd.buf.is_null() {
+            static_passwd.len = 0;
             set_errno(Errno(libc::ENOMEM));
             return null_mut();
         }
 
         let r = getpwuid_r(
             uid,
-            &mut STATIC_PASSWD.record,
-            STATIC_PASSWD.buf,
-            STATIC_PASSWD.len,
+            &mut static_passwd.record,
+            static_passwd.buf,
+            static_passwd.len,
             &mut ptr,
         );
         if r == 0 {
@@ -479,28 +482,29 @@ unsafe extern "C" fn getpwuid(uid: uid_t) -> *mut libc::passwd {
 unsafe extern "C" fn getgrnam(name: *const c_char) -> *mut libc::group {
     libc!(libc::getgrnam(name));
 
-    let mut ptr: *mut libc::group = &mut STATIC_GROUP.record;
+    let static_group = &mut *STATIC_GROUP.get();
+    let mut ptr: *mut libc::group = &mut static_group.record;
 
     loop {
-        if STATIC_GROUP.len == 0 {
-            STATIC_GROUP.len = 1024;
+        if static_group.len == 0 {
+            static_group.len = 1024;
         } else {
-            STATIC_GROUP.len *= 2;
-            libc::free(STATIC_GROUP.buf.cast());
+            static_group.len *= 2;
+            libc::free(static_group.buf.cast());
         }
 
-        STATIC_GROUP.buf = libc::malloc(STATIC_GROUP.len).cast();
-        if STATIC_GROUP.buf.is_null() {
-            STATIC_GROUP.len = 0;
+        static_group.buf = libc::malloc(static_group.len).cast();
+        if static_group.buf.is_null() {
+            static_group.len = 0;
             set_errno(Errno(libc::ENOMEM));
             return null_mut();
         }
 
         let r = getgrnam_r(
             name,
-            &mut STATIC_GROUP.record,
-            STATIC_GROUP.buf,
-            STATIC_GROUP.len,
+            &mut static_group.record,
+            static_group.buf,
+            static_group.len,
             &mut ptr,
         );
         if r == 0 {
@@ -516,28 +520,29 @@ unsafe extern "C" fn getgrnam(name: *const c_char) -> *mut libc::group {
 unsafe extern "C" fn getgrgid(gid: gid_t) -> *mut libc::group {
     libc!(libc::getgrgid(gid));
 
-    let mut ptr: *mut libc::group = &mut STATIC_GROUP.record;
+    let static_group = &mut *STATIC_GROUP.get();
+    let mut ptr: *mut libc::group = &mut static_group.record;
 
     loop {
-        if STATIC_GROUP.len == 0 {
-            STATIC_GROUP.len = 1024;
+        if static_group.len == 0 {
+            static_group.len = 1024;
         } else {
-            STATIC_GROUP.len *= 2;
-            libc::free(STATIC_GROUP.buf.cast());
+            static_group.len *= 2;
+            libc::free(static_group.buf.cast());
         }
 
-        STATIC_GROUP.buf = libc::malloc(STATIC_GROUP.len).cast();
-        if STATIC_GROUP.buf.is_null() {
-            STATIC_GROUP.len = 0;
+        static_group.buf = libc::malloc(static_group.len).cast();
+        if static_group.buf.is_null() {
+            static_group.len = 0;
             set_errno(Errno(libc::ENOMEM));
             return null_mut();
         }
 
         let r = getgrgid_r(
             gid,
-            &mut STATIC_GROUP.record,
-            STATIC_GROUP.buf,
-            STATIC_GROUP.len,
+            &mut static_group.record,
+            static_group.buf,
+            static_group.len,
             &mut ptr,
         );
         if r == 0 {

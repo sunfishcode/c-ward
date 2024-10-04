@@ -10,7 +10,6 @@ use errno::{set_errno, Errno};
 use libc::{c_char, c_int, c_long, time_t, tm};
 use std::collections::HashSet;
 use std::sync::{Mutex, MutexGuard};
-use tz::error::{TzError, TzFileError, TzStringError};
 use tz::timezone::TransitionRule;
 use tz::{DateTime, LocalTimeType, TimeZone};
 
@@ -290,17 +289,10 @@ const fn blank_tm() -> tm {
     }
 }
 
-fn tz_error_to_errno(err: TzError) -> Errno {
-    match err {
-        TzError::IoError(err) => Errno(err.raw_os_error().unwrap_or(libc::EIO)),
-        TzError::TzFileError(TzFileError::IoError(err)) => {
-            Errno(err.raw_os_error().unwrap_or(libc::EIO))
-        }
-        TzError::TzStringError(TzStringError::IoError(err)) => {
-            Errno(err.raw_os_error().unwrap_or(libc::EIO))
-        }
-        _ => Errno(libc::EIO),
-    }
+fn tz_error_to_errno(err: tz::Error) -> Errno {
+    // TODO: Are there more meaningful errno values we could infer?
+    let _ = err;
+    Errno(libc::EIO)
 }
 
 #[no_mangle]
@@ -386,7 +378,7 @@ unsafe extern "C" fn tzset() {
     }
 }
 
-fn time_zone() -> Result<TimeZone, TzError> {
+fn time_zone() -> Result<TimeZone, tz::Error> {
     match std::env::var("TZ") {
         Ok(tz) => TimeZone::from_posix_tz(&tz),
         Err(_) => TimeZone::local(),

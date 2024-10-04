@@ -17,7 +17,7 @@ keywords = ["linux", "libc"]
 libc = { version = "0.2.155", default-features = false }
 c-scape = { path = "../c-scape", version = "0.17.0", default-features = false }
 errno = { version = "0.3.3", default-features = false, optional = true }
-tz-rs = { version = "0.6.11", default-features = false, optional = true }
+tz-rs = { version = "0.7.0", default-features = false, optional = true }
 rustix = { version = "0.38.31", default-features = false, optional = true, features = ["fs", "itoa", "net", "param", "process", "procfs", "rand", "termios", "thread", "time"] }
 
 [features]

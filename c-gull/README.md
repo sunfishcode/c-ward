@@ -30,7 +30,7 @@ the significant functionality into independent crates with more Rust-idiomatic
 APIs, with c-gull just wrapping those APIs to implement the C ABIs.
 
 This is currently highly experimental, incomplete, and some things aren't
-optimized.
+optimized. And it depends on Nightly Rust.
 
 ## c-gull's two modes
 
@@ -43,8 +43,8 @@ requires some additional setup; see the [c-gull-example] example crate for
 more details.
 
 In "coexist-with-libc" mode, c-gull can be used as a drop-in (partial) libc
-replacement, provided you're using nightly Rust. To use it, just change your
-typical libc dependency in Cargo.toml to this:
+replacement. To use it, just change your typical libc dependency in Cargo.toml
+to this:
 
 ```toml
 libc = { version = "<c-gull version>", package = "c-gull", features = ["coexist-with-libc"] }

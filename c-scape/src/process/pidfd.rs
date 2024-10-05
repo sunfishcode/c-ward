@@ -6,6 +6,7 @@ unsafe extern "C" fn pidfd_getpid(fd: c_int) -> c_int {
     //libc!(libc::pidfd_getpid(fd));
 
     // ensure std::process uses fork as fallback code on linux
+    let _ = fd;
     set_errno(Errno(libc::ENOSYS));
     -1
 }
@@ -29,6 +30,12 @@ unsafe extern "C" fn pidfd_spawnp(
     //));
 
     // ensure std::process uses fork as fallback code on linux
+    let _ = pid;
+    let _ = path;
+    let _ = file_actions;
+    let _ = attrp;
+    let _ = argv;
+    let _ = envp;
     set_errno(Errno(libc::ENOSYS));
     -1
 }

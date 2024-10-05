@@ -9,6 +9,7 @@ mod gid;
 mod groups;
 mod kill;
 mod pid;
+mod pidfd;
 mod priority;
 mod rlimit;
 mod sid;

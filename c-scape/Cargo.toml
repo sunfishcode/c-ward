@@ -141,6 +141,14 @@ todo = []
 # Enable `unimplemented!()` stubs for deprecated functions.
 deprecated-and-unimplemented = []
 
+# Provide a `#[lang = eh_personality]` function suitable for unwinding.
+# https://crates.io/crates/unwinding#personality-and-other-utilities
+personality = ["unwinding/personality"]
+
+# Provide a `#[panic_handler]` function suitable for unwinding.
+# https://crates.io/crates/unwinding#personality-and-other-utilities
+panic-handler = ["unwinding/panic-handler"]
+
 # This extends the `syscall` function with suppport for more syscalls. This is
 # not enabled by default because it increases the code size of `syscall` by
 # several kibibytes and isn't needed by most Rust programs.

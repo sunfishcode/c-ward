@@ -24,7 +24,7 @@ unsafe extern "C" fn main(_argc: i32, _argv: *const *const u8, _envp: *const *co
     let message = b"Hello, world!\n";
     let mut remaining = &message[..];
     while !remaining.is_empty() {
-        match libc::write(1, message.as_ptr().cast(), message.len()) {
+        match libc::write(libc::STDOUT_FILENO, message.as_ptr().cast(), message.len()) {
             -1 => match errno::errno().0 {
                 libc::EINTR => continue,
                 _ => panic!(),

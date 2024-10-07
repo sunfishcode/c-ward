@@ -15,12 +15,16 @@ features = [
     "malloc-via-rust-global-alloc",
     "define-mem-functions",
     "threadsafe-setenv",
+    # This simple example will never unwind.
+    "eh-personality-continue",
+    # This simple example will never panic.
+    "panic-handler-abort",
+    "global-allocator",
 ]
 package = "c-scape"
 
 [dependencies]
 errno = { version = "0.3.3", default-features = false }
-rustix-dlmalloc = { version = "0.1.0", features = ["global"] }
 
 # This is just an example crate, and not part of the c-ward workspace.
 [workspace]

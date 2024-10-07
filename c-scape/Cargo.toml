@@ -141,13 +141,30 @@ todo = []
 # Enable `unimplemented!()` stubs for deprecated functions.
 deprecated-and-unimplemented = []
 
-# Provide a `#[lang = eh_personality]` function suitable for unwinding.
+# Provide a `#[lang = eh_personality]` function suitable for unwinding (for
+# no-std).
 # https://crates.io/crates/unwinding#personality-and-other-utilities
-personality = ["unwinding/personality"]
+eh-personality = ["unwinding/personality"]
 
-# Provide a `#[panic_handler]` function suitable for unwinding.
+# Provide a `#[lang = eh_personality]` function that just returns
+# `CONTINUE_UNWIND`. Use this if you know your program will never unwind and
+# don't want any extra code.
+eh-personality-continue = ["unwinding/personality-dummy"]
+
+# Provide a `#[panic_handler]` function suitable for unwinding (for no-std).
 # https://crates.io/crates/unwinding#personality-and-other-utilities
 panic-handler = ["unwinding/panic-handler"]
+
+# Provide a `#[panic_handler]` function that just aborts (for no-std). Use this
+# if you know your program will never panic and don't want any extra code.
+panic-handler-abort = ["unwinding/panic-handler-dummy"]
+
+# Provide a `#[global_allocator]` function (for no-std).
+#
+# This is only needed in no-std builds, as std provides a global allocator.
+# Alternatively, you can define the global allocator manually; see the
+# example-crates/custom-allocator example.
+global-allocator = ["rustix-dlmalloc/global"]
 
 # This extends the `syscall` function with suppport for more syscalls. This is
 # not enabled by default because it increases the code size of `syscall` by

@@ -185,3 +185,8 @@ unsafe impl rustix_futex_sync::lock_api::GetThreadId for GetThreadId {
         origin::thread::current().to_raw_non_null().addr()
     }
 }
+
+/// If requested, define the global allocator.
+#[cfg(feature = "global-allocator")]
+#[global_allocator]
+static GLOBAL_ALLOCATOR: rustix_dlmalloc::GlobalDlmalloc = rustix_dlmalloc::GlobalDlmalloc;

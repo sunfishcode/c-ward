@@ -7,7 +7,7 @@ publish = false
 [dependencies.libc]
 path = "../../c-scape"
 # Disable the default features, enable "take-charge" mode, and enable the
-# "personality" and "panic-handler" features.
+# "eh-personality" and "panic-handler" features.
 default-features = false
 features = [
     "take-charge",
@@ -16,7 +16,7 @@ features = [
     "malloc-via-rust-global-alloc",
     "define-mem-functions",
     "threadsafe-setenv",
-    "personality",
+    "eh-personality",
     "panic-handler",
 ]
 package = "c-scape"

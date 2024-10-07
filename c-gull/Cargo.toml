@@ -80,12 +80,7 @@ malloc-via-crates = ["c-scape/malloc-via-crates"]
 # This makes `setenv` and friends thread-safe by leaking memory.
 threadsafe-setenv = ["c-scape/threadsafe-setenv"]
 
-# This extends the `syscall` function with suppport for more syscalls. This is
-# not enabled by default because it increases the code size of `syscall` by
-# several kibibytes and isn't needed by most Rust programs.
-extra-syscalls = ["c-scape/extra-syscalls"]
-
-# Enable `todo!()` stubs for unimplemented functions.
+# Enable `todo!()` stubs for not-yet-implemented functions.
 todo = ["c-scape/todo"]
 
 # Enable `unimplemented!()` stubs for deprecated functions.
@@ -94,19 +89,29 @@ deprecated-and-unimplemented = ["c-scape/deprecated-and-unimplemented"]
 # Provide a `#[lang = eh_personality]` function suitable for unwinding (for
 # no-std).
 #
-# This is only needed in no-std builds, as std provides a personality.
-# https://crates.io/crates/unwinding#personality-and-other-utilities
+# If you know your program never unwinds and want smaller code size, use
+# "eh-personality-continue" instead.
+#
+# This is only needed in no-std builds, as std provides a personality. See
+# [the "personality" feature of the unwinding crate] for more details.
+#
+# [the "personality" feature of the unwinding crate]: https://crates.io/crates/unwinding#personality-and-other-utilities
 eh-personality = ["c-scape/eh-personality"]
 
 # Provide a `#[lang = eh_personality]` function that just returns
-# `CONTINUE_UNWIND`. Use this if you know your program will never unwind and
-# don't want any extra code.
+# `CONTINUE_UNWIND` (for no-std). Use this if you know your program will never
+# unwind and don't want any extra code.
 eh-personality-continue = ["c-scape/eh-personality-continue"]
 
 # Provide a `#[panic_handler]` function suitable for unwinding (for no-std).
 #
-# This is only needed in no-std builds, as std provides a panic handller.
-# https://crates.io/crates/unwinding#personality-and-other-utilities
+# If you know your program never panics and want smaller code size, use
+# "panic-handler-abort" instead.
+#
+# This is only needed in no-std builds, as std provides a panic handler. See
+# [the "panic-handler" feature of the unwinding crate] for more details.
+#
+# [the "panic-handler" feature of the unwinding crate]: https://crates.io/crates/unwinding#personality-and-other-utilities
 panic-handler = ["c-scape/panic-handler"]
 
 # Provide a `#[panic_handler]` function that just aborts (for no-std). Use this
@@ -119,3 +124,8 @@ panic-handler-abort = ["c-scape/panic-handler-abort"]
 # Alternatively, you can define the global allocator manually; see the
 # example-crates/custom-allocator example.
 global-allocator = ["c-scape/global-allocator"]
+
+# This extends the `syscall` function with suppport for more syscalls. This is
+# not enabled by default because it increases the code size of `syscall` by
+# several kibibytes and isn't needed by most Rust programs.
+extra-syscalls = ["c-scape/extra-syscalls"]

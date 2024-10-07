@@ -135,7 +135,7 @@ rustc-dep-of-std = [
     "rustix/rustc-dep-of-std",
 ]
 
-# Enable `todo!()` stubs for not-yet-unimplemented functions.
+# Enable `todo!()` stubs for not-yet-implemented functions.
 todo = []
 
 # Enable `unimplemented!()` stubs for deprecated functions.
@@ -143,16 +143,30 @@ deprecated-and-unimplemented = []
 
 # Provide a `#[lang = eh_personality]` function suitable for unwinding (for
 # no-std).
-# https://crates.io/crates/unwinding#personality-and-other-utilities
+#
+# If you know your program never unwinds and want smaller code size, use
+# "eh-personality-continue" instead.
+#
+# This is only needed in no-std builds, as std provides a personality. See
+# [the "personality" feature of the unwinding crate] for more details.
+#
+# [the "personality" feature of the unwinding crate]: https://crates.io/crates/unwinding#personality-and-other-utilities
 eh-personality = ["unwinding/personality"]
 
 # Provide a `#[lang = eh_personality]` function that just returns
-# `CONTINUE_UNWIND`. Use this if you know your program will never unwind and
-# don't want any extra code.
+# `CONTINUE_UNWIND` (for no-std). Use this if you know your program will never
+# unwind and don't want any extra code.
 eh-personality-continue = ["unwinding/personality-dummy"]
 
 # Provide a `#[panic_handler]` function suitable for unwinding (for no-std).
-# https://crates.io/crates/unwinding#personality-and-other-utilities
+#
+# If you know your program never panics and want smaller code size, use
+# "panic-handler-abort" instead.
+#
+# This is only needed in no-std builds, as std provides a panic handler. See
+# [the "panic-handler" feature of the unwinding crate] for more details.
+#
+# [the "panic-handler" feature of the unwinding crate]: https://crates.io/crates/unwinding#personality-and-other-utilities
 panic-handler = ["unwinding/panic-handler"]
 
 # Provide a `#[panic_handler]` function that just aborts (for no-std). Use this

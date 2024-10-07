@@ -33,7 +33,7 @@ libc_type!(PthreadRwlockT, pthread_rwlock_t);
 )]
 struct PthreadRwlockattrT {
     kind: AtomicU32,
-    pad0: u32,
+    _pad0: u32,
 }
 libc_type!(PthreadRwlockattrT, pthread_rwlockattr_t);
 
@@ -46,6 +46,7 @@ unsafe extern "C" fn pthread_rwlock_init(
         checked_cast!(rwlock),
         checked_cast!(rwlockattr)
     ));
+    let _ = (*rwlockattr).kind.load(Ordering::SeqCst);
     ptr::write(&mut (*rwlock).lock, RawRwLock::INIT);
     (*rwlock).exclusive.store(false, Ordering::SeqCst);
 
@@ -73,7 +74,7 @@ unsafe extern "C" fn pthread_rwlockattr_init(attr: *mut PthreadRwlockattrT) -> c
 
     attr.write(PthreadRwlockattrT {
         kind: AtomicU32::new(0),
-        pad0: 0,
+        _pad0: 0,
     });
     0
 }

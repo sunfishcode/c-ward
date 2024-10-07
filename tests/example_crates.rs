@@ -107,7 +107,7 @@ fn example_crate_c_scape_unwinding() {
     test_crate(
         "c-scape-unwinding",
         &[],
-        &[("RUST_UNWINDING", "0")],
+        &[("RUST_BACKTRACE", "0")],
         "Hello, world!\n",
         "panicked at src/main.rs:36:5:\ncatch me!\n",
         None,

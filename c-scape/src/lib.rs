@@ -1,6 +1,6 @@
 #![doc = include_str!("../README.md")]
 #![no_std]
-#![feature(thread_local)] // for `__errno_location`
+#![feature(thread_local)] // for `pthread_getspecific` etc.
 #![feature(c_variadic)] // for `ioctl` etc.
 #![cfg_attr(feature = "use-compiler-builtins", feature(rustc_private))]
 #![feature(strict_provenance)]

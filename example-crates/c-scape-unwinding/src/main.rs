@@ -1,5 +1,5 @@
 //! A simple example using `no_main`, `no_std`, and "take-charge" mode, using
-//! the "personaliity" and "panic_handler" to support unwinding.
+//! the "personaliity" and "panic_handler" features to support unwinding.
 
 #![no_std]
 #![no_main]

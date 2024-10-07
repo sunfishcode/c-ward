@@ -19,8 +19,18 @@ struct PthreadRwlockT {
 libc_type!(PthreadRwlockT, pthread_rwlock_t);
 
 #[allow(non_camel_case_types)]
-#[cfg_attr(target_pointer_width = "32", repr(C, align(4)))]
-#[cfg_attr(target_pointer_width = "64", repr(C, align(8)))]
+#[cfg_attr(
+    any(target_env = "musl", target_env = "ohos", target_pointer_width = "32"),
+    repr(align(4))
+)]
+#[cfg_attr(
+    all(
+        not(target_env = "musl"),
+        not(target_env = "ohos"),
+        target_pointer_width = "64"
+    ),
+    repr(align(8))
+)]
 struct PthreadRwlockattrT {
     kind: AtomicU32,
     pad0: u32,

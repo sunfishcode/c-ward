@@ -1,7 +1,9 @@
 use core::ffi::CStr;
 use rustix::fd::BorrowedFd;
 
-use libc::{c_char, c_int, c_uint};
+#[cfg(not(target_env = "musl"))]
+use libc::c_uint;
+use libc::{c_char, c_int};
 
 use crate::convert_res;
 
@@ -32,6 +34,7 @@ unsafe extern "C" fn renameat(
     }
 }
 
+#[cfg(not(target_env = "musl"))]
 #[no_mangle]
 unsafe extern "C" fn renameat2(
     old_fd: c_int,

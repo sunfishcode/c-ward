@@ -125,6 +125,7 @@ unsafe extern "C" fn gethostid() -> c_long {
     0
 }
 
+#[cfg(not(target_env = "musl"))]
 #[deprecated]
 #[no_mangle]
 unsafe extern "C" fn sethostid(id: c_long) -> c_int {

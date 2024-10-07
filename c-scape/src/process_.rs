@@ -236,6 +236,7 @@ unsafe extern "C" fn dlsym(handle: *mut c_void, symbol: *const c_char) -> *mut c
         // functions it asks for.
         match symbol.to_bytes() {
             #[cfg(any(target_os = "android", target_os = "linux"))]
+            #[cfg(not(target_env = "musl"))]
             b"statx" => libc::statx as _,
             #[cfg(any(target_os = "android", target_os = "linux"))]
             b"getrandom" => libc::getrandom as _,

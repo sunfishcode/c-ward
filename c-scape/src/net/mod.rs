@@ -756,7 +756,7 @@ unsafe extern "C" fn recvmsg(sockfd: c_int, msg: *mut libc::msghdr, flags: c_int
     let mut ancillaries = RecvAncillaryBuffer::default();
 
     let msg_iov = (*addr_of!((*msg).msg_iov)).cast();
-    let msg_iovlen = *addr_of!((*msg).msg_iovlen);
+    let msg_iovlen = *addr_of!((*msg).msg_iovlen) as usize;
     match convert_res(rustix::net::recvmsg(
         fd,
         slice::from_raw_parts_mut(msg_iov, msg_iovlen),
@@ -868,10 +868,12 @@ unsafe extern "C" fn sendmsg(sockfd: c_int, msg: *const libc::msghdr, flags: c_i
         todo!("sendmsg ancillary messages");
     }
 
+    let msg_iov = (*addr_of!((*msg).msg_iov)).cast();
+    let msg_iovlen = *addr_of!((*msg).msg_iovlen) as usize;
     match convert_res(rustix::net::sendmsg_any(
         fd,
         addr.as_ref(),
-        slice::from_raw_parts(msg.msg_iov.cast(), msg.msg_iovlen),
+        slice::from_raw_parts(msg_iov, msg_iovlen),
         &mut SendAncillaryBuffer::default(),
         flags,
     )) {

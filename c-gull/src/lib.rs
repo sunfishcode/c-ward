@@ -33,6 +33,7 @@ mod termios_;
 #[cfg(feature = "std")]
 mod time;
 #[cfg(feature = "std")]
+#[cfg(not(target_env = "musl"))]
 mod utmp;
 
 #[cfg(feature = "std")]

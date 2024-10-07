@@ -1,9 +1,18 @@
 use crate::{convert_res, set_errno, Errno};
-use libc::{c_int, c_uint, RLIM64_INFINITY, RLIM_INFINITY};
+use libc::{c_int, RLIM64_INFINITY, RLIM_INFINITY};
 use rustix::process::{Pid, Resource, Rlimit};
 
+#[cfg(not(target_env = "musl"))]
+use libc::__rlimit_resource_t;
+#[cfg(target_env = "musl")]
+#[allow(non_camel_case_types)]
+type __rlimit_resource_t = c_int;
+
 #[no_mangle]
-unsafe extern "C" fn getrlimit(resource: c_uint, old_limit: *mut libc::rlimit) -> c_int {
+unsafe extern "C" fn getrlimit(
+    resource: __rlimit_resource_t,
+    old_limit: *mut libc::rlimit,
+) -> c_int {
     libc!(libc::getrlimit(resource, old_limit));
 
     let resource = match resource_to_rustix(resource) {
@@ -18,7 +27,10 @@ unsafe extern "C" fn getrlimit(resource: c_uint, old_limit: *mut libc::rlimit) -
 }
 
 #[no_mangle]
-unsafe extern "C" fn getrlimit64(resource: c_uint, old_limit: *mut libc::rlimit64) -> c_int {
+unsafe extern "C" fn getrlimit64(
+    resource: __rlimit_resource_t,
+    old_limit: *mut libc::rlimit64,
+) -> c_int {
     libc!(libc::getrlimit64(resource, old_limit));
 
     let resource = match resource_to_rustix(resource) {
@@ -33,7 +45,10 @@ unsafe extern "C" fn getrlimit64(resource: c_uint, old_limit: *mut libc::rlimit6
 }
 
 #[no_mangle]
-unsafe extern "C" fn setrlimit(resource: c_uint, new_limit: *const libc::rlimit) -> c_int {
+unsafe extern "C" fn setrlimit(
+    resource: __rlimit_resource_t,
+    new_limit: *const libc::rlimit,
+) -> c_int {
     libc!(libc::setrlimit(resource, new_limit));
 
     let resource = match resource_to_rustix(resource) {
@@ -48,7 +63,10 @@ unsafe extern "C" fn setrlimit(resource: c_uint, new_limit: *const libc::rlimit)
 }
 
 #[no_mangle]
-unsafe extern "C" fn setrlimit64(resource: c_uint, new_limit: *const libc::rlimit64) -> c_int {
+unsafe extern "C" fn setrlimit64(
+    resource: __rlimit_resource_t,
+    new_limit: *const libc::rlimit64,
+) -> c_int {
     libc!(libc::setrlimit64(resource, new_limit));
 
     let resource = match resource_to_rustix(resource) {
@@ -65,7 +83,7 @@ unsafe extern "C" fn setrlimit64(resource: c_uint, new_limit: *const libc::rlimi
 #[no_mangle]
 unsafe extern "C" fn prlimit(
     pid: libc::pid_t,
-    resource: c_uint,
+    resource: __rlimit_resource_t,
     new_limit: *const libc::rlimit,
     old_limit: *mut libc::rlimit,
 ) -> c_int {
@@ -91,7 +109,7 @@ unsafe extern "C" fn prlimit(
 #[no_mangle]
 unsafe extern "C" fn prlimit64(
     pid: libc::pid_t,
-    resource: c_uint,
+    resource: __rlimit_resource_t,
     new_limit: *const libc::rlimit64,
     old_limit: *mut libc::rlimit64,
 ) -> c_int {
@@ -114,7 +132,7 @@ unsafe extern "C" fn prlimit64(
     }
 }
 
-fn resource_to_rustix(resource: libc::c_uint) -> Option<Resource> {
+fn resource_to_rustix(resource: __rlimit_resource_t) -> Option<Resource> {
     Some(match resource {
         libc::RLIMIT_CPU => Resource::Cpu,
         libc::RLIMIT_FSIZE => Resource::Fsize,

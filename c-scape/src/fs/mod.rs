@@ -30,6 +30,7 @@ mod xattr;
 
 use core::ffi::CStr;
 use rustix::fd::BorrowedFd;
+#[cfg(not(target_env = "musl"))]
 use rustix::fs::AtFlags;
 
 use errno::{set_errno, Errno};
@@ -38,6 +39,7 @@ use libc::{c_char, c_int, c_uint};
 use crate::convert_res;
 
 #[cfg(any(target_os = "android", target_os = "linux"))]
+#[cfg(not(target_env = "musl"))]
 #[no_mangle]
 unsafe extern "C" fn statx(
     dirfd_: c_int,

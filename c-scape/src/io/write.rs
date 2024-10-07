@@ -77,7 +77,7 @@ unsafe extern "C" fn pwritev2(
     flags: c_int,
 ) -> isize {
     libc!(libc::pwritev2(fd, iov, iovcnt, offset, flags));
-    pwritev64v2(fd, iov, iovcnt, offset as off64_t, flags)
+    _pwritev64v2(fd, iov, iovcnt, offset as off64_t, flags)
 }
 
 #[no_mangle]
@@ -99,6 +99,7 @@ unsafe extern "C" fn pwritev64(
     }
 }
 
+#[cfg(not(target_env = "musl"))]
 #[no_mangle]
 unsafe extern "C" fn pwritev64v2(
     fd: c_int,
@@ -108,7 +109,16 @@ unsafe extern "C" fn pwritev64v2(
     flags: c_int,
 ) -> isize {
     libc!(libc::pwritev64v2(fd, iov, iovcnt, offset, flags));
+    _pwritev64v2(fd, iov, iovcnt, offset, flags)
+}
 
+unsafe fn _pwritev64v2(
+    fd: c_int,
+    iov: *const iovec,
+    iovcnt: c_int,
+    offset: off64_t,
+    flags: c_int,
+) -> isize {
     match convert_res(rustix::io::pwritev2(
         BorrowedFd::borrow_raw(fd),
         slice::from_raw_parts(checked_cast!(iov), iovcnt as usize),

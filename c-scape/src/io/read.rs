@@ -94,7 +94,7 @@ unsafe extern "C" fn preadv2(
     flags: c_int,
 ) -> isize {
     libc!(libc::preadv2(fd, iov, iovcnt, offset, flags));
-    preadv64v2(fd, iov, iovcnt, offset as off64_t, flags)
+    _preadv64v2(fd, iov, iovcnt, offset as off64_t, flags)
 }
 
 #[no_mangle]
@@ -126,6 +126,7 @@ unsafe extern "C" fn preadv64(
     }
 }
 
+#[cfg(not(target_env = "musl"))]
 #[no_mangle]
 unsafe extern "C" fn preadv64v2(
     fd: c_int,
@@ -135,7 +136,16 @@ unsafe extern "C" fn preadv64v2(
     flags: c_int,
 ) -> isize {
     libc!(libc::preadv64v2(fd, iov, iovcnt, offset, flags));
+    _preadv64v2(fd, iov, iovcnt, offset, flags)
+}
 
+unsafe fn _preadv64v2(
+    fd: c_int,
+    iov: *const iovec,
+    iovcnt: c_int,
+    offset: off64_t,
+    flags: c_int,
+) -> isize {
     if fd == -1 {
         set_errno(Errno(libc::EBADF));
         return -1;

@@ -92,9 +92,11 @@ todo = ["c-scape/todo"]
 deprecated-and-unimplemented = ["c-scape/deprecated-and-unimplemented"]
 
 # Provide a `#[lang = eh_personality]` function suitable for unwinding.
+# This is only needed in no-std builds, as std also provides a personality.
 # https://crates.io/crates/unwinding#personality-and-other-utilities
 personality = ["c-scape/personality"]
 
 # Provide a `#[panic_handler]` function suitable for unwinding.
+# This is only needed in no-std builds, as std also provides a panic handller.
 # https://crates.io/crates/unwinding#personality-and-other-utilities
 panic-handler = ["c-scape/panic-handler"]

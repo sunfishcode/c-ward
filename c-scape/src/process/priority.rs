@@ -1,10 +1,16 @@
 use crate::convert_res;
 use errno::{set_errno, Errno};
-use libc::{c_int, c_uint, id_t, pid_t};
+use libc::{c_int, id_t, pid_t};
 use rustix::process::{Pid, Uid};
 
+#[cfg(not(target_env = "musl"))]
+use libc::__priority_which_t;
+#[cfg(target_env = "musl")]
+#[allow(non_camel_case_types)]
+type __priority_which_t = c_int;
+
 #[no_mangle]
-unsafe extern "C" fn getpriority(which: c_uint, who: id_t) -> c_int {
+unsafe extern "C" fn getpriority(which: __priority_which_t, who: id_t) -> c_int {
     libc!(libc::getpriority(which, who));
 
     let result = match which {
@@ -24,7 +30,7 @@ unsafe extern "C" fn getpriority(which: c_uint, who: id_t) -> c_int {
 }
 
 #[no_mangle]
-unsafe extern "C" fn setpriority(which: c_uint, who: id_t, prio: c_int) -> c_int {
+unsafe extern "C" fn setpriority(which: __priority_which_t, who: id_t, prio: c_int) -> c_int {
     libc!(libc::setpriority(which, who, prio));
 
     let result = match which {

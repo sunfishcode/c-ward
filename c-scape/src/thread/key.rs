@@ -9,6 +9,8 @@ use rustix_futex_sync::RwLock;
 
 #[cfg(target_env = "gnu")]
 const PTHREAD_KEYS_MAX: u32 = 1024;
+#[cfg(target_env = "musl")]
+const PTHREAD_KEYS_MAX: u32 = 128;
 const PTHREAD_DESTRUCTOR_ITERATIONS: u8 = 4;
 
 #[derive(Clone, Copy)]

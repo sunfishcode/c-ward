@@ -41,6 +41,7 @@ unsafe extern "C" fn qsort(
     }
 }
 
+#[cfg(not(target_env = "musl"))]
 #[no_mangle]
 unsafe extern "C" fn qsort_r(
     base: *mut c_void,

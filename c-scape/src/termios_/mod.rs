@@ -250,8 +250,16 @@ fn libc_to_rustix(termios: &libc::termios) -> Termios {
     result.output_modes = OutputModes::from_bits_retain(termios.c_oflag);
     result.local_modes = LocalModes::from_bits_retain(termios.c_lflag);
     result.line_discipline = termios.c_line;
-    result.set_input_speed(termios.c_ispeed).unwrap();
-    result.set_output_speed(termios.c_ospeed).unwrap();
+    #[cfg(not(target_env = "musl"))]
+    {
+        result.set_input_speed(termios.c_ispeed).unwrap();
+        result.set_output_speed(termios.c_ospeed).unwrap();
+    }
+    #[cfg(target_env = "musl")]
+    {
+        result.set_input_speed(termios.__c_ispeed).unwrap();
+        result.set_output_speed(termios.__c_ospeed).unwrap();
+    }
     result
 }
 
@@ -274,8 +282,14 @@ fn rustix_to_libc(termios: &Termios) -> libc::termios {
             sc16, sc17, sc18, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
         ],
         c_line: termios.line_discipline,
+        #[cfg(not(target_env = "musl"))]
         c_ispeed: to_libc_speed(termios.input_speed()),
+        #[cfg(not(target_env = "musl"))]
         c_ospeed: to_libc_speed(termios.output_speed()),
+        #[cfg(target_env = "musl")]
+        __c_ispeed: to_libc_speed(termios.input_speed()),
+        #[cfg(target_env = "musl")]
+        __c_ospeed: to_libc_speed(termios.output_speed()),
     }
 }
 

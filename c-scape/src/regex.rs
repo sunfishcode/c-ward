@@ -6,10 +6,12 @@ use core::ffi::CStr;
 use core::ptr::copy_nonoverlapping;
 use libc::{
     c_char, c_int, regex_t, regmatch_t, size_t, REG_BADBR, REG_BADPAT, REG_BADRPT, REG_EBRACE,
-    REG_EBRACK, REG_ECOLLATE, REG_ECTYPE, REG_EEND, REG_EESCAPE, REG_ENOSYS, REG_EPAREN,
-    REG_ERANGE, REG_ERPAREN, REG_ESIZE, REG_ESPACE, REG_ESUBREG, REG_EXTENDED, REG_ICASE,
-    REG_NEWLINE, REG_NOMATCH, REG_NOSUB, REG_NOTBOL, REG_NOTEOL,
+    REG_EBRACK, REG_ECOLLATE, REG_ECTYPE, REG_EESCAPE, REG_ENOSYS, REG_EPAREN, REG_ERANGE,
+    REG_ESPACE, REG_ESUBREG, REG_EXTENDED, REG_ICASE, REG_NEWLINE, REG_NOMATCH, REG_NOSUB,
+    REG_NOTBOL, REG_NOTEOL,
 };
+#[cfg(not(target_env = "musl"))]
+use libc::{REG_EEND, REG_ERPAREN, REG_ESIZE};
 use posix_regex::compile::Error;
 use posix_regex::tree::Tree;
 use posix_regex::{PosixRegex, PosixRegexBuilder};
@@ -130,8 +132,11 @@ unsafe extern "C" fn regerror(
         REG_ESPACE => "Out of memory",
         REG_BADRPT => "'?', '*', or '+' not preceded by valid regular expression",
         REG_ENOSYS => "Unsupported operation",
+        #[cfg(not(target_env = "musl"))]
         REG_EEND => "Premature end",
+        #[cfg(not(target_env = "musl"))]
         REG_ESIZE => "Compiled pattern bigger than 2^16 bytes",
+        #[cfg(not(target_env = "musl"))]
         REG_ERPAREN => "Unmatched ) or \\); not returned from regcomp",
         _ => "Unknown error",
     };

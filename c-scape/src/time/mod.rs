@@ -97,10 +97,21 @@ unsafe extern "C" fn time(t: *mut libc::time_t) -> libc::time_t {
     ts.tv_sec
 }
 
+#[cfg(not(target_env = "musl"))]
 #[no_mangle]
 unsafe extern "C" fn gettimeofday(t: *mut libc::timeval, _tz: *mut libc::timezone) -> c_int {
     libc!(libc::gettimeofday(t, _tz));
+    _gettimeofday(t)
+}
 
+#[cfg(target_env = "musl")]
+#[no_mangle]
+unsafe extern "C" fn gettimeofday(t: *mut libc::timeval, _tz: *mut libc::c_void) -> c_int {
+    libc!(libc::gettimeofday(t, _tz));
+    _gettimeofday(t)
+}
+
+unsafe fn _gettimeofday(t: *mut libc::timeval) -> c_int {
     if t.is_null() {
         return 0;
     }

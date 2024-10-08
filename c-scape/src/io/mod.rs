@@ -68,7 +68,7 @@ unsafe extern "C" fn ioctl(fd: c_int, request: c_long, mut args: ...) -> c_int {
         }
         FICLONE => {
             let src_fd = args.arg::<c_int>();
-            libc!(libc::ioctl(fd, libc::FICLONE, src_fd));
+            libc!(libc::ioctl(fd, libc::FICLONE as _, src_fd));
             let fd = BorrowedFd::borrow_raw(fd);
             let src_fd = BorrowedFd::borrow_raw(src_fd);
             match convert_res(rustix::fs::ioctl_ficlone(fd, src_fd)) {

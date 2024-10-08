@@ -1,6 +1,7 @@
 use crate::convert_res;
 use core::mem::MaybeUninit;
 use core::slice;
+#[cfg(not(target_env = "musl"))]
 use errno::{set_errno, Errno};
 use libc::c_void;
 
@@ -23,6 +24,7 @@ unsafe extern "C" fn getrandom(ptr: *mut c_void, len: usize, flags: u32) -> isiz
 }
 
 #[cfg(any(target_os = "android", target_os = "linux"))]
+#[cfg(not(target_env = "musl"))]
 #[no_mangle]
 unsafe extern "C" fn getentropy(ptr: *mut c_void, len: usize) -> i32 {
     libc!(libc::getentropy(ptr, len));

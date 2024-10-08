@@ -21,6 +21,24 @@ use libc::{c_char, c_int, size_t};
 type PthreadT = *mut c_void;
 libc_type!(PthreadT, pthread_t);
 
+#[cfg(not(target_env = "musl"))]
+unsafe fn from_libc(thread: libc::pthread_t) -> PthreadT {
+    ptr::with_exposed_provenance_mut(thread as _)
+}
+#[cfg(target_env = "musl")]
+unsafe fn from_libc(thread: libc::pthread_t) -> PthreadT {
+    thread
+}
+
+#[cfg(not(target_env = "musl"))]
+fn to_libc(thread: PthreadT) -> libc::pthread_t {
+    thread.expose_provenance() as _
+}
+#[cfg(target_env = "musl")]
+fn to_libc(thread: libc::pthread_t) -> PthreadT {
+    thread
+}
+
 bitflags::bitflags! {
     /// Flags for use with [`PthreadAttrT`].
     #[repr(transparent)]
@@ -71,14 +89,14 @@ impl Default for PthreadAttrT {
 
 #[no_mangle]
 unsafe extern "C" fn pthread_self() -> PthreadT {
-    libc!(ptr::with_exposed_provenance_mut(libc::pthread_self() as _));
+    libc!(from_libc(libc::pthread_self()));
     thread::current().to_raw().cast()
 }
 
 #[no_mangle]
 unsafe extern "C" fn pthread_getattr_np(thread: PthreadT, attr: *mut PthreadAttrT) -> c_int {
     libc!(libc::pthread_getattr_np(
-        thread.expose_provenance() as _,
+        to_libc(thread),
         checked_cast!(attr)
     ));
     let (stack_addr, stack_size, guard_size) = thread::stack(Thread::from_raw(thread.cast()));
@@ -277,14 +295,14 @@ unsafe extern "C" fn pthread_create(
 
 #[no_mangle]
 unsafe extern "C" fn pthread_detach(pthread: PthreadT) -> c_int {
-    libc!(libc::pthread_detach(pthread.expose_provenance() as _));
+    libc!(libc::pthread_detach(to_libc(pthread)));
     thread::detach(Thread::from_raw(pthread.cast()));
     0
 }
 
 #[no_mangle]
 unsafe extern "C" fn pthread_join(pthread: PthreadT, retval: *mut *mut c_void) -> c_int {
-    libc!(libc::pthread_join(pthread.expose_provenance() as _, retval));
+    libc!(libc::pthread_join(to_libc(pthread), retval));
 
     let return_value = thread::join(Thread::from_raw(pthread.cast()));
 
@@ -387,11 +405,7 @@ unsafe extern "C" fn pthread_getname_np(
     name: *mut c_char,
     len: size_t,
 ) -> c_int {
-    libc!(libc::pthread_getname_np(
-        pthread.expose_provenance() as _,
-        name,
-        len
-    ));
+    libc!(libc::pthread_getname_np(to_libc(pthread), name, len));
 
     if len < 16 {
         return libc::ERANGE;
@@ -445,10 +459,7 @@ unsafe extern "C" fn pthread_getname_np(
 #[cfg(target_os = "linux")]
 #[no_mangle]
 unsafe extern "C" fn pthread_setname_np(pthread: PthreadT, name: *const libc::c_char) -> c_int {
-    libc!(libc::pthread_setname_np(
-        pthread.expose_provenance() as _,
-        name
-    ));
+    libc!(libc::pthread_setname_np(to_libc(pthread), name));
 
     let name = core::ffi::CStr::from_ptr(name);
     let bytes = name.to_bytes();

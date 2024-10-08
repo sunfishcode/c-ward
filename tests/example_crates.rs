@@ -109,7 +109,7 @@ fn example_crate_c_scape_unwinding() {
         &[],
         &[("RUST_BACKTRACE", "0")],
         "Hello, world!\n",
-        "panicked at src/main.rs:36:5:\ncatch me!\n",
+        "panicked at src/main.rs:33:5:\ncatch me!\n",
         None,
     );
 }

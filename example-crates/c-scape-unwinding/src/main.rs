@@ -1,11 +1,8 @@
 //! A simple example using `no_main`, `no_std`, and "take-charge" mode, using
-//! the "personaliity" and "panic_handler" features to support unwinding.
+//! the "eh-personaliity" and "panic_handler" features to support unwinding.
 
 #![no_std]
 #![no_main]
-
-#[global_allocator]
-static GLOBAL_ALLOCATOR: rustix_dlmalloc::GlobalDlmalloc = rustix_dlmalloc::GlobalDlmalloc;
 
 #[no_mangle]
 unsafe extern "C" fn main(_argc: i32, _argv: *const *const u8, _envp: *const *const u8) -> i32 {

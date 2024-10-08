@@ -21,7 +21,7 @@ tz-rs = { version = "0.7.0", default-features = false, optional = true }
 rustix = { version = "0.38.31", default-features = false, optional = true, features = ["fs", "itoa", "net", "param", "process", "procfs", "rand", "termios", "thread", "time"] }
 
 [features]
-default = ["thread", "std", "coexist-with-libc", "threadsafe-setenv", "use-compiler-builtins"]
+default = ["thread", "std", "coexist-with-libc", "threadsafe-setenv"]
 thread = ["c-scape/thread"]
 std = ["c-scape/std", "rustix/std", "tz-rs/std", "errno/std"]
 
@@ -30,14 +30,6 @@ std = ["c-scape/std", "rustix/std", "tz-rs/std", "errno/std"]
 # extern `main` function.
 # [here]: https://docs.rs/origin/latest/origin/program/index.html
 call-main = ["c-scape/call-main"]
-
-# Should c-scape provide C ABI definitions of `memcpy` etc. (using
-# `compiler_builtins::mem`) or should it rely on `compiler_builtins`
-# being linked in and providing those definitions?
-define-mem-functions = ["c-scape/define-mem-functions"]
-
-# Should c-scape's `memcpy` etc. use compiler-builtins?
-use-compiler-builtins = ["c-scape/use-compiler-builtins"]
 
 # Enable logging of program and thread startup and shutdown.
 log = ["c-scape/log"]

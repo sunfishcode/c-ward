@@ -14,10 +14,10 @@ features = [
     "thread",
     "call-main",
     "malloc-via-rust-global-alloc",
-    "define-mem-functions",
     "threadsafe-setenv",
     "eh-personality",
     "panic-handler",
+    "global-allocator",
 ]
 package = "c-scape"
 

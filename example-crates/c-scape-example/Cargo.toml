@@ -13,7 +13,6 @@ features = [
     "thread",
     "call-main",
     "malloc-via-rust-global-alloc",
-    "define-mem-functions",
     "threadsafe-setenv",
     # This simple example will never unwind.
     "eh-personality-continue",

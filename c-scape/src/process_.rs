@@ -1,8 +1,6 @@
 use crate::convert_res;
 use core::ffi::CStr;
 use core::mem::{size_of, zeroed};
-#[cfg(feature = "take-charge")]
-use core::ptr;
 use core::ptr::{addr_of, null_mut};
 use errno::{set_errno, Errno};
 use libc::{c_char, c_int, c_long, c_ulong, c_void};
@@ -159,39 +157,6 @@ fn _pathconf(name: c_int) -> c_long {
         #[cfg(any(target_os = "android", target_os = "linux"))]
         libc::_PC_NAME_MAX => 255,
         _ => panic!("unrecognized pathconf({})", name),
-    }
-}
-
-// `getauxval` usually returns `unsigned long`, but we make it a pointer type
-// so that it preserves provenance.
-//
-// This is not used in coexist-with-libc configurations because libc startup
-// code sometimes needs to call `getauxval` before rustix is initialized.
-#[cfg(feature = "take-charge")]
-#[no_mangle]
-unsafe extern "C" fn getauxval(type_: c_ulong) -> *mut c_void {
-    libc!(ptr::with_exposed_provenance_mut(libc::getauxval(type_) as _));
-    _getauxval(type_)
-}
-
-// As with `getauxval`, this is not used in coexist-with-libc configurations
-// because libc startup code sometimes needs to call `getauxval` before rustix
-// is initialized.
-#[cfg(target_arch = "aarch64")]
-#[cfg(feature = "take-charge")]
-#[no_mangle]
-unsafe extern "C" fn __getauxval(type_: c_ulong) -> *mut c_void {
-    //libc!(ptr::from_exposed_addr(libc::__getauxval(type_) as _));
-    _getauxval(type_)
-}
-
-#[cfg(feature = "take-charge")]
-fn _getauxval(type_: c_ulong) -> *mut c_void {
-    match type_ {
-        libc::AT_HWCAP => ptr::without_provenance_mut(rustix::param::linux_hwcap().0),
-        libc::AT_HWCAP2 => ptr::without_provenance_mut(rustix::param::linux_hwcap().1),
-        libc::AT_MINSIGSTKSZ => ptr::without_provenance_mut(rustix::param::linux_minsigstksz()),
-        _ => todo!("unrecognized __getauxval {}", type_),
     }
 }
 

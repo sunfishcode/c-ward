@@ -16,7 +16,6 @@ features = [
     "thread",
     "call-main",
     "malloc-via-rust-global-alloc",
-    "define-mem-functions",
 ]
 package = "c-gull"
 

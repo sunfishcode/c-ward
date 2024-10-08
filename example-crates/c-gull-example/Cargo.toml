@@ -13,7 +13,6 @@ features = [
     "thread",
     "call-main",
     "malloc-via-crates",
-    "define-mem-functions",
     "threadsafe-setenv"
 ]
 package = "c-gull"

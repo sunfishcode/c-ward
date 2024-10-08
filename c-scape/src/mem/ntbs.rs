@@ -273,29 +273,6 @@ unsafe extern "C" fn strdup(s: *const c_char) -> *mut c_char {
     d.cast()
 }
 
-#[cfg(feature = "define-mem-functions")]
-#[no_mangle]
-unsafe extern "C" fn strlen(s: *const c_char) -> size_t {
-    libc!(libc::strlen(s));
-
-    #[cfg(feature = "use-compiler-builtins")]
-    {
-        compiler_builtins::mem::strlen(s)
-    }
-
-    #[cfg(not(feature = "use-compiler-builtins"))]
-    {
-        let mut s = s;
-        let mut n = 0;
-        while *s != 0 {
-            n += 1;
-            s = s.add(1);
-            core::arch::asm!("");
-        }
-        n
-    }
-}
-
 #[no_mangle]
 unsafe extern "C" fn strncat(d: *mut c_char, mut s: *const c_char, mut n: size_t) -> *mut c_char {
     libc!(libc::strncat(d, s, n));

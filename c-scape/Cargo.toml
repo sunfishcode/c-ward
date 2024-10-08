@@ -23,7 +23,7 @@ rustix = { version = "0.38.35", default-features = false, features = ["event", "
 rustix-futex-sync = { version = "0.2.1", features = ["atomic_usize"] }
 memoffset = "0.9.0"
 realpath-ext = { version = "0.1.0", default-features = false }
-origin = { version = "0.20.2", default-features = false, features = ["thread", "init-fini-arrays", "alloc"] }
+origin = { version = "0.21.1", default-features = false, features = ["thread", "init-fini-arrays", "alloc", "nightly", "getauxval"] }
 # We use the libc crate for C ABI types and constants, but we don't depend on
 # the actual platform libc.
 libc = { version = "0.2.155", default-features = false }
@@ -63,7 +63,7 @@ libc = "0.2.155"
 static_assertions = "1.1.0"
 
 [features]
-default = ["thread", "std", "coexist-with-libc", "threadsafe-setenv", "use-compiler-builtins"]
+default = ["thread", "std", "coexist-with-libc", "threadsafe-setenv"]
 thread = ["origin/unstable-errno"]
 std = ["rustix/std", "printf-compat/std"]
 
@@ -72,14 +72,6 @@ std = ["rustix/std", "printf-compat/std"]
 # extern `main` function.
 # [here]: https://docs.rs/origin/latest/origin/program/index.html
 call-main = []
-
-# Should c-scape provide C ABI definitions of `memcpy` etc. (using
-# `compiler_builtins::mem`) or should it rely on `compiler_builtins`
-# being linked in and providing those definitions?
-define-mem-functions = []
-
-# Should c-scape's `memcpy` etc. use compiler-builtins?
-use-compiler-builtins = []
 
 # Enable logging of program and thread startup and shutdown.
 log = ["origin/log"]
@@ -104,7 +96,6 @@ eyra = [
     "thread",
     "call-main",
     "malloc-via-crates",
-    "define-mem-functions"
 ]
 
 # One of the following two features must be enabled:
@@ -135,11 +126,50 @@ rustc-dep-of-std = [
     "rustix/rustc-dep-of-std",
 ]
 
-# Enable `todo!()` stubs for not-yet-unimplemented functions.
+# Enable `todo!()` stubs for not-yet-implemented functions.
 todo = []
 
 # Enable `unimplemented!()` stubs for deprecated functions.
 deprecated-and-unimplemented = []
+
+# Provide a `#[lang = eh_personality]` function suitable for unwinding (for
+# no-std).
+#
+# If you know your program never unwinds and want smaller code size, use
+# "eh-personality-continue" instead.
+#
+# This is only needed in no-std builds, as std provides a personality. See
+# [the "personality" feature of the unwinding crate] for more details.
+#
+# [the "personality" feature of the unwinding crate]: https://crates.io/crates/unwinding#personality-and-other-utilities
+eh-personality = ["origin/eh-personality"]
+
+# Provide a `#[lang = eh_personality]` function that just returns
+# `CONTINUE_UNWIND` (for no-std). Use this if you know your program will never
+# unwind and don't want any extra code.
+eh-personality-continue = ["origin/eh-personality-continue"]
+
+# Provide a `#[panic_handler]` function suitable for unwinding (for no-std).
+#
+# If you know your program never panics and want smaller code size, use
+# "panic-handler-abort" instead.
+#
+# This is only needed in no-std builds, as std provides a panic handler. See
+# [the "panic-handler" feature of the unwinding crate] for more details.
+#
+# [the "panic-handler" feature of the unwinding crate]: https://crates.io/crates/unwinding#personality-and-other-utilities
+panic-handler = ["origin/panic-handler"]
+
+# Provide a `#[panic_handler]` function that just aborts (for no-std). Use this
+# if you know your program will never panic and don't want any extra code.
+panic-handler-abort = ["origin/panic-handler-abort"]
+
+# Provide a `#[global_allocator]` function (for no-std).
+#
+# This is only needed in no-std builds, as std provides a global allocator.
+# Alternatively, you can define the global allocator manually; see the
+# example-crates/custom-allocator example.
+global-allocator = ["rustix-dlmalloc/global"]
 
 # This extends the `syscall` function with suppport for more syscalls. This is
 # not enabled by default because it increases the code size of `syscall` by

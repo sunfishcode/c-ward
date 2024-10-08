@@ -99,7 +99,8 @@ unsafe extern "C" fn pthread_getattr_np(thread: PthreadT, attr: *mut PthreadAttr
         to_libc(thread),
         checked_cast!(attr)
     ));
-    let (stack_addr, stack_size, guard_size) = thread::stack(Thread::from_raw(thread.cast()));
+    let (stack_addr, stack_size, guard_size) =
+        thread::stack(Thread::from_raw_unchecked(thread.cast()));
     ptr::write(
         attr,
         PthreadAttrT {
@@ -296,7 +297,7 @@ unsafe extern "C" fn pthread_create(
 #[no_mangle]
 unsafe extern "C" fn pthread_detach(pthread: PthreadT) -> c_int {
     libc!(libc::pthread_detach(to_libc(pthread)));
-    thread::detach(Thread::from_raw(pthread.cast()));
+    thread::detach(Thread::from_raw_unchecked(pthread.cast()));
     0
 }
 
@@ -304,7 +305,7 @@ unsafe extern "C" fn pthread_detach(pthread: PthreadT) -> c_int {
 unsafe extern "C" fn pthread_join(pthread: PthreadT, retval: *mut *mut c_void) -> c_int {
     libc!(libc::pthread_join(to_libc(pthread), retval));
 
-    let return_value = thread::join(Thread::from_raw(pthread.cast()));
+    let return_value = thread::join(Thread::from_raw_unchecked(pthread.cast()));
 
     if !retval.is_null() {
         *retval = match return_value {
@@ -411,7 +412,7 @@ unsafe extern "C" fn pthread_getname_np(
         return libc::ERANGE;
     }
 
-    let origin_thread = Thread::from_raw(pthread.cast());
+    let origin_thread = Thread::from_raw_unchecked(pthread.cast());
 
     if origin_thread == thread::current() {
         let prctl_name = match rustix::thread::name() {
@@ -468,7 +469,7 @@ unsafe extern "C" fn pthread_setname_np(pthread: PthreadT, name: *const libc::c_
         return libc::ERANGE;
     }
 
-    let origin_thread = Thread::from_raw(pthread.cast());
+    let origin_thread = Thread::from_raw_unchecked(pthread.cast());
 
     if origin_thread == thread::current() {
         return match rustix::thread::set_name(name) {

@@ -64,8 +64,6 @@ using `#![no_builtins]`.
 [c-gull]: https://github.com/sunfishcode/c-ward/tree/main/c-gull#readme
 [relibc]: https://gitlab.redox-os.org/redox-os/relibc/
 [tinyrlibc]: https://github.com/rust-embedded-community/tinyrlibc
-[c-scape-example]: https://github.com/sunfishcode/c-ward/blob/main/example-crates/c-scape-example
-[c-gull-example]: https://github.com/sunfishcode/c-ward/blob/main/example-crates/c-gull-example
 [Mustang]: https://github.com/sunfishcode/mustang#readme
 [Eyra]: https://github.com/sunfishcode/eyra#readme
 ["coexist-with-libc" mode]: https://github.com/sunfishcode/c-ward/blob/main/example-crates/libc-replacement#readme

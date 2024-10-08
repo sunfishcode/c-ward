@@ -103,6 +103,18 @@ fn example_crate_c_scape_example() {
 }
 
 #[test]
+fn example_crate_c_scape_unwinding() {
+    test_crate(
+        "c-scape-unwinding",
+        &[],
+        &[("RUST_BACKTRACE", "0")],
+        "Hello, world!\n",
+        "panicked at src/main.rs:33:5:\ncatch me!\n",
+        None,
+    );
+}
+
+#[test]
 fn example_crate_dns() {
     test_crate(
         "dns",

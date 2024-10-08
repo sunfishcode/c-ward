@@ -1,12 +1,13 @@
 [package]
-name = "c-scape-example"
+name = "c-scape-unwinding"
 version = "0.0.0"
 edition = "2021"
 publish = false
 
 [dependencies.libc]
 path = "../../c-scape"
-# Disable the default features, and enable "take-charge" mode.
+# Disable the default features, enable "take-charge" mode, and enable the
+# "eh-personality" and "panic-handler" features.
 default-features = false
 features = [
     "take-charge",
@@ -14,16 +15,17 @@ features = [
     "call-main",
     "malloc-via-rust-global-alloc",
     "threadsafe-setenv",
-    # This simple example will never unwind.
-    "eh-personality-continue",
-    # This simple example will never panic.
-    "panic-handler-abort",
+    "eh-personality",
+    "panic-handler",
     "global-allocator",
 ]
 package = "c-scape"
 
 [dependencies]
 errno = { version = "0.3.3", default-features = false }
+rustix-dlmalloc = { version = "0.1.0", features = ["global"] }
+# Depend on `unwinding` so that we can do `catch_unwind`.
+unwinding = { version = "0.2.2", default-features = false, features = ["panic"] }
 
 # This is just an example crate, and not part of the c-ward workspace.
 [workspace]

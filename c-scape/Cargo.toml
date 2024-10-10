@@ -160,7 +160,7 @@ eh-personality-continue = ["origin/eh-personality-continue"]
 # [the "panic-handler" feature of the unwinding crate]: https://crates.io/crates/unwinding#personality-and-other-utilities
 panic-handler = ["origin/panic-handler"]
 
-# Provide a `#[panic_handler]` function that just trap (for no-std). Use this
+# Provide a `#[panic_handler]` function that just traps (for no-std). Use this
 # if you know your program will never panic and don't want any extra code.
 panic-handler-trap = ["origin/panic-handler-trap"]
 

@@ -17,7 +17,7 @@ features = [
     # This simple example will never unwind.
     "eh-personality-continue",
     # This simple example will never panic.
-    "panic-handler-abort",
+    "panic-handler-trap",
     "global-allocator",
 ]
 package = "c-scape"

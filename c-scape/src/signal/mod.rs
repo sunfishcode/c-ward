@@ -251,7 +251,7 @@ unsafe extern "C" fn abort() -> ! {
 
     // That *really* should have worked. But if we're somehow still running,
     // abruptly exit the program.
-    origin::program::abort();
+    origin::program::trap();
 }
 
 #[no_mangle]

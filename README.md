@@ -56,9 +56,7 @@ However, `#[no_builtins]` is too pessimistic, because we don't need to disable
 all pattern matching, just these specific cases.
 
 So instead, c-scape and c-gull are just careful to avoid open-coding functions
-which are known to get pattern-matched into builtins, by just calling the
-`compiler_builtins` implementations directly themselves. This way, we can avoid
-using `#![no_builtins]`.
+which are known to get pattern-matched into builtins.
 
 [c-scape]: https://github.com/sunfishcode/c-ward/tree/main/c-scape#readme
 [c-gull]: https://github.com/sunfishcode/c-ward/tree/main/c-gull#readme

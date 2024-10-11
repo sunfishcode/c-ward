@@ -1,14 +1,17 @@
 #![doc = include_str!("../README.md")]
+// c-scape does not use std; features that depend on std are in c-gull instead.
 #![no_std]
+// Nightly Rust features that we depend on.
 #![feature(thread_local)] // for `pthread_getspecific` etc.
-#![feature(c_variadic)] // for `ioctl` etc.
-#![cfg_attr(feature = "use-compiler-builtins", feature(rustc_private))]
+#![feature(c_variadic)] // for `printf`, `ioctl`, etc.
+#![feature(sync_unsafe_cell)] // for lots of libc static variables
+#![feature(linkage)] // for `malloc` etc.
+#![feature(naked_functions)] // for `setjmp` etc.
+// Enable strict provenance.
 #![feature(strict_provenance)]
 #![feature(exposed_provenance)]
-#![feature(sync_unsafe_cell)]
-#![feature(linkage)]
-#![feature(naked_functions)]
 #![deny(fuzzy_provenance_casts, lossy_provenance_casts)]
+// Disable some common warnings.
 #![allow(unexpected_cfgs)]
 // Don't warn if `try_into()` is fallible on some targets.
 #![allow(unreachable_patterns)]
@@ -22,8 +25,6 @@ compile_error!("Enable only one of \"coexist-with-libc\" and \"take-charge\".");
 compile_error!("Enable one \"coexist-with-libc\" and \"take-charge\".");
 
 extern crate alloc;
-#[cfg(feature = "use-compiler-builtins")]
-extern crate compiler_builtins;
 
 // Re-export the libc crate's API. This allows users to depend on the c-scape
 // crate in place of libc.
@@ -52,59 +53,47 @@ mod sync_ptr;
 use core::ptr::addr_of;
 use errno::{set_errno, Errno};
 
-mod brk;
-mod ctype;
-mod env;
-mod fs;
-mod io;
-mod shm;
-
-#[cfg(feature = "take-charge")]
-mod malloc;
-
-mod math;
-mod mem;
-
-#[cfg(not(target_os = "wasi"))]
-mod mm;
-
-mod net;
-
-#[cfg(not(target_os = "wasi"))]
-mod process;
-
-mod rand;
-mod rand48;
-#[cfg(not(target_os = "wasi"))]
-#[cfg(feature = "take-charge")]
-mod signal;
-mod termios_;
-
-#[cfg(feature = "thread")]
-#[cfg(feature = "take-charge")]
-mod thread;
-
 mod arpa_inet;
 mod atoi;
 mod base64;
+mod brk;
+mod ctype;
+mod env;
 mod errno_;
 mod error;
 mod exec;
 #[cfg(feature = "take-charge")]
 mod exit;
+mod fs;
 mod glibc_versioning;
 mod int;
+mod io;
 mod jmp;
 mod locale;
+#[cfg(feature = "take-charge")]
+mod malloc;
+mod math;
+mod mem;
 mod mkostemps;
+#[cfg(not(target_os = "wasi"))]
+mod mm;
+mod net;
 mod nss;
 mod path;
 mod pause;
 mod posix_spawn;
+#[cfg(not(target_os = "wasi"))]
+mod process;
 mod process_;
 mod pty;
+mod rand;
+mod rand48;
 mod rand_;
 mod regex;
+mod shm;
+#[cfg(not(target_os = "wasi"))]
+#[cfg(feature = "take-charge")]
+mod signal;
 mod sort;
 #[cfg(feature = "take-charge")]
 mod stdio;
@@ -112,6 +101,10 @@ mod strtod;
 mod strtol;
 mod syscall;
 mod system;
+mod termios_;
+#[cfg(feature = "thread")]
+#[cfg(feature = "take-charge")]
+mod thread;
 mod time;
 
 #[cfg(feature = "deprecated-and-unimplemented")]

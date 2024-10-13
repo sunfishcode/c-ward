@@ -25,7 +25,7 @@ package = "c-scape"
 errno = { version = "0.3.3", default-features = false }
 rustix-dlmalloc = { version = "0.1.0", features = ["global"] }
 # Depend on `unwinding` so that we can do `catch_unwind`.
-unwinding = { version = "0.2.2", default-features = false, features = ["panic"] }
+unwinding = { version = "0.2.3", default-features = false, features = ["panic"] }
 
 # This is just an example crate, and not part of the c-ward workspace.
 [workspace]

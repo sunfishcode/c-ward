@@ -1,4 +1,4 @@
-use core::arch::asm;
+use core::arch::naked_asm;
 use core::mem::size_of;
 use libc::{c_int, c_void};
 use rustix::runtime::{How, Sigset};
@@ -23,7 +23,7 @@ unsafe extern "C" fn setjmp(env: jmp_buf) -> c_int {
 
     #[cfg(target_arch = "aarch64")]
     {
-        asm!(
+        naked_asm!(
             // Save all the callee-saved registers, the incoming stack pointer
             // value, and the incoming return address into the `jmp_buf`.
             "stp x19, x20, [x0,#0]",
@@ -41,14 +41,13 @@ unsafe extern "C" fn setjmp(env: jmp_buf) -> c_int {
             // Return 0.
             "mov x0, #0",
             // Return to the caller normally.
-            "ret",
-            options(noreturn)
+            "ret"
         )
     }
 
     #[cfg(target_arch = "riscv64")]
     {
-        asm!(
+        naked_asm!(
             // Save all the callee-saved registers, the incoming stack pointer
             // value, and the incoming return address into the `jmp_buf`.
             "sd s0, 0(a0)",
@@ -80,14 +79,13 @@ unsafe extern "C" fn setjmp(env: jmp_buf) -> c_int {
             // Return 0.
             "li a0, 0",
             // Return to the caller normally.
-            "ret",
-            options(noreturn)
+            "ret"
         )
     }
 
     #[cfg(target_arch = "x86_64")]
     {
-        asm!(
+        naked_asm!(
             // Load the incoming return address.
             "mov rsi, [rsp]",
             // Save all the callee-saved registers, the incoming stack pointer
@@ -103,14 +101,13 @@ unsafe extern "C" fn setjmp(env: jmp_buf) -> c_int {
             // Return 0.
             "xor eax, eax",
             // Return to the caller normally.
-            "ret",
-            options(noreturn)
+            "ret"
         )
     }
 
     #[cfg(target_arch = "x86")]
     {
-        asm!(
+        naked_asm!(
             // Load the `jmp_buf` address.
             "mov eax, [esp+4]",
             // Load the incoming return address.
@@ -126,8 +123,7 @@ unsafe extern "C" fn setjmp(env: jmp_buf) -> c_int {
             // Return 0.
             "xor eax, eax",
             // Return to the caller normally.
-            "ret",
-            options(noreturn)
+            "ret"
         )
     }
 
@@ -160,7 +156,7 @@ unsafe extern "C" fn longjmp(env: jmp_buf, val: c_int) -> ! {
 
     #[cfg(target_arch = "aarch64")]
     {
-        asm!(
+        naked_asm!(
             // Restore the callee-saved registers and the stack pointer.
             "ldp x19, x20, [x0,#0]",
             "ldp x21, x22, [x0,#16]",
@@ -178,14 +174,13 @@ unsafe extern "C" fn longjmp(env: jmp_buf, val: c_int) -> ! {
             "cmp w1, 0",
             "csinc w0, w1, wzr, ne",
             // Jump to the `setjmp`'s return address.
-            "br x30",
-            options(noreturn)
+            "br x30"
         )
     }
 
     #[cfg(target_arch = "riscv64")]
     {
-        asm!(
+        naked_asm!(
             // Restore the callee-saved registers and the stack pointer.
             "ld s0, 0(a0)",
             "ld s1, 8(a0)",
@@ -217,14 +212,13 @@ unsafe extern "C" fn longjmp(env: jmp_buf, val: c_int) -> ! {
             "seqz a0, a1",
             "add a0, a0, a1",
             // Jump to the `setjmp`'s return address.
-            "ret",
-            options(noreturn)
+            "ret"
         );
     }
 
     #[cfg(target_arch = "x86_64")]
     {
-        asm!(
+        naked_asm!(
             // Restore the callee-saved registers and the stack pointer.
             "mov rbx, [rdi]",
             "mov rbp, [rdi+8]",
@@ -240,14 +234,13 @@ unsafe extern "C" fn longjmp(env: jmp_buf, val: c_int) -> ! {
             "cmp esi, 1",
             "adc eax, esi",
             // Jump to the `setjmp`'s return address.
-            "jmp [rdi+56]",
-            options(noreturn)
+            "jmp [rdi+56]"
         )
     }
 
     #[cfg(target_arch = "x86")]
     {
-        asm!(
+        naked_asm!(
             // Load the `jmp_buf` address.
             "mov ecx, [esp+4]",
             // Load `val`.
@@ -264,8 +257,7 @@ unsafe extern "C" fn longjmp(env: jmp_buf, val: c_int) -> ! {
             "cmp eax, 1",
             "adc eax, 0",
             // Jump to the `setjmp`'s return address.
-            "jmp [ecx+20]",
-            options(noreturn)
+            "jmp [ecx+20]"
         );
     }
 
@@ -300,21 +292,20 @@ unsafe extern "C" fn sigsetjmp(_env: sigjmp_buf, _savesigs: c_int) -> c_int {
 
     #[cfg(target_arch = "aarch64")]
     {
-        asm!(
+        naked_asm!(
             "stp x29, x30, [sp, -16]!",
             "mov x29, sp",
             "bl {__sigsetjmp_save}",
             "ldp x29, x30, [sp], 16",
             "b {setjmp}",
             __sigsetjmp_save = sym __sigsetjmp_save,
-            setjmp = sym setjmp,
-            options(noreturn)
+            setjmp = sym setjmp
         )
     }
 
     #[cfg(target_arch = "riscv64")]
     {
-        asm!(
+        naked_asm!(
             "addi sp, sp, -16",
             "sd ra, 8(sp)",
             "call {__sigsetjmp_save}",
@@ -322,14 +313,13 @@ unsafe extern "C" fn sigsetjmp(_env: sigjmp_buf, _savesigs: c_int) -> c_int {
             "addi sp, sp, 16",
             "tail {setjmp}",
             __sigsetjmp_save = sym __sigsetjmp_save,
-            setjmp = sym setjmp,
-            options(noreturn)
+            setjmp = sym setjmp
         )
     }
 
     #[cfg(target_arch = "x86_64")]
     {
-        asm!(
+        naked_asm!(
             "push rbp",
             "mov rbp, rsp",
             "call {__sigsetjmp_save}",
@@ -337,14 +327,13 @@ unsafe extern "C" fn sigsetjmp(_env: sigjmp_buf, _savesigs: c_int) -> c_int {
             "pop rbp",
             "jmp {setjmp}",
             __sigsetjmp_save = sym __sigsetjmp_save,
-            setjmp = sym setjmp,
-            options(noreturn)
+            setjmp = sym setjmp
         )
     }
 
     #[cfg(target_arch = "x86")]
     {
-        asm!(
+        naked_asm!(
             "sub esp, 20",
             "push [esp+28]",
             "push [esp+28]",
@@ -353,8 +342,7 @@ unsafe extern "C" fn sigsetjmp(_env: sigjmp_buf, _savesigs: c_int) -> c_int {
             "add esp, 28",
             "jmp {setjmp}",
             __sigsetjmp_save = sym __sigsetjmp_save,
-            setjmp = sym setjmp,
-            options(noreturn)
+            setjmp = sym setjmp
         )
     }
 

@@ -3,8 +3,7 @@
 //! This code is highly experimental.
 
 use alloc::ffi::CString;
-use core::cell::OnceCell;
-use core::cell::SyncUnsafeCell;
+use core::cell::{OnceCell, SyncUnsafeCell};
 use core::ptr::{self, null_mut};
 use errno::{set_errno, Errno};
 use libc::{c_char, c_int, c_long, time_t, tm};

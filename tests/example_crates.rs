@@ -127,6 +127,18 @@ fn example_crate_c_scape_unwinding() {
 }
 
 #[test]
+fn example_crate_c_gull_unwinding() {
+    test_crate(
+        "c-gull-unwinding",
+        &[],
+        &[("RUST_BACKTRACE", "0")],
+        "Hello, world!\nHello world using libc `printf`!\n",
+        "thread 'main' panicked at src/main.rs:18:5:\ncatch me!\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n",
+        None,
+    );
+}
+
+#[test]
 fn example_crate_dns() {
     test_crate(
         "dns",

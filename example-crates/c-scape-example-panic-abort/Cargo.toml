@@ -1,0 +1,34 @@
+[package]
+name = "c-scape-example"
+version = "0.0.0"
+edition = "2021"
+publish = false
+
+[dependencies.libc]
+path = "../../c-scape"
+# Disable the default features, and enable "take-charge" mode.
+default-features = false
+features = [
+    "take-charge",
+    "thread",
+    "call-main",
+    "malloc-via-rust-global-alloc",
+    "threadsafe-setenv",
+    # This simple example will never unwind.
+    "eh-personality-continue",
+    # This simple example will never panic.
+    "panic-handler-trap",
+    "global-allocator",
+]
+package = "c-scape"
+
+[dependencies]
+errno = { version = "0.3.3", default-features = false }
+
+[profile.dev]
+panic = "abort"
+[profile.release]
+panic = "abort"
+
+# This is just an example crate, and not part of the c-ward workspace.
+[workspace]

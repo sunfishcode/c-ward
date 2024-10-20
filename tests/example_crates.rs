@@ -103,6 +103,18 @@ fn example_crate_c_scape_example() {
 }
 
 #[test]
+fn example_crate_c_scape_example_panic_abort() {
+    test_crate(
+        "c-scape-example-panic-abort",
+        &[],
+        &[],
+        "Hello, world!\n",
+        "",
+        None,
+    );
+}
+
+#[test]
 fn example_crate_c_scape_unwinding() {
     test_crate(
         "c-scape-unwinding",

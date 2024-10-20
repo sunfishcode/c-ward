@@ -74,6 +74,18 @@ fn example_crate_c_gull_example() {
 }
 
 #[test]
+fn example_crate_c_gull_example_panic_abort() {
+    test_crate(
+        "c-gull-example-panic-abort",
+        &[],
+        &[],
+        "Hello world using Rust `println!`!\nHello world using libc `printf`!\n",
+        "",
+        None,
+    );
+}
+
+#[test]
 fn example_crate_c_gull_lto() {
     test_crate(
         "c-gull-lto",
@@ -103,6 +115,18 @@ fn example_crate_c_scape_example() {
 }
 
 #[test]
+fn example_crate_c_scape_example_panic_abort() {
+    test_crate(
+        "c-scape-example-panic-abort",
+        &[],
+        &[],
+        "Hello, world!\n",
+        "",
+        None,
+    );
+}
+
+#[test]
 fn example_crate_c_scape_unwinding() {
     test_crate(
         "c-scape-unwinding",
@@ -110,6 +134,18 @@ fn example_crate_c_scape_unwinding() {
         &[("RUST_BACKTRACE", "0")],
         "Hello, world!\n",
         "panicked at src/main.rs:33:5:\ncatch me!\n",
+        None,
+    );
+}
+
+#[test]
+fn example_crate_c_gull_unwinding() {
+    test_crate(
+        "c-gull-unwinding",
+        &[],
+        &[("RUST_BACKTRACE", "0")],
+        "Hello, world!\nHello world using libc `printf`!\n",
+        "thread 'main' panicked at src/main.rs:18:5:\ncatch me!\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n",
         None,
     );
 }

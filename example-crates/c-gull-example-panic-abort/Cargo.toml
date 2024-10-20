@@ -1,0 +1,26 @@
+[package]
+name = "c-gull-example-panic-abort"
+version = "0.0.0"
+edition = "2021"
+publish = false
+
+[dependencies.libc]
+path = "../../c-gull"
+default-features = false
+features = [
+    "take-charge",
+    "std",
+    "thread",
+    "call-main",
+    "malloc-via-crates",
+    "threadsafe-setenv"
+]
+package = "c-gull"
+
+[profile.dev]
+panic = "abort"
+[profile.release]
+panic = "abort"
+
+# This is just an example crate, and not part of the c-ward workspace.
+[workspace]

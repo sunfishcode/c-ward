@@ -74,6 +74,18 @@ fn example_crate_c_gull_example() {
 }
 
 #[test]
+fn example_crate_c_gull_example_panic_abort() {
+    test_crate(
+        "c-gull-example-panic-abort",
+        &[],
+        &[],
+        "Hello world using Rust `println!`!\nHello world using libc `printf`!\n",
+        "",
+        None,
+    );
+}
+
+#[test]
 fn example_crate_c_gull_lto() {
     test_crate(
         "c-gull-lto",

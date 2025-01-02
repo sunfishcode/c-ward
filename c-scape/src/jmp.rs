@@ -76,6 +76,9 @@ unsafe extern "C" fn setjmp(env: jmp_buf) -> c_int {
     #[cfg(all(target_arch = "riscv64", not(target_feature = "soft-float")))]
     {
         naked_asm!(
+            // arch option manipulation needed due to LLVM/Rust bug, see rust-lang/rust#80608
+            ".option push",
+            ".option arch, +d",
             // Save all the callee-saved registers, the incoming stack pointer
             // value, and the incoming return address into the `jmp_buf`.
             "sd s0, 0(a0)",
@@ -108,7 +111,9 @@ unsafe extern "C" fn setjmp(env: jmp_buf) -> c_int {
             // Return 0.
             "li a0, 0",
             // Return to the caller normally.
-            "ret"
+            "ret",
+            // arch option manipulation needed due to LLVM/Rust bug, see rust-lang/rust#80608
+            ".option pop"
         )
     }
 

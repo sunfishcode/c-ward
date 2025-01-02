@@ -64,7 +64,6 @@ unsafe extern "C" fn setjmp(env: jmp_buf) -> c_int {
             "sd s11, 88(a0)",
             "sd sp, 96(a0)",
             "sd ra, 104(a0)",
-
             // Soft-float mode; don't save the floating-point registers.
 
             // Return 0.
@@ -93,7 +92,6 @@ unsafe extern "C" fn setjmp(env: jmp_buf) -> c_int {
             "sd s11, 88(a0)",
             "sd sp, 96(a0)",
             "sd ra, 104(a0)",
-
             // Hard-float mode; save the floating-point registers.
             "fsd fs0, 112(a0)",
             "fsd fs1, 120(a0)",
@@ -107,7 +105,6 @@ unsafe extern "C" fn setjmp(env: jmp_buf) -> c_int {
             "fsd fs9, 184(a0)",
             "fsd fs10, 192(a0)",
             "fsd fs11, 200(a0)",
-
             // Return 0.
             "li a0, 0",
             // Return to the caller normally.

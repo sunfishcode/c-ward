@@ -1,7 +1,5 @@
 #![doc = include_str!("../README.md")]
 #![feature(sync_unsafe_cell)]
-#![feature(strict_provenance)]
-#![deny(fuzzy_provenance_casts, lossy_provenance_casts)]
 #![cfg_attr(not(feature = "std"), no_std)]
 // Don't warn if `try_into()` is fallible on some targets.
 #![allow(unreachable_patterns)]

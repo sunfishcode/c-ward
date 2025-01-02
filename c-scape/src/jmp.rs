@@ -45,7 +45,7 @@ unsafe extern "C" fn setjmp(env: jmp_buf) -> c_int {
         )
     }
 
-    #[cfg(target_arch = "riscv64")]
+    #[cfg(all(target_arch = "riscv64", target_feature = "soft-float"))]
     {
         naked_asm!(
             // Save all the callee-saved registers, the incoming stack pointer
@@ -64,6 +64,37 @@ unsafe extern "C" fn setjmp(env: jmp_buf) -> c_int {
             "sd s11, 88(a0)",
             "sd sp, 96(a0)",
             "sd ra, 104(a0)",
+
+            // Soft-float mode; don't save the floating-point registers.
+
+            // Return 0.
+            "li a0, 0",
+            // Return to the caller normally.
+            "ret"
+        )
+    }
+
+    #[cfg(all(target_arch = "riscv64", not(target_feature = "soft-float")))]
+    {
+        naked_asm!(
+            // Save all the callee-saved registers, the incoming stack pointer
+            // value, and the incoming return address into the `jmp_buf`.
+            "sd s0, 0(a0)",
+            "sd s1, 8(a0)",
+            "sd s2, 16(a0)",
+            "sd s3, 24(a0)",
+            "sd s4, 32(a0)",
+            "sd s5, 40(a0)",
+            "sd s6, 48(a0)",
+            "sd s7, 56(a0)",
+            "sd s8, 64(a0)",
+            "sd s9, 72(a0)",
+            "sd s10, 80(a0)",
+            "sd s11, 88(a0)",
+            "sd sp, 96(a0)",
+            "sd ra, 104(a0)",
+
+            // Hard-float mode; save the floating-point registers.
             "fsd fs0, 112(a0)",
             "fsd fs1, 120(a0)",
             "fsd fs2, 128(a0)",
@@ -76,6 +107,7 @@ unsafe extern "C" fn setjmp(env: jmp_buf) -> c_int {
             "fsd fs9, 184(a0)",
             "fsd fs10, 192(a0)",
             "fsd fs11, 200(a0)",
+
             // Return 0.
             "li a0, 0",
             // Return to the caller normally.

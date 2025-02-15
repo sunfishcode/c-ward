@@ -163,7 +163,21 @@ fn example_crate_dns() {
 }
 
 #[test]
-fn example_crate_threadsafe_setenv() {
+fn example_crate_threadsafe_setenv_getenv() {
+    test_crate(
+        "threadsafe-setenv",
+        &["try_getenv"],
+        &[],
+        "will call std::env::set_var() 100 times ...\n\
+         spawning thread to call std::env::var (will not crash: Rust holds lock for getenv)...\n\
+         exiting without error\n",
+        "",
+        None,
+    );
+}
+
+#[test]
+fn example_crate_threadsafe_setenv_lookup() {
     test_crate(
         "threadsafe-setenv",
         &[],

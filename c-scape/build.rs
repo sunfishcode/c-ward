@@ -16,6 +16,19 @@ fn main() {
             link_in_empty(name);
         }
     }
+
+    let os = var("CARGO_CFG_TARGET_OS").unwrap();
+
+    if os == "linux" || os == "l4re" || os == "android" || os == "emscripten" {
+        use_feature("linux_like");
+    }
+
+    // Add some additional common target combinations.
+
+    // Android and "regular" Linux both use the Linux kernel.
+    if os == "android" || os == "linux" {
+        use_feature("linux_kernel");
+    }
 }
 
 fn link_in_empty(name: &str) {
@@ -62,4 +75,8 @@ fn link_in_empty(name: &str) {
             to
         );
     }
+}
+
+fn use_feature(feature: &str) {
+    println!("cargo:rustc-cfg={}", feature);
 }

@@ -17,7 +17,7 @@ unsafe extern "C" fn getrandom(ptr: *mut c_void, len: usize, flags: u32) -> isiz
     let flags = rustix::rand::GetRandomFlags::from_bits_retain(flags);
     let buf = slice::from_raw_parts_mut(ptr.cast::<MaybeUninit<u8>>(), len);
 
-    match convert_res(rustix::rand::getrandom_uninit(buf, flags)) {
+    match convert_res(rustix::rand::getrandom(buf, flags)) {
         Some((init, _uninit)) => init.len() as isize,
         None => -1,
     }
@@ -44,7 +44,7 @@ unsafe extern "C" fn getentropy(ptr: *mut c_void, len: usize) -> i32 {
     let mut filled = 0usize;
 
     while filled < buf.len() {
-        match rustix::rand::getrandom_uninit(&mut buf[filled..], flags) {
+        match rustix::rand::getrandom(&mut buf[filled..], flags) {
             Ok((init, _uninit)) => filled += init.len(),
             Err(rustix::io::Errno::INTR) => {}
             Err(err) => {

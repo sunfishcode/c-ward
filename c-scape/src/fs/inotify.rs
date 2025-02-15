@@ -15,7 +15,7 @@ unsafe extern "C" fn inotify_init1(flags: c_int) -> c_int {
     libc!(libc::inotify_init1(flags));
 
     let flags = CreateFlags::from_bits(flags as _).unwrap();
-    match convert_res(inotify::inotify_init(flags)) {
+    match convert_res(inotify::init(flags)) {
         Some(fd) => fd.into_raw_fd(),
         None => -1,
     }
@@ -28,7 +28,7 @@ unsafe extern "C" fn inotify_add_watch(fd: c_int, pathname: *const c_char, mask:
     let fd = BorrowedFd::borrow_raw(fd);
     let pathname = CStr::from_ptr(pathname);
     let mask = WatchFlags::from_bits(mask).unwrap();
-    match convert_res(inotify::inotify_add_watch(fd, pathname, mask)) {
+    match convert_res(inotify::add_watch(fd, pathname, mask)) {
         Some(wd) => wd,
         None => -1,
     }
@@ -39,7 +39,7 @@ unsafe extern "C" fn inotify_rm_watch(fd: c_int, wd: c_int) -> c_int {
     libc!(libc::inotify_rm_watch(fd, wd));
 
     let fd = BorrowedFd::borrow_raw(fd);
-    match convert_res(inotify::inotify_remove_watch(fd, wd)) {
+    match convert_res(inotify::remove_watch(fd, wd)) {
         Some(()) => 0,
         None => -1,
     }

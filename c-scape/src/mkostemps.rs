@@ -2,7 +2,7 @@ use crate::convert_res;
 use core::ptr::null_mut;
 use errno::{set_errno, Errno};
 use libc::{c_char, c_int};
-use rand::Rng;
+use rand::{Rng, TryRngCore};
 use rand_core::OsRng;
 use rustix::fd::IntoRawFd;
 use rustix::fs::MemfdFlags;
@@ -101,7 +101,7 @@ unsafe extern "C" fn mkostemps(template: *mut c_char, suffixlen: c_int, flags: c
 
     for _ in 0..(ALNUM.len() * ALNUM.len() * ALNUM.len()) {
         for i in 0..XXXXXX.len() {
-            let r = OsRng.gen_range(0..ALNUM.len());
+            let r = OsRng.unwrap_err().random_range(0..ALNUM.len());
             *template.add(len - suffixlen - 6 + i) = ALNUM[r] as c_char;
         }
 

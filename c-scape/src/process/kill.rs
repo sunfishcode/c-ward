@@ -24,12 +24,7 @@ unsafe extern "C" fn kill(pid: pid_t, sig: c_int) -> c_int {
         };
     }
 
-    let sig = if let Some(sig) = Signal::from_raw(sig) {
-        sig
-    } else {
-        set_errno(Errno(libc::EINVAL));
-        return -1;
-    };
+    let sig = Signal::from_raw_unchecked(sig);
 
     let res = if pid < 0 {
         rustix::process::kill_process_group(Pid::from_raw(-pid as _).unwrap(), sig)

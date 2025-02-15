@@ -199,7 +199,10 @@ unsafe extern "C" fn openpty(
             ws_ypixel: win.ws_ypixel,
         })
     };
-    match convert_res(rustix_openpty::openpty(term.as_ref(), win.as_ref())) {
+    match convert_res(rustix_openpty::openpty_nocloexec(
+        term.as_ref(),
+        win.as_ref(),
+    )) {
         Some(rustix_openpty::Pty { controller, user }) => {
             *acontroller = controller.into_raw_fd();
             *auser = user.into_raw_fd();

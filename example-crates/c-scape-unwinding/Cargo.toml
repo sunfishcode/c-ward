@@ -23,7 +23,7 @@ package = "c-scape"
 
 [dependencies]
 errno = { version = "0.3.3", default-features = false }
-rustix-dlmalloc = { version = "0.1.0", features = ["global"] }
+rustix-dlmalloc = { version = "0.2.1", features = ["global"] }
 # Depend on `unwinding` so that we can do `catch_unwind`.
 unwinding = { version = "0.2.3", default-features = false, features = ["panic"] }
 

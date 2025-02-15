@@ -179,3 +179,20 @@ unsafe impl rustix_futex_sync::lock_api::GetThreadId for GetThreadId {
 #[cfg(feature = "global-allocator")]
 #[global_allocator]
 static GLOBAL_ALLOCATOR: rustix_dlmalloc::GlobalDlmalloc = rustix_dlmalloc::GlobalDlmalloc;
+
+/// Convert a `KernelSigSet` into a `libc::sigset_t`.
+#[cfg(feature = "take-charge")]
+pub(crate) fn expand_sigset(set: rustix::runtime::KernelSigSet) -> libc::sigset_t {
+    let mut lc = core::mem::MaybeUninit::<libc::sigset_t>::uninit();
+    unsafe {
+        // First create an empty `sigset_t`.
+        let r = libc::sigemptyset(lc.as_mut_ptr());
+        assert_eq!(r, 0);
+        // Then write a `KernelSigSet` into the beginning of it. It's
+        // guaranteed to have a subset of the layout.
+        lc.as_mut_ptr()
+            .cast::<rustix::runtime::KernelSigSet>()
+            .write(set);
+        lc.assume_init()
+    }
+}

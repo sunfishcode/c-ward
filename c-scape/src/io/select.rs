@@ -2,7 +2,7 @@ use crate::convert_res;
 use alloc::vec::Vec;
 use errno::{set_errno, Errno};
 use libc::c_int;
-use rustix::event::{PollFd, PollFlags};
+use rustix::event::{PollFd, PollFlags, Timespec};
 use rustix::fd::{AsFd, AsRawFd, BorrowedFd};
 
 #[deprecated]
@@ -46,22 +46,15 @@ unsafe extern "C" fn select(
     }
 
     let timeout = if timeout.is_null() {
-        -1
+        None
     } else {
-        match (*timeout)
-            .tv_sec
-            .checked_mul(1000)
-            .and_then(|millis| millis.checked_add(((*timeout).tv_usec + 999) / 1000))
-            .and_then(|millis| millis.try_into().ok())
-        {
-            Some(millis) => millis,
-            None => {
-                set_errno(Errno(libc::EOVERFLOW));
-                return -1;
-            }
-        }
+        Some(Timespec {
+            tv_sec: (*timeout).tv_sec.into(),
+            tv_nsec: (*timeout).tv_usec * 1000 as rustix::time::Nsecs,
+        })
     };
-    let res = match convert_res(rustix::event::poll(&mut poll_fds, timeout)) {
+    // TODO: use rustix::event::select
+    let res = match convert_res(rustix::event::poll(&mut poll_fds, timeout.as_ref())) {
         Some(res) => res,
         None => return -1,
     };

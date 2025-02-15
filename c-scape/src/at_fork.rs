@@ -49,9 +49,9 @@ pub(crate) fn at_fork(
 ///
 /// # Safety
 ///
-/// Wildly unsafe. See the documentation comment for [`rustix::runtime::fork`].
-/// On top of that, this calls the unsafe functions registered with
-/// [`at_fork`].
+/// Wildly unsafe. See the documentation comment for
+/// [`rustix::runtime::kernel_fork`]. On top of that, this calls the unsafe
+/// functions registered with [`at_fork`].
 pub(crate) unsafe fn fork() -> rustix::io::Result<Option<rustix::process::Pid>> {
     let funcs = FORK_FUNCS.lock();
 
@@ -59,7 +59,7 @@ pub(crate) unsafe fn fork() -> rustix::io::Result<Option<rustix::process::Pid>> 
     funcs.prepare.iter().rev().for_each(|func| func());
 
     // Call `fork`.
-    match rustix::runtime::fork()? {
+    match rustix::runtime::kernel_fork()? {
         rustix::runtime::Fork::Child(pid) => {
             // The child's thread record is copied from the parent;
             // update it with the child's current-thread-id.
@@ -72,7 +72,7 @@ pub(crate) unsafe fn fork() -> rustix::io::Result<Option<rustix::process::Pid>> 
             funcs.child.iter().for_each(|func| func());
             Ok(None)
         }
-        rustix::runtime::Fork::Parent(child_pid) => {
+        rustix::runtime::Fork::ParentOf(child_pid) => {
             // Callbacks after calling `fork`, in the parent.
             funcs.parent.iter().for_each(|func| func());
             Ok(Some(child_pid))

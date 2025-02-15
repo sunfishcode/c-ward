@@ -11,8 +11,8 @@ use std::process::Command;
 use errno::{errno, set_errno, Errno};
 use libc::{c_char, c_int, size_t};
 use rustix::net::{
-    IpAddr, Ipv4Addr, Ipv6Addr, SocketAddr, SocketAddrAny, SocketAddrStorage, SocketAddrV4,
-    SocketAddrV6,
+    addr::SocketAddrArg, addr::SocketAddrStorage, IpAddr, Ipv4Addr, Ipv6Addr, SocketAddr,
+    SocketAddrV4, SocketAddrV6,
 };
 
 // TODO: Upstream this.
@@ -141,7 +141,7 @@ unsafe extern "C" fn getaddrinfo(
                         } else {
                             Ipv4Addr::LOCALHOST
                         };
-                        SocketAddrAny::V4(SocketAddrV4::new(addr, port))
+                        SocketAddrV4::new(addr, port).write_sockaddr(storage)
                     }
                     libc::AF_INET6 => {
                         let addr = if is_passive {
@@ -149,13 +149,12 @@ unsafe extern "C" fn getaddrinfo(
                         } else {
                             Ipv6Addr::LOCALHOST
                         };
-                        SocketAddrAny::V6(SocketAddrV6::new(addr, port, 0, 0))
+                        SocketAddrV6::new(addr, port, 0, 0).write_sockaddr(storage)
                     }
                     _ => unreachable!(),
-                }
-                .write(storage);
+                };
                 info.ai_addr = storage.cast();
-                info.ai_addrlen = len.try_into().unwrap();
+                info.ai_addrlen = len;
 
                 if !prev.is_null() {
                     (*prev).ai_next = ptr;
@@ -215,9 +214,9 @@ unsafe extern "C" fn getaddrinfo(
         let info = &mut *ptr;
 
         let storage = alloc::alloc::alloc(addr_layout).cast::<SocketAddrStorage>();
-        let len = SocketAddrAny::from(SocketAddr::new(addr, port)).write(storage);
+        let len = SocketAddr::new(addr, port).write_sockaddr(storage);
         info.ai_addr = storage.cast();
-        info.ai_addrlen = len.try_into().unwrap();
+        info.ai_addrlen = len;
         *res = ptr;
         return 0;
     }
@@ -237,9 +236,9 @@ unsafe extern "C" fn getaddrinfo(
                         {
                             let storage =
                                 alloc::alloc::alloc(addr_layout).cast::<SocketAddrStorage>();
-                            let len = SocketAddrAny::V4(SocketAddrV4::new(v4, port)).write(storage);
+                            let len = SocketAddrV4::new(v4, port).write_sockaddr(storage);
                             info.ai_addr = storage.cast();
-                            info.ai_addrlen = len.try_into().unwrap();
+                            info.ai_addrlen = len;
                             info.ai_family = libc::AF_INET;
                         }
                     }
@@ -249,8 +248,7 @@ unsafe extern "C" fn getaddrinfo(
                         {
                             let storage =
                                 alloc::alloc::alloc(addr_layout).cast::<SocketAddrStorage>();
-                            let len =
-                                SocketAddrAny::V6(SocketAddrV6::new(v6, port, 0, 0)).write(storage);
+                            let len = SocketAddrV6::new(v6, port, 0, 0).write_sockaddr(storage);
                             info.ai_addr = storage.cast();
                             info.ai_addrlen = len.try_into().unwrap();
                             info.ai_family = libc::AF_INET6;

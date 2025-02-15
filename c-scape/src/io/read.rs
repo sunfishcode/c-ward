@@ -18,7 +18,7 @@ unsafe extern "C" fn read(fd: c_int, ptr: *mut c_void, len: usize) -> isize {
 
     let buf = slice::from_raw_parts_mut(ptr.cast::<MaybeUninit<u8>>(), len);
 
-    match convert_res(rustix::io::read_uninit(BorrowedFd::borrow_raw(fd), buf)) {
+    match convert_res(rustix::io::read(BorrowedFd::borrow_raw(fd), buf)) {
         Some((init, _uninit)) => init.len() as isize,
         None => -1,
     }
@@ -69,7 +69,7 @@ unsafe extern "C" fn pread64(fd: c_int, ptr: *mut c_void, len: usize, offset: of
 
     let buf = slice::from_raw_parts_mut(ptr.cast::<MaybeUninit<u8>>(), len);
 
-    match convert_res(rustix::io::pread_uninit(
+    match convert_res(rustix::io::pread(
         BorrowedFd::borrow_raw(fd),
         buf,
         offset as u64,

@@ -10,7 +10,15 @@ unsafe extern "C" fn poll(fds: *mut libc::pollfd, nfds: libc::nfds_t, timeout: c
     let pollfds: *mut rustix::event::PollFd<'_> = checked_cast!(fds);
 
     let fds = slice::from_raw_parts_mut(pollfds, nfds.try_into().unwrap());
-    match convert_res(rustix::event::poll(fds, timeout)) {
+    let timeout = if timeout < 0 {
+        None
+    } else {
+        Some(rustix::event::Timespec {
+            tv_sec: i64::from(timeout) / 1000,
+            tv_nsec: (i64::from(timeout) % 1000) * 1_000_000,
+        })
+    };
+    match convert_res(rustix::event::poll(fds, timeout.as_ref())) {
         Some(num) => num.try_into().unwrap(),
         None => -1,
     }

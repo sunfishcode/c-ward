@@ -1,12 +1,10 @@
-use rustix::event::epoll::{
-    add, delete, modify, CreateFlags, Event, EventData, EventFlags, EventVec,
-};
-use rustix::fd::{BorrowedFd, IntoRawFd};
-
+use crate::convert_res;
+use alloc::vec::Vec;
 use errno::{set_errno, Errno};
 use libc::c_int;
-
-use crate::convert_res;
+use rustix::buffer::spare_capacity;
+use rustix::event::epoll::{add, delete, modify, CreateFlags, Event, EventData, EventFlags};
+use rustix::fd::{BorrowedFd, IntoRawFd};
 
 #[no_mangle]
 unsafe extern "C" fn epoll_create(size: c_int) -> c_int {
@@ -82,18 +80,27 @@ unsafe extern "C" fn epoll_wait(
         return -1;
     }
 
-    // TODO: We should add an `EventVec::from_raw_parts` to allow `epoll_wait`
+    let timeout = if timeout < 0 {
+        None
+    } else {
+        Some(rustix::event::Timespec {
+            tv_sec: i64::from(timeout) / 1000,
+            tv_nsec: (i64::from(timeout) % 1000) * 1_000_000,
+        })
+    };
+
+    // TODO: We should use `Vec::from_raw_parts` to allow `epoll_wait`
     // to write events directly into the user's buffer, rather then allocating
     // and copying here.
-    let mut events_vec = EventVec::with_capacity(maxevents as usize);
+    let mut events_vec = Vec::with_capacity(maxevents as usize);
     match convert_res(rustix::event::epoll::wait(
         BorrowedFd::borrow_raw(epfd),
-        &mut events_vec,
-        timeout,
+        spare_capacity(&mut events_vec),
+        timeout.as_ref(),
     )) {
-        Some(()) => {
+        Some(_) => {
             let mut events = events;
-            for Event { flags, data } in events_vec.iter() {
+            for Event { flags, data } in events_vec.iter().copied() {
                 events.write(libc::epoll_event {
                     events: flags.bits(),
                     r#u64: data.u64(),

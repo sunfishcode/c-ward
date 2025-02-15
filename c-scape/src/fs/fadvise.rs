@@ -1,4 +1,5 @@
 use crate::convert_res;
+use core::num::NonZeroU64;
 use errno::{set_errno, Errno};
 use libc::{c_int, off64_t, off_t};
 use rustix::fd::BorrowedFd;
@@ -28,7 +29,7 @@ unsafe extern "C" fn posix_fadvise64(
     match convert_res(rustix::fs::fadvise(
         BorrowedFd::borrow_raw(fd),
         offset as u64,
-        len as u64,
+        NonZeroU64::new(len as u64),
         advice,
     )) {
         Some(()) => 0,

@@ -7,11 +7,12 @@ mod spinlock;
 use alloc::boxed::Box;
 use alloc::format;
 use core::ffi::c_void;
-use core::mem::{align_of, size_of, transmute, zeroed, MaybeUninit};
+use core::mem::{transmute, zeroed, MaybeUninit};
 use core::ptr::{self, copy_nonoverlapping, null_mut, NonNull};
 use core::slice;
 use origin::thread::{self, Thread};
 use rustix::fs::{Mode, OFlags};
+use rustix::runtime::KernelSigSet;
 
 use libc::{c_char, c_int, size_t};
 
@@ -343,17 +344,16 @@ unsafe extern "C" fn pthread_sigmask(
         oldset.write(zeroed());
     }
 
-    assert!(size_of::<rustix::runtime::Sigset>() <= size_of::<libc::sigset_t>());
-    assert!(align_of::<rustix::runtime::Sigset>() <= align_of::<libc::sigset_t>());
-    let set: *const rustix::runtime::Sigset = set.cast();
-    let oldset: *mut rustix::runtime::Sigset = oldset.cast();
+    let set = if set.is_null() {
+        None
+    } else {
+        Some(&*set.cast::<KernelSigSet>())
+    };
 
-    let set = if set.is_null() { None } else { Some(&*set) };
-
-    match rustix::runtime::sigprocmask(how, set) {
+    match rustix::runtime::kernel_sigprocmask(how, set) {
         Ok(old) => {
             if !oldset.is_null() {
-                oldset.write(old);
+                oldset.write(crate::expand_sigset(old));
             }
             0
         }
@@ -443,7 +443,7 @@ unsafe extern "C" fn pthread_getname_np(
 
     loop {
         let buf = slice::from_raw_parts_mut(name.cast::<MaybeUninit<u8>>(), len);
-        match rustix::io::read_uninit(&fd, buf) {
+        match rustix::io::read(&fd, buf) {
             Ok((init, _uninit)) if init.is_empty() => return libc::EIO,
             Ok((init, _uninit)) if init.len() <= len => {
                 *name.add(init.len() - 1) = 0;

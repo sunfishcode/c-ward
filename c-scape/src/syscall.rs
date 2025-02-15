@@ -184,8 +184,8 @@ unsafe fn futex(
     use rustix::thread::futex::{Flags as FutexFlags, WakeOp, WakeOpCmp};
 
     libc!(libc::syscall(libc::SYS_futex, uaddr, futex_op, val, timeout, uaddr2, val3) as _);
-    let flags = FutexFlags::from_bits_truncate(futex_op as _);
-    let futex_op = futex_op & (!flags.bits() as i32);
+    let flags = FutexFlags::from_bits_retain((futex_op & !libc::FUTEX_CMD_MASK) as _);
+    let futex_op = futex_op & libc::FUTEX_CMD_MASK;
     let new_timespec = if timeout.is_null() {
         None
     } else {
@@ -214,7 +214,7 @@ unsafe fn futex(
 
     let res = match futex_op {
         libc::FUTEX_WAIT => {
-            rustix::thread::futex::wait(uaddr, flags, val, new_timespec).map(|()| 0)
+            rustix::thread::futex::wait(uaddr, flags, val, new_timespec.as_ref()).map(|()| 0)
         }
         libc::FUTEX_WAKE => rustix::thread::futex::wake(uaddr, flags, val),
         libc::FUTEX_FD => {
@@ -272,7 +272,7 @@ unsafe fn futex(
             )
         }
         libc::FUTEX_LOCK_PI => {
-            rustix::thread::futex::lock_pi(uaddr, flags, new_timespec).map(|()| 0)
+            rustix::thread::futex::lock_pi(uaddr, flags, new_timespec.as_ref()).map(|()| 0)
         }
         libc::FUTEX_UNLOCK_PI => rustix::thread::futex::unlock_pi(uaddr, flags).map(|()| 0),
         libc::FUTEX_TRYLOCK_PI => {
@@ -286,8 +286,14 @@ unsafe fn futex(
                     return -1;
                 }
             };
-            rustix::thread::futex::wait_bitset(uaddr, flags, val, new_timespec, val3_nonzero)
-                .map(|()| 0)
+            rustix::thread::futex::wait_bitset(
+                uaddr,
+                flags,
+                val,
+                new_timespec.as_ref(),
+                val3_nonzero,
+            )
+            .map(|()| 0)
         }
         _ => unimplemented!("unrecognized futex op {}", futex_op),
     };

@@ -50,7 +50,7 @@ unsafe extern "C" fn select(
     } else {
         Some(Timespec {
             tv_sec: (*timeout).tv_sec.into(),
-            tv_nsec: (*timeout).tv_usec * 1000 as rustix::time::Nsecs,
+            tv_nsec: (*timeout).tv_usec as rustix::time::Nsecs * 1000 
         })
     };
     // TODO: use rustix::event::select

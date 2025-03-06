@@ -58,6 +58,6 @@ fn lookup_localhost() {
 fn do_getenv() {
     for _ in 0..1000 {
         let r = std::env::var("doesnotexist");
-        assert!(r.is_ok(), "env var should not exist");
+        assert!(!r.is_ok(), "env var should not exist");
     }
 }

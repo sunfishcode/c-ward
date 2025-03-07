@@ -1,7 +1,7 @@
 use core::arch::naked_asm;
 use core::mem::size_of;
 use libc::{c_int, c_void};
-use rustix::runtime::{How, Sigset};
+use rustix::runtime::{How, KernelSigSet};
 
 #[allow(non_camel_case_types)]
 type jmp_buf = *mut c_void;
@@ -448,8 +448,8 @@ unsafe extern "C" fn __sigsetjmp_save(env: sigjmp_buf, savesigs: c_int) -> sigjm
         // Save the signal set at the offset after `savesigs`.
         let set = &mut *env
             .byte_add(SIG_OFFSET + size_of::<usize>())
-            .cast::<Sigset>();
-        *set = rustix::runtime::sigprocmask(How::SETMASK, None).unwrap();
+            .cast::<KernelSigSet>();
+        *set = rustix::runtime::kernel_sigprocmask(How::SETMASK, None).unwrap();
     }
 
     // Return the `env` value so that the assembly code doesn't have to save
@@ -468,8 +468,8 @@ unsafe extern "C" fn siglongjmp(env: sigjmp_buf, val: c_int) -> ! {
         // Restore the signal set from the offset after `savesigs`.
         let set = &*env
             .byte_add(SIG_OFFSET + size_of::<usize>())
-            .cast::<Sigset>();
-        rustix::runtime::sigprocmask(How::SETMASK, Some(set)).ok();
+            .cast::<KernelSigSet>();
+        rustix::runtime::kernel_sigprocmask(How::SETMASK, Some(set)).ok();
     }
 
     // Call `longjmp` to do the actual jump.

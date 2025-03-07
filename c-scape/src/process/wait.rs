@@ -2,7 +2,7 @@ use core::mem::zeroed;
 use errno::{set_errno, Errno};
 use libc::{c_int, id_t, idtype_t, pid_t, siginfo_t};
 use rustix::fd::BorrowedFd;
-use rustix::process::{Pid, WaitId, WaitOptions, WaitidOptions};
+use rustix::process::{Pid, WaitId, WaitIdOptions, WaitOptions};
 
 use crate::convert_res;
 
@@ -35,7 +35,7 @@ unsafe extern "C" fn waitpid(pid: c_int, status: *mut c_int, options: c_int) -> 
                 } else {
                     pid
                 };
-                ret_status = new_status.as_raw() as c_int;
+                ret_status = new_status.1.as_raw() as c_int;
             }
             Some(None) => return 0,
             None => return -1,
@@ -47,7 +47,7 @@ unsafe extern "C" fn waitpid(pid: c_int, status: *mut c_int, options: c_int) -> 
                 } else {
                     pid
                 };
-                ret_status = new_status.as_raw() as c_int;
+                ret_status = new_status.1.as_raw() as c_int;
             }
             Some(None) => return 0,
             None => return -1,
@@ -92,14 +92,14 @@ unsafe extern "C" fn waitid(
         }
     };
 
-    let options = WaitidOptions::from_bits(options as _).unwrap();
+    let options = WaitIdOptions::from_bits(options as _).unwrap();
 
     match convert_res(rustix::process::waitid(id, options)) {
         Some(Some(new_info)) => {
             *infop = zeroed();
-            (*infop).si_signo = new_info.as_raw().__bindgen_anon_1.__bindgen_anon_1.si_signo;
-            (*infop).si_errno = new_info.as_raw().__bindgen_anon_1.__bindgen_anon_1.si_errno;
-            (*infop).si_code = new_info.as_raw().__bindgen_anon_1.__bindgen_anon_1.si_code;
+            (*infop).si_signo = new_info.raw_signo();
+            (*infop).si_errno = new_info.raw_errno();
+            (*infop).si_code = new_info.raw_code();
             0
         }
         Some(None) => 0,

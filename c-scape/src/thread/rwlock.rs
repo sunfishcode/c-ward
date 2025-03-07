@@ -46,7 +46,9 @@ unsafe extern "C" fn pthread_rwlock_init(
         checked_cast!(rwlock),
         checked_cast!(rwlockattr)
     ));
-    let _ = (*rwlockattr).kind.load(Ordering::SeqCst);
+    if !rwlockattr.is_null() {
+        let _ = (*rwlockattr).kind.load(Ordering::SeqCst);
+    }
     ptr::write(&mut (*rwlock).lock, RawRwLock::INIT);
     (*rwlock).exclusive.store(false, Ordering::SeqCst);
 

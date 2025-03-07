@@ -1,7 +1,8 @@
 use core::ffi::VaList;
 use errno::{set_errno, Errno};
 use rustix::fd::{BorrowedFd, IntoRawFd};
-use rustix::fs::{FdFlags, FlockOperation, OFlags};
+use rustix::fs::{FlockOperation, OFlags};
+use rustix::io::FdFlags;
 
 use libc::c_int;
 
@@ -44,7 +45,7 @@ unsafe fn _fcntl<FlockTy: Flock>(fd: c_int, cmd: c_int, mut args: VaList<'_, '_>
         libc::F_GETFD => {
             libc!(libc::fcntl(fd, libc::F_GETFD));
             let fd = BorrowedFd::borrow_raw(fd);
-            match convert_res(rustix::fs::fcntl_getfd(fd)) {
+            match convert_res(rustix::io::fcntl_getfd(fd)) {
                 Some(flags) => flags.bits() as _,
                 None => -1,
             }
@@ -53,7 +54,7 @@ unsafe fn _fcntl<FlockTy: Flock>(fd: c_int, cmd: c_int, mut args: VaList<'_, '_>
             let flags = args.arg::<c_int>();
             libc!(libc::fcntl(fd, libc::F_SETFD, flags));
             let fd = BorrowedFd::borrow_raw(fd);
-            match convert_res(rustix::fs::fcntl_setfd(
+            match convert_res(rustix::io::fcntl_setfd(
                 fd,
                 FdFlags::from_bits(flags as _).unwrap(),
             )) {
@@ -100,7 +101,7 @@ unsafe fn _fcntl<FlockTy: Flock>(fd: c_int, cmd: c_int, mut args: VaList<'_, '_>
             let arg = args.arg::<c_int>();
             libc!(libc::fcntl(fd, libc::F_DUPFD_CLOEXEC, arg));
             let fd = BorrowedFd::borrow_raw(fd);
-            match convert_res(rustix::fs::fcntl_dupfd_cloexec(fd, arg)) {
+            match convert_res(rustix::io::fcntl_dupfd_cloexec(fd, arg)) {
                 Some(fd) => fd.into_raw_fd(),
                 None => -1,
             }

@@ -53,7 +53,7 @@ unsafe extern "C" fn exit(status: c_int) -> ! {
 #[no_mangle]
 unsafe extern "C" fn _Exit(status: c_int) -> ! {
     //libc!(libc::_Exit(status));
-    origin::program::exit_immediately(status)
+    origin::program::immediate_exit(status)
 }
 
 /// POSIX-compatible `_exit`.

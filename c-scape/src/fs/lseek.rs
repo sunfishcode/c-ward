@@ -30,9 +30,9 @@ unsafe extern "C" fn lseek64(fd: c_int, offset: off64_t, whence: c_int) -> off64
         libc::SEEK_CUR => rustix::fs::SeekFrom::Current(offset),
         libc::SEEK_END => rustix::fs::SeekFrom::End(offset),
         #[cfg(any(apple, freebsdlike, linux_kernel, solarish))]
-        libc::SEEK_DATA => rustix::fs::SeekFrom::Data(offset),
+        libc::SEEK_DATA => rustix::fs::SeekFrom::Data(offset as u64),
         #[cfg(any(apple, freebsdlike, linux_kernel, solarish))]
-        libc::SEEK_HOLE => rustix::fs::SeekFrom::Hole(offset),
+        libc::SEEK_HOLE => rustix::fs::SeekFrom::Hole(offset as u64),
         _ => {
             set_errno(Errno(libc::EINVAL));
             return -1;

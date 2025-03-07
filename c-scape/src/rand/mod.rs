@@ -26,7 +26,7 @@ unsafe extern "C" fn rand() -> c_int {
     }
 
     // Sample using a uniform distribution
-    (*guard).as_mut().unwrap().gen_range(0..libc::RAND_MAX) as c_int
+    (*guard).as_mut().unwrap().random_range(0..libc::RAND_MAX) as c_int
 }
 
 #[no_mangle]

@@ -234,7 +234,7 @@ unsafe extern "C" fn dlsym(handle: *mut c_void, symbol: *const c_char) -> *mut c
 unsafe extern "C" fn sched_yield() -> c_int {
     libc!(libc::sched_yield());
 
-    rustix::process::sched_yield();
+    origin::thread::yield_current();
     0
 }
 
@@ -248,14 +248,14 @@ unsafe extern "C" fn sched_getaffinity(
     libc!(libc::sched_getaffinity(pid, cpu_set_size, mask.cast()));
 
     let pid = rustix::process::Pid::from_raw(pid as _);
-    let set = match convert_res(rustix::process::sched_getaffinity(pid)) {
+    let set = match convert_res(rustix::thread::sched_getaffinity(pid)) {
         Some(set) => set,
         None => return -1,
     };
 
     mask.write(core::mem::zeroed());
     libc::CPU_ZERO(&mut *mask);
-    for i in 0..core::cmp::min(rustix::process::CpuSet::MAX_CPU, cpu_set_size * 8) {
+    for i in 0..core::cmp::min(rustix::thread::CpuSet::MAX_CPU, cpu_set_size * 8) {
         if set.is_set(i) {
             libc::CPU_SET(i, &mut *mask);
         }
@@ -272,16 +272,16 @@ unsafe extern "C" fn sched_setaffinity(
 ) -> c_int {
     libc!(libc::sched_setaffinity(pid, cpu_set_size, mask));
 
-    let mut set = rustix::process::CpuSet::new();
+    let mut set = rustix::thread::CpuSet::new();
     let mask = &*mask;
-    for i in 0..core::cmp::min(rustix::process::CpuSet::MAX_CPU, cpu_set_size * 8) {
+    for i in 0..core::cmp::min(rustix::thread::CpuSet::MAX_CPU, cpu_set_size * 8) {
         if libc::CPU_ISSET(i, mask) {
             set.set(i);
         }
     }
 
     let pid = rustix::process::Pid::from_raw(pid as _);
-    match convert_res(rustix::process::sched_setaffinity(pid, &set)) {
+    match convert_res(rustix::thread::sched_setaffinity(pid, &set)) {
         Some(()) => 0,
         None => -1,
     }
@@ -293,7 +293,7 @@ unsafe extern "C" fn __sched_cpucount(size: libc::size_t, set: *const libc::cpu_
     //libc!(libc::___sched_cpucount(size, set));
 
     let mut count = 0;
-    for i in 0..core::cmp::min(rustix::process::CpuSet::MAX_CPU, size * 8) {
+    for i in 0..core::cmp::min(rustix::thread::CpuSet::MAX_CPU, size * 8) {
         if libc::CPU_ISSET(i, &*set) {
             count += 1;
         }
@@ -306,7 +306,7 @@ unsafe extern "C" fn __sched_cpucount(size: libc::size_t, set: *const libc::cpu_
 unsafe extern "C" fn __sched_cpualloc(count: libc::size_t) -> *mut libc::cpu_set_t {
     //libc!(libc::___sched_cpualloc(count));
 
-    let count = core::cmp::min(count, rustix::process::CpuSet::MAX_CPU);
+    let count = core::cmp::min(count, rustix::thread::CpuSet::MAX_CPU);
     libc::malloc(libc::CPU_ALLOC_SIZE(count as _)).cast()
 }
 
@@ -323,7 +323,7 @@ unsafe extern "C" fn __sched_cpufree(set: *mut libc::cpu_set_t) {
 unsafe extern "C" fn sched_getcpu() -> c_int {
     libc!(libc::sched_getcpu());
 
-    rustix::process::sched_getcpu() as _
+    rustix::thread::sched_getcpu() as _
 }
 
 // In Linux, `prctl`'s arguments are described as `unsigned long`, however we
@@ -354,7 +354,7 @@ unsafe extern "C" fn prctl(
         libc::PR_GET_PDEATHSIG => match convert_res(rustix::process::parent_process_death_signal())
         {
             Some(signal) => {
-                let sig = signal.map(|s| s as u32 as c_int).unwrap_or(0);
+                let sig = signal.map(|s| s.as_raw()).unwrap_or(0);
                 arg2.cast::<c_int>().write(sig);
                 0
             }
@@ -372,12 +372,7 @@ unsafe extern "C" fn prctl(
             let sig = if arg2_i32 == 0 {
                 None
             } else {
-                match convert_res(
-                    rustix::process::Signal::from_raw(arg2_i32).ok_or(rustix::io::Errno::RANGE),
-                ) {
-                    Some(s) => Some(s),
-                    None => return -1,
-                }
+                Some(rustix::process::Signal::from_raw_unchecked(arg2_i32))
             };
             match convert_res(rustix::process::set_parent_process_death_signal(sig)) {
                 Some(()) => 0,

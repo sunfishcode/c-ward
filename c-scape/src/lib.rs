@@ -6,7 +6,6 @@
 #![feature(c_variadic)] // for `printf`, `ioctl`, etc.
 #![feature(sync_unsafe_cell)] // for lots of libc static variables
 #![feature(linkage)] // for `malloc` etc.
-#![feature(naked_functions)] // for `setjmp` etc.
 // Disable some common warnings.
 #![allow(unexpected_cfgs)]
 // Don't warn if `try_into()` is fallible on some targets.

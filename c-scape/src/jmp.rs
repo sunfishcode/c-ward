@@ -24,7 +24,7 @@ type sigjmp_buf = *mut c_void;
         target_arch = "x86_64",
         target_arch = "x86"
     ),
-    naked
+    unsafe(naked)
 )]
 unsafe extern "C" fn setjmp(env: jmp_buf) -> c_int {
     //libc!(libc::setjmp(env));
@@ -191,7 +191,7 @@ core::arch::global_asm!(".globl _setjmp", ".set _setjmp, setjmp");
         target_arch = "x86_64",
         target_arch = "x86"
     ),
-    naked
+    unsafe(naked)
 )]
 unsafe extern "C" fn longjmp(env: jmp_buf, val: c_int) -> ! {
     //libc!(libc::longjmp(env, val));
@@ -358,7 +358,7 @@ core::arch::global_asm!(".globl _longjmp", ".set _longjmp, longjmp");
         target_arch = "x86_64",
         target_arch = "x86"
     ),
-    naked
+    unsafe(naked)
 )]
 unsafe extern "C" fn sigsetjmp(_env: sigjmp_buf, _savesigs: c_int) -> c_int {
     //libc!(libc::sigsetjmp(env, savesigs));

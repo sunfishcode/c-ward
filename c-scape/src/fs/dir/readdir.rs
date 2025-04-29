@@ -42,7 +42,7 @@ unsafe extern "C" fn readdir64_r(
                 d_name: [0; 256],
             };
             let len = core::cmp::min(256, e.file_name().to_bytes().len());
-            (*entry).d_name[..len].copy_from_slice(transmute(e.file_name().to_bytes()));
+            (&mut *entry).d_name[..len].copy_from_slice(transmute(e.file_name().to_bytes()));
             *ptr = entry;
             0
         }
@@ -79,7 +79,7 @@ unsafe extern "C" fn readdir64(dir: *mut libc::DIR) -> *mut libc::dirent64 {
                 d_name: [0; 256],
             };
             let len = core::cmp::min(256, e.file_name().to_bytes().len());
-            (*c_scape_dir).storage.dirent64.d_name[..len]
+            (&mut *c_scape_dir).storage.dirent64.d_name[..len]
                 .copy_from_slice(transmute(e.file_name().to_bytes()));
             &mut (*c_scape_dir).storage.dirent64
         }
@@ -127,7 +127,7 @@ unsafe extern "C" fn readdir(dir: *mut libc::DIR) -> *mut libc::dirent {
             };
 
             let len = core::cmp::min(256, e.file_name().to_bytes().len());
-            (*c_scape_dir).storage.dirent.d_name[..len]
+            (&mut *c_scape_dir).storage.dirent.d_name[..len]
                 .copy_from_slice(transmute(e.file_name().to_bytes()));
             &mut (*c_scape_dir).storage.dirent
         }

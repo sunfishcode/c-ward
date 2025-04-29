@@ -3,7 +3,7 @@
 //!
 //! This would typically entail taking a lock that prevents thread creation,
 //! setting the IDs for each thread manually by sending signals to them and
-//! having signal handlers that perform the set operation, waitinig for all
+//! having signal handlers that perform the set operation, waiting for all
 //! the handlers to run, and then releasing the lock.
 
 #[no_mangle]

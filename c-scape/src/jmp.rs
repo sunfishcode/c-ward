@@ -1,3 +1,11 @@
+//! Setjmp and longjmp.
+//!
+//! It's not possible to call these functions from Rust code, because Rust
+//! lacks a "returns twice" attribute, which would be needed to describe the
+//! behavior of `setjmp` and `sigsetjmp`. However, it may be possible to
+//! call them from C code that links to c-scape via its C ABI. All of the
+//! magic is hidden in inside `naked_asm` blocks.
+
 use core::arch::naked_asm;
 use core::mem::size_of;
 use libc::{c_int, c_void};

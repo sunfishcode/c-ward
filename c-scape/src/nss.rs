@@ -1,7 +1,7 @@
 //! Most of the nss functions are implement in c-gull rather than c-scape.
 //! But we provide a `getpwuid_r` stub definition here in no-std mode because
 //! it's referenced by libstd. libstd doesn't use it for anything other than
-//! a fallback for when the HOME environment variable is unsed, and HOME is
+//! a fallback for when the HOME environment variable is unset, and HOME is
 //! set in any reasonable use case where this would be called, so a stub
 //! suffices.
 

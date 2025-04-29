@@ -145,7 +145,7 @@ fn example_crate_c_gull_unwinding() {
         &[],
         &[("RUST_BACKTRACE", "0")],
         "Hello, world!\nHello world using libc `printf`!\n",
-        "thread 'main' panicked at src/main.rs:18:5:\ncatch me!\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n",
+        "\nthread 'main' panicked at src/main.rs:18:5:\ncatch me!\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n",
         None,
     );
 }

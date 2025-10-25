@@ -162,6 +162,9 @@ unsafe extern "C" fn syscall(number: c_long, mut args: ...) -> *mut c_void {
             let flags = args.arg::<c_int>();
             without_provenance_mut(libc::pipe2(pipefd, flags) as isize as usize)
         }
+        libc::SYS_gettid => {
+            without_provenance_mut(rustix::thread::gettid().as_raw_nonzero().get() as _)
+        }
         _ => unimplemented!(
             "syscall({:?}); maybe try enabling the \"extra-syscalls\" feature",
             number

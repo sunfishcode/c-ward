@@ -190,6 +190,7 @@ extra-syscalls = [
     "syscall-syncfs",
     "syscall-sync",
     "syscall-pipe2",
+    "syscall-pidfd_open",
 ]
 syscall-read = []
 syscall-write = []
@@ -206,3 +207,4 @@ syscall-fdatasync = []
 syscall-syncfs = []
 syscall-sync = []
 syscall-pipe2 = []
+syscall-pidfd_open = []

@@ -59,16 +59,14 @@ macro_rules! libc {
 #[cfg(all(feature = "take-charge", feature = "thread"))]
 macro_rules! libc_type {
     ($name:ident, $libc:ident) => {
-        #[cfg(test)]
-        static_assertions::const_assert_eq!(
-            core::mem::size_of::<$name>(),
-            core::mem::size_of::<libc::$libc>()
-        );
-        #[cfg(test)]
-        static_assertions::const_assert_eq!(
-            core::mem::align_of::<$name>(),
-            core::mem::align_of::<libc::$libc>()
-        );
+        const _: () = {
+            if core::mem::size_of::<$name>() != core::mem::size_of::<libc::$libc>() {
+                panic!();
+            }
+            if core::mem::align_of::<$name>() != core::mem::align_of::<libc::$libc>() {
+                panic!();
+            }
+        };
     };
 }
 

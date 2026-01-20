@@ -293,6 +293,10 @@ unsafe extern "C" fn strftime() {
     todo!("strftime")
 }
 #[no_mangle]
+unsafe extern "C" fn wcsftime() {
+    todo!("wcsftime")
+}
+#[no_mangle]
 unsafe extern "C" fn __isoc99_scanf() {
     todo!("__isoc99_scanf")
 }
@@ -1168,4 +1172,12 @@ unsafe extern "C" fn backtrace() {
 #[no_mangle]
 unsafe extern "C" fn backtrace_symbols() {
     todo!("backtrace_symbols")
+}
+#[no_mangle]
+unsafe extern "C" fn getwc() {
+    todo!("getwc")
+}
+#[no_mangle]
+unsafe extern "C" fn putwc() {
+    todo!("putwc")
 }

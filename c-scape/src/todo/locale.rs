@@ -40,3 +40,11 @@ unsafe extern "C" fn strtoll_l() {
 unsafe extern "C" fn strtoull_l() {
     todo!("strtoull_l")
 }
+#[no_mangle]
+unsafe extern "C" fn wcsxfrm() {
+    todo!("wcsxfrm")
+}
+#[no_mangle]
+unsafe extern "C" fn wcscoll() {
+    todo!("wcscoll")
+}

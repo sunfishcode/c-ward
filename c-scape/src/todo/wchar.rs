@@ -280,3 +280,11 @@ unsafe extern "C" fn iswupper() {
 unsafe extern "C" fn iswxdigit() {
     todo!("iswxdigit")
 }
+#[no_mangle]
+unsafe extern "C" fn towupper() {
+    todo!("towupper")
+}
+#[no_mangle]
+unsafe extern "C" fn towlower() {
+    todo!("towlower")
+}

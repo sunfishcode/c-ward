@@ -18,12 +18,11 @@ jobs:
   test:
     name: Test
     runs-on: ${{ matrix.os }}
-    # Test jobs running with QEMU could potentially fail due to the use of QEMU,
-    # prevent such failures from cancelling non-QEMU jobs.
-    continue-on-error: ${{ matrix.qemu == '' }}
     env:
       QEMU_BUILD_VERSION: 8.1.0
     strategy:
+      # Don't cancel other test jobs if one test fails (which in some cases may be caused by QEMU)
+      fail-fast: false
       matrix:
         build: [ubuntu, i686-linux, aarch64-linux, riscv64-linux]
         include:

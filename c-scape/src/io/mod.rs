@@ -33,14 +33,14 @@ unsafe extern "C" fn ioctl(fd: c_int, request: c_long, mut args: ...) -> c_int {
             let fd = BorrowedFd::borrow_raw(fd);
             match convert_res(rustix::termios::tcgetattr(fd)) {
                 Some(x) => {
-                    args.arg::<*mut rustix::termios::Termios>().write(x);
+                    args.next_arg::<*mut rustix::termios::Termios>().write(x);
                     0
                 }
                 None => -1,
             }
         }
         FIONBIO | TIOCINQ => {
-            let ptr = args.arg::<*mut c_int>();
+            let ptr = args.next_arg::<*mut c_int>();
             let value = *ptr != 0;
             libc!(libc::ioctl(fd, libc::FIONBIO, value as c_int));
             let fd = BorrowedFd::borrow_raw(fd);
@@ -60,14 +60,14 @@ unsafe extern "C" fn ioctl(fd: c_int, request: c_long, mut args: ...) -> c_int {
                         ws_xpixel: size.ws_xpixel,
                         ws_ypixel: size.ws_ypixel,
                     };
-                    args.arg::<*mut libc::winsize>().write(size);
+                    args.next_arg::<*mut libc::winsize>().write(size);
                     0
                 }
                 None => -1,
             }
         }
         FICLONE => {
-            let src_fd = args.arg::<c_int>();
+            let src_fd = args.next_arg::<c_int>();
             libc!(libc::ioctl(fd, libc::FICLONE as _, src_fd));
             let fd = BorrowedFd::borrow_raw(fd);
             let src_fd = BorrowedFd::borrow_raw(src_fd);

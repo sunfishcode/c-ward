@@ -29,7 +29,7 @@ unsafe fn _fcntl<FlockTy: Flock>(fd: c_int, cmd: c_int, mut args: VaList<'_>) ->
             }
         }
         libc::F_SETFL => {
-            let flags = args.arg::<c_int>();
+            let flags = args.next_arg::<c_int>();
             libc!(libc::fcntl(fd, libc::F_SETFL, flags));
             let fd = BorrowedFd::borrow_raw(fd);
             match convert_res(rustix::fs::fcntl_setfl(
@@ -49,7 +49,7 @@ unsafe fn _fcntl<FlockTy: Flock>(fd: c_int, cmd: c_int, mut args: VaList<'_>) ->
             }
         }
         libc::F_SETFD => {
-            let flags = args.arg::<c_int>();
+            let flags = args.next_arg::<c_int>();
             libc!(libc::fcntl(fd, libc::F_SETFD, flags));
             let fd = BorrowedFd::borrow_raw(fd);
             match convert_res(rustix::io::fcntl_setfd(
@@ -61,7 +61,7 @@ unsafe fn _fcntl<FlockTy: Flock>(fd: c_int, cmd: c_int, mut args: VaList<'_>) ->
             }
         }
         libc::F_SETLK | libc::F_SETLKW => {
-            let ptr = args.arg::<*mut FlockTy>();
+            let ptr = args.next_arg::<*mut FlockTy>();
             libc!(libc::fcntl(fd, cmd, ptr));
             let fd = BorrowedFd::borrow_raw(fd);
             let is_blocking = cmd == libc::F_SETLKW;
@@ -96,7 +96,7 @@ unsafe fn _fcntl<FlockTy: Flock>(fd: c_int, cmd: c_int, mut args: VaList<'_>) ->
         }
         #[cfg(not(target_os = "wasi"))]
         libc::F_DUPFD_CLOEXEC => {
-            let arg = args.arg::<c_int>();
+            let arg = args.next_arg::<c_int>();
             libc!(libc::fcntl(fd, libc::F_DUPFD_CLOEXEC, arg));
             let fd = BorrowedFd::borrow_raw(fd);
             match convert_res(rustix::io::fcntl_dupfd_cloexec(fd, arg)) {

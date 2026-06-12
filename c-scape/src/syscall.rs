@@ -79,19 +79,19 @@ unsafe extern "C" fn syscall(number: c_long, mut args: ...) -> *mut c_void {
             without_provenance_mut(libc::statx(dirfd, path, flags, mask, statxbuf) as _)
         }
         libc::SYS_getrandom => {
-            let buf = args.arg::<*mut c_void>();
-            let len = args.arg::<usize>();
-            let flags = args.arg::<u32>();
+            let buf = args.next_arg::<*mut c_void>();
+            let len = args.next_arg::<usize>();
+            let flags = args.next_arg::<u32>();
             without_provenance_mut(libc::getrandom(buf, len, flags) as _)
         }
         #[cfg(feature = "thread")]
         libc::SYS_futex => {
-            let uaddr = args.arg::<*mut u32>();
-            let futex_op = args.arg::<c_int>();
-            let val = args.arg::<u32>();
-            let timeout = args.arg::<*const libc::timespec>();
-            let uaddr2 = args.arg::<*mut u32>();
-            let val3 = args.arg::<u32>();
+            let uaddr = args.next_arg::<*mut u32>();
+            let futex_op = args.next_arg::<c_int>();
+            let val = args.next_arg::<u32>();
+            let timeout = args.next_arg::<*const libc::timespec>();
+            let uaddr2 = args.next_arg::<*mut u32>();
+            let val3 = args.next_arg::<u32>();
             without_provenance_mut(
                 futex(uaddr, futex_op, val, timeout, uaddr2, val3) as isize as usize
             )

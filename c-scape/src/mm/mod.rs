@@ -77,7 +77,7 @@ unsafe extern "C" fn mremap(
     mut args: ...
 ) -> *mut c_void {
     if (flags & libc::MREMAP_FIXED) == libc::MREMAP_FIXED {
-        let new_address = args.arg::<*mut c_void>();
+        let new_address = args.next_arg::<*mut c_void>();
         libc!(libc::mremap(
             old_address,
             old_size,

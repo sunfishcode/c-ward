@@ -19,7 +19,7 @@ unsafe extern "C" fn execl(path: *const c_char, arg: *const c_char, mut argv: ..
     vec.push(arg);
 
     loop {
-        let ptr = argv.arg::<*const c_char>();
+        let ptr = argv.next_arg::<*const c_char>();
         vec.push(ptr);
         if ptr.is_null() {
             break;
@@ -35,10 +35,10 @@ unsafe extern "C" fn execle(path: *const c_char, arg: *const c_char, mut argv: .
     vec.push(arg);
 
     let envp = loop {
-        let ptr = argv.arg::<*const c_char>();
+        let ptr = argv.next_arg::<*const c_char>();
         vec.push(ptr);
         if ptr.is_null() {
-            break argv.arg::<*const *const c_char>();
+            break argv.next_arg::<*const *const c_char>();
         }
     };
 
@@ -51,7 +51,7 @@ unsafe extern "C" fn execlp(file: *const c_char, arg: *const c_char, mut argv: .
     vec.push(arg);
 
     loop {
-        let ptr = argv.arg::<*const c_char>();
+        let ptr = argv.next_arg::<*const c_char>();
         vec.push(ptr);
         if ptr.is_null() {
             break;

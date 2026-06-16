@@ -56,7 +56,9 @@ fn example_crate_libc_replacement() {
         )
     });
 
-    test_crate("libc-replacement", &[], &[], &expected, "", None);
+    // Prevent unused features (thread_local + linkage) from producing warnings to stderr:
+    let envs = &[("RUSTFLAGS", "-A unused_features")];
+    test_crate("libc-replacement", &[], envs, &expected, "", None);
 }
 
 #[test]
@@ -154,8 +156,6 @@ fn example_crate_c_gull_unwinding() {
     let arch = "i686";
     #[cfg(target_arch = "arm")]
     let arch = "armv5te";
-    #[cfg(target_env = "gnueabi")]
-    let env = "gnueabi";
     #[cfg(all(target_env = "gnu", target_abi = "eabi"))]
     let env = "gnueabi";
     #[cfg(all(target_env = "gnu", not(target_abi = "eabi")))]

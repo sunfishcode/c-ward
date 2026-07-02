@@ -162,6 +162,27 @@ unsafe extern "C" fn syscall(number: c_long, mut args: ...) -> *mut c_void {
             let flags = args.arg::<c_int>();
             without_provenance_mut(libc::pipe2(pipefd, flags) as isize as usize)
         }
+        #[cfg(feature = "syscall-pidfd_open")]
+        libc::SYS_pidfd_open => {
+            use rustix::fd::IntoRawFd;
+            use rustix::process::{pidfd_open, Pid, PidfdFlags};
+            let pid = args.arg::<c_int>();
+            let flags = args.arg::<libc::c_uint>();
+            let fd = match (Pid::from_raw(pid), PidfdFlags::from_bits(flags)) {
+                (Some(pid), Some(flags)) => match pidfd_open(pid, flags) {
+                    Err(err) => {
+                        set_errno(Errno(err.raw_os_error()));
+                        -1
+                    }
+                    Ok(pidfd) => pidfd.into_raw_fd(),
+                },
+                _ => {
+                    set_errno(Errno(libc::EINVAL));
+                    -1
+                }
+            };
+            without_provenance_mut(fd as isize as usize)
+        }
         libc::SYS_gettid => {
             without_provenance_mut(rustix::thread::gettid().as_raw_nonzero().get() as _)
         }

@@ -3,7 +3,6 @@
 //! TODO: Use `alloc_zeroed` and `realloc` instead of doing the work
 //! ourselves, which might let allocators be more efficient.
 
-#[cfg(not(target_arch = "riscv64"))]
 use core::mem::align_of;
 use core::mem::size_of;
 use core::ptr::{copy_nonoverlapping, null_mut, write_bytes};
@@ -107,10 +106,6 @@ unsafe extern "C" fn malloc(size: usize) -> *mut c_void {
     // wild interprets NULL as an allocation failure.
     let size = if size == 0 { size + 1 } else { size };
 
-    // TODO: Add `max_align_t` for riscv64 to upstream libc.
-    #[cfg(target_arch = "riscv64")]
-    let layout = alloc::alloc::Layout::from_size_align(size, 16);
-    #[cfg(not(target_arch = "riscv64"))]
     let layout = alloc::alloc::Layout::from_size_align(size, align_of::<libc::max_align_t>());
 
     let layout = match layout {

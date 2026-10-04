@@ -3,7 +3,6 @@
 #![no_std]
 // Nightly Rust features that we depend on.
 #![feature(thread_local)] // for `pthread_getspecific` etc.
-#![feature(c_variadic)] // for `printf`, `ioctl`, etc.
 #![feature(sync_unsafe_cell)] // for lots of libc static variables
 #![feature(linkage)] // for `malloc` etc.
 // Disable some common warnings.
